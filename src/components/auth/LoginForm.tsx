@@ -1,22 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Alert, Box, Button, Link as MuiLink, TextField, Typography } from '@mui/material';
-import Link from 'next/link';
-import { useLoginMutation } from '@/services/authApi';
-import { setPending } from '@/store/authSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { loginSchema } from '@/lib/validations';
-import { normaliseApiError } from '@/types/api';
-import { ButtonLoader } from '@/components/ui/Loaders';
+import { useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Link as MuiLink,
+  TextField,
+  Typography,
+} from "@mui/material";
+import Link from "next/link";
+import { useLoginMutation } from "@/services/authApi";
+import { setPending } from "@/store/authSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { loginSchema } from "@/lib/validations";
+import { normaliseApiError } from "@/types/api";
+import { ButtonLoader } from "@/components/ui/Loaders";
 
 /** Step 1: email + password → pendingToken. Generic error copy (no enumeration). */
 export function LoginForm() {
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
   const [apiError, setApiError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -30,7 +40,10 @@ export function LoginForm() {
     }
     setFieldErrors({});
     try {
-      const res = await login({ email: parsed.data.email.toLowerCase(), password: parsed.data.password }).unwrap();
+      const res = await login({
+        email: parsed.data.email.toLowerCase(),
+        password: parsed.data.password,
+      }).unwrap();
       dispatch(
         setPending({
           pendingToken: res.data.pendingToken,
@@ -39,16 +52,34 @@ export function LoginForm() {
         }),
       );
     } catch (err) {
-      const n = normaliseApiError((err as { status?: number; data?: unknown })?.data
-        ? { status: (err as { status?: number }).status, data: (err as { data?: unknown }).data }
-        : err);
-      setApiError(n.code === 'RATE_LIMITED' ? 'Too many attempts. Try again in a few minutes.' : 'Invalid email or password.');
+      const n = normaliseApiError(
+        (err as { status?: number; data?: unknown })?.data
+          ? {
+              status: (err as { status?: number }).status,
+              data: (err as { data?: unknown }).data,
+            }
+          : err,
+      );
+      setApiError(
+        n.code === "RATE_LIMITED"
+          ? "Too many attempts. Try again in a few minutes."
+          : "Invalid email or password.",
+      );
     }
   };
 
   return (
-    <Box component="form" onSubmit={onSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {apiError ? <Alert severity="error" role="alert">{apiError}</Alert> : null}
+    <Box
+      component="form"
+      onSubmit={onSubmit}
+      noValidate
+      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+    >
+      {apiError ? (
+        <Alert severity="error" role="alert">
+          {apiError}
+        </Alert>
+      ) : null}
       <TextField
         label="Work email"
         type="email"
@@ -72,11 +103,26 @@ export function LoginForm() {
         helperText={fieldErrors.password}
         fullWidth
       />
-      <Button type="submit" variant="contained" size="large" disabled={isLoading} aria-busy={isLoading}>
-        {isLoading ? <ButtonLoader label="Signing in" /> : 'Sign in'}
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        disabled={isLoading}
+        aria-busy={isLoading}
+      >
+        {isLoading ? <ButtonLoader label="Signing in" /> : "Sign in"}
       </Button>
-      <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center' }}>
-        <MuiLink component={Link} href="/forgot-password" underline="hover" color="primary">
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ textAlign: "center" }}
+      >
+        <MuiLink
+          component={Link}
+          href="/forgot-password"
+          underline="hover"
+          color="primary"
+        >
           Forgot your password?
         </MuiLink>
       </Typography>

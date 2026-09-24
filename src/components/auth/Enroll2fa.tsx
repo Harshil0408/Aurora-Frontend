@@ -160,6 +160,7 @@ export function Enroll2fa() {
       <Box
         component="form"
         onSubmit={onConfirm}
+        noValidate
         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
         <TextField

@@ -22,6 +22,9 @@ export function ForgotPasswordForm() {
     setFieldError(undefined);
     try {
       await forgot({ email: parsed.data.email.toLowerCase() }).unwrap();
+    } catch {
+      // Intentional: identical success UX whether or not the account exists
+      // (prevents account enumeration). Do not surface backend errors.
     } finally {
       setSent(true);
     }
