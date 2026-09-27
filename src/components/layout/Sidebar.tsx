@@ -4,10 +4,10 @@ import { useState } from 'react';
 import {
   Avatar,
   Box,
+  Chip,
   Drawer,
   List,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
@@ -27,6 +27,10 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PercentIcon from '@mui/icons-material/Percent';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import HistoryIcon from '@mui/icons-material/History';
+import DevicesIcon from '@mui/icons-material/Devices';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -35,7 +39,7 @@ import { Logo } from '@/components/ui/Logo';
 import { logoutAllThunk, logoutThunk } from '@/store/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
-export const SIDEBAR_WIDTH = 282;
+export const SIDEBAR_WIDTH = 288;
 
 interface NavItem {
   label: string;
@@ -45,11 +49,6 @@ interface NavItem {
   quietBadge?: boolean;
 }
 
-/**
- * Reference IA (ui/files/index.html). Only /dashboard is implemented —
- * future items render disabled with a "coming soon" hint instead of
- * dead links. Badges mirror the reference (Sellers 12, Products 3 reported).
- */
 const sections: { title: string; items: NavItem[] }[] = [
   {
     title: 'Overview',
@@ -65,6 +64,15 @@ const sections: { title: string; items: NavItem[] }[] = [
       { label: 'Users', icon: <GroupIcon fontSize="small" /> },
       { label: 'Products', icon: <Inventory2Icon fontSize="small" />, badge: '3 reported', quietBadge: true },
       { label: 'Orders', icon: <ShoppingBagIcon fontSize="small" /> },
+    ],
+  },
+  {
+    title: 'Administration',
+    items: [
+      { label: 'Admins', href: '/admins', icon: <AdminPanelSettingsIcon fontSize="small" /> },
+      { label: 'Roles & Permissions', href: '/roles', icon: <VpnKeyIcon fontSize="small" /> },
+      { label: 'Activity Log', href: '/activity', icon: <HistoryIcon fontSize="small" /> },
+      { label: 'Sessions', href: '/sessions', icon: <DevicesIcon fontSize="small" /> },
     ],
   },
   {
@@ -86,26 +94,170 @@ const sections: { title: string; items: NavItem[] }[] = [
 
 function BrandMark() {
   return (
-    <Box
-      component={Link}
-      href="/dashboard"
-      aria-label="Aurora admin home"
-      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.25, textDecoration: 'none' }}
-    >
-      <Logo size={38} />
-      <Box>
-        <Typography
-          variant="h2"
-          component="span"
-          sx={{ display: 'block', fontSize: '1.22rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}
-        >
-          Aurora
-        </Typography>
-        <Typography variant="caption" component="span" sx={{ display: 'block', color: 'text.disabled', fontWeight: 600 }}>
-          Admin console
-        </Typography>
+    <Box sx={{ px: 1 }}>
+      <Box
+        component={Link}
+        href="/dashboard"
+        aria-label="Aurora admin home"
+        sx={{ display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none', borderRadius: 3, py: 0.5 }}
+      >
+        <Logo size={40} />
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            variant="h2"
+            component="span"
+            sx={{ display: 'block', fontSize: '1.28rem', letterSpacing: '-0.025em', lineHeight: 1.05 }}
+          >
+            Aurora
+          </Typography>
+          <Typography
+            variant="caption"
+            component="span"
+            sx={{
+              display: 'block',
+              mt: 0.25,
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'primary.main',
+            }}
+          >
+            Admin console
+          </Typography>
+        </Box>
       </Box>
     </Box>
+  );
+}
+
+function NavRow({
+  item,
+  active,
+  onNavigate,
+}: {
+  item: NavItem;
+  active: boolean;
+  onNavigate?: () => void;
+}) {
+  const disabled = item.href == null;
+  return (
+    <ListItemButton
+      component={item.href ? Link : 'button'}
+      href={item.href}
+      onClick={onNavigate}
+      disabled={disabled}
+      aria-current={active ? 'page' : undefined}
+      title={disabled ? `${item.label} — coming soon` : undefined}
+      sx={{
+        position: 'relative',
+        borderRadius: '14px',
+        px: 1.25,
+        py: 0.875,
+        gap: 1.25,
+        color: active ? 'primary.dark' : 'text.secondary',
+        bgcolor: active ? mercatoTokens.brandSoft : 'transparent',
+        transition: 'background-color 200ms ease, color 200ms ease',
+        '&:hover': {
+          bgcolor: active ? mercatoTokens.brandSoft : mercatoTokens.surface2,
+          color: active ? 'primary.dark' : 'text.primary',
+        },
+        '&.Mui-disabled': { opacity: 1 },
+        '&:focus-visible': { outline: `2px solid ${mercatoTokens.accent}`, outlineOffset: 2 },
+      }}
+    >
+      {active ? (
+        <Box
+          aria-hidden
+          sx={{
+            position: 'absolute',
+            left: 0,
+            top: 10,
+            bottom: 10,
+            width: 4,
+            borderRadius: 9999,
+            bgcolor: 'primary.main',
+            boxShadow: '0 4px 12px -2px rgba(91, 61, 245, 0.7)',
+          }}
+        />
+      ) : null}
+      <Box
+        aria-hidden
+        sx={{
+          display: 'grid',
+          placeItems: 'center',
+          flex: 'none',
+          width: 34,
+          height: 34,
+          borderRadius: '11px',
+          bgcolor: active ? 'primary.main' : mercatoTokens.surface2,
+          color: active ? '#fff' : 'primary.main',
+          border: 1,
+          borderColor: active ? 'transparent' : 'divider',
+          boxShadow: active ? '0 8px 16px -8px rgba(91, 61, 245, 0.8)' : 'none',
+          transition: 'background-color 200ms ease, color 200ms ease',
+        }}
+      >
+        {item.icon}
+      </Box>
+      <ListItemText
+        primary={item.label}
+        slotProps={{
+          primary: {
+            sx: {
+              fontSize: '0.9rem',
+              fontWeight: active ? 700 : 600,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            },
+          },
+        }}
+      />
+      {item.badge ? (
+        <Box
+          component="span"
+          sx={{
+            ml: 'auto',
+            flex: 'none',
+            px: 1.1,
+            py: 0.3,
+            borderRadius: 9999,
+            fontSize: '0.7rem',
+            fontWeight: 800,
+            letterSpacing: '0.01em',
+            bgcolor: item.quietBadge ? mercatoTokens.surface2 : mercatoTokens.accentSoft,
+            color: item.quietBadge ? 'text.secondary' : mercatoTokens.accentStrong,
+            border: 1,
+            borderColor: item.quietBadge ? 'divider' : 'transparent',
+          }}
+        >
+          {item.badge}
+        </Box>
+      ) : null}
+      {disabled ? (
+        <Box
+          component="span"
+          sx={{
+            ml: item.badge ? 0 : 'auto',
+            flex: 'none',
+            px: 1,
+            py: 0.3,
+            borderRadius: 9999,
+            fontSize: '0.66rem',
+            fontWeight: 800,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            bgcolor: mercatoTokens.surface2,
+            color: 'text.disabled',
+            border: 1,
+            borderColor: 'divider',
+          }}
+        >
+          Soon
+        </Box>
+      ) : null}
+    </ListItemButton>
   );
 }
 
@@ -130,105 +282,110 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <Box
       component="nav"
       aria-label="Main navigation"
-      sx={{ display: 'flex', flexDirection: 'column', gap: 3, height: '100%', py: 2.5, px: 1.75 }}
+      sx={{ display: 'flex', flexDirection: 'column', height: '100%', py: 2.5, px: 1.75 }}
     >
       <BrandMark />
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, flex: 1, overflowY: 'auto' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2.5,
+          flex: 1,
+          overflowY: 'auto',
+          mt: 2.5,
+          pr: 0.5,
+          '&::-webkit-scrollbar': { width: 6 },
+          '&::-webkit-scrollbar-thumb': { bgcolor: mercatoTokens.line, borderRadius: 9999 },
+        }}
+      >
         {sections.map((section) => (
-          <Box key={section.title}>
+          <Box key={section.title} component="section" aria-label={section.title}>
             <Typography
               variant="caption"
               component="p"
-              sx={{ px: 1.5, pb: 1, fontWeight: 700, color: 'text.disabled' }}
+              sx={{
+                px: 1.5,
+                pb: 0.75,
+                fontSize: '0.68rem',
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'text.disabled',
+              }}
             >
               {section.title}
             </Typography>
-            <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 2 / 8 }}>
               {section.items.map((item) => {
                 const active = item.href != null && (pathname === item.href || pathname.startsWith(`${item.href}/`));
-                const disabled = item.href == null;
-                return (
-                  <ListItemButton
-                    key={item.label}
-                    component={item.href ? Link : 'button'}
-                    href={item.href}
-                    onClick={onNavigate}
-                    disabled={disabled}
-                    aria-current={active ? 'page' : undefined}
-                    title={disabled ? `${item.label} — coming soon` : undefined}
-                    sx={{
-                      borderRadius: '14px',
-                      py: 1.25,
-                      color: active ? '#fff' : 'text.secondary',
-                      bgcolor: active ? 'primary.main' : 'transparent',
-                      boxShadow: active ? '0 12px 22px -12px rgba(91, 61, 245, 0.8)' : 'none',
-                      '&:hover': { bgcolor: active ? 'primary.dark' : 'action.hover' },
-                      '&.Mui-disabled': { opacity: 0.75 },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>{item.icon}</ListItemIcon>
-                    <ListItemText
-                      primary={item.label}
-                      slotProps={{ primary: { sx: { fontSize: '0.92rem', fontWeight: 600 } } }}
-                    />
-                    {item.badge ? (
-                      <Box
-                        component="span"
-                        sx={{
-                          ml: 'auto',
-                          px: 1.1,
-                          py: 0.25,
-                          borderRadius: 9999,
-                          fontSize: '0.72rem',
-                          fontWeight: 800,
-                          bgcolor: active || !item.quietBadge ? mercatoTokens.accentSoft : mercatoTokens.surface2,
-                          color: active ? mercatoTokens.accentStrong : item.quietBadge ? 'text.secondary' : mercatoTokens.accentStrong,
-                          border: item.quietBadge && !active ? `1px solid ${mercatoTokens.line}` : 'none',
-                        }}
-                      >
-                        {item.badge}
-                      </Box>
-                    ) : null}
-                  </ListItemButton>
-                );
+                return <NavRow key={item.label} item={item} active={active} onNavigate={onNavigate} />;
               })}
             </List>
           </Box>
         ))}
       </Box>
-      <Box
-        component="button"
-        type="button"
-        onClick={(e) => setAnchor(e.currentTarget)}
-        aria-haspopup="menu"
-        aria-label="Account menu"
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          p: 1.5,
-          borderRadius: '18px',
-          bgcolor: 'action.hover',
-          border: 1,
-          borderColor: 'divider',
-          color: 'text.primary',
-          cursor: 'pointer',
-          textAlign: 'left',
-          width: '100%',
-        }}
-      >
-        <Avatar sx={{ width: 38, height: 38, borderRadius: '13px', bgcolor: 'primary.main', fontSize: '0.9rem', fontWeight: 700 }}>
-          {initials}
-        </Avatar>
-        <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography variant="body1" sx={{ fontWeight: 700, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {displayName}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {pendingEmail ?? 'Administrator'}
-          </Typography>
+      <Box sx={{ pt: 1.5, mt: 1, borderTop: 1, borderColor: 'divider' }}>
+        <Box
+          component="button"
+          type="button"
+          onClick={(e) => setAnchor(e.currentTarget)}
+          aria-haspopup="menu"
+          aria-label="Account menu"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.25,
+            p: 1.25,
+            borderRadius: '18px',
+            background: `linear-gradient(135deg, ${mercatoTokens.brandSoft} 0%, ${mercatoTokens.surface2} 100%)`,
+            border: 1,
+            borderColor: 'divider',
+            color: 'text.primary',
+            cursor: 'pointer',
+            textAlign: 'left',
+            width: '100%',
+            transition: 'border-color 200ms ease, box-shadow 200ms ease',
+            '&:hover': { borderColor: mercatoTokens.lineStrong, boxShadow: mercatoTokens.shadow1 },
+            '&:focus-visible': { outline: `2px solid ${mercatoTokens.accent}`, outlineOffset: 2 },
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #7c63ff 0%, #4327d6 100%)',
+              fontSize: '0.88rem',
+              fontWeight: 800,
+              boxShadow: '0 8px 16px -8px rgba(91, 61, 245, 0.8)',
+            }}
+          >
+            {initials}
+          </Avatar>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: 700, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
+              {displayName}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.375, minWidth: 0 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 'none', maxWidth: '60%' }}
+              >
+                {pendingEmail ?? 'Administrator'}
+              </Typography>
+              <Chip
+                label="Super Admin"
+                size="small"
+                sx={{ height: 20, fontSize: '0.64rem', fontWeight: 800, bgcolor: 'primary.main', color: '#fff' }}
+              />
+            </Box>
+          </Box>
+          <ChevronRightIcon fontSize="small" sx={{ color: 'text.disabled', flex: 'none' }} />
         </Box>
-        <ChevronRightIcon fontSize="small" sx={{ color: 'text.disabled' }} />
       </Box>
       <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)} aria-label="Account menu">
         <MenuItem onClick={() => doLogout(false)}>
@@ -247,6 +404,15 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const panelSx = {
+  bgcolor: 'background.paper',
+  backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%)',
+  border: 1,
+  borderColor: 'divider',
+  boxShadow: mercatoTokens.shadow1,
+  overflow: 'hidden',
+} as const;
+
 export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
@@ -255,6 +421,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
     return (
       <Box
         sx={{
+          ...panelSx,
           width: SIDEBAR_WIDTH,
           flexShrink: 0,
           position: 'sticky',
@@ -262,12 +429,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           height: 'calc(100dvh - 28px)',
           ml: '14px',
           my: '14px',
-          bgcolor: 'background.paper',
-          border: 1,
-          borderColor: 'divider',
           borderRadius: '28px',
-          boxShadow: mercatoTokens.shadow1,
-          overflow: 'hidden',
           display: { xs: 'none', lg: 'block' },
         }}
       >
@@ -283,9 +445,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       sx={{
         display: { xs: 'block', lg: 'none' },
         '& .MuiDrawer-paper': {
-          width: 292,
-          bgcolor: 'background.paper',
-          backgroundImage: 'none',
+          ...panelSx,
+          width: 296,
           borderRadius: '0 28px 28px 0',
         },
       }}
@@ -311,4 +472,3 @@ export function SidebarScrim({ open, onClose }: { open: boolean; onClose: () => 
     />
   );
 }
-

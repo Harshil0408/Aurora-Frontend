@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { PageLoader } from "@/components/ui/Loaders";
 import { RootState } from "@/store";
 
-const PUBLIC_PREFIXES = ["/login", "/forgot-password", "/reset-password"];
+const PUBLIC_PREFIXES = ["/login", "/forgot-password", "/reset-password", "/admin/reset-password"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();

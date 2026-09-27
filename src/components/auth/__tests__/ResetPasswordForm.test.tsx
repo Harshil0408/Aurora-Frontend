@@ -63,6 +63,19 @@ describe('ResetPasswordForm', () => {
     });
     renderWithProviders(<ResetPasswordForm token="tok" />);
     await fill('long-enough-pass-1', 'long-enough-pass-1');
-    expect(await screen.findByRole('alert')).toHaveTextContent(/invalid, expired/i);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/invalid or expired/i);
+  });
+
+  it('surfaces password-rule 400s verbatim (link is still valid)', async () => {
+    mockUnwrap.mockRejectedValueOnce({
+      status: 400,
+      data: {
+        success: false,
+        error: { code: 'BAD_REQUEST', message: 'New password must not match a recently used password' },
+      },
+    });
+    renderWithProviders(<ResetPasswordForm token="tok" />);
+    await fill('long-enough-pass-1', 'long-enough-pass-1');
+    expect(await screen.findByRole('alert')).toHaveTextContent(/recently used password/i);
   });
 });

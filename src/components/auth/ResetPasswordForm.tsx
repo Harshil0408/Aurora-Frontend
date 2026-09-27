@@ -30,7 +30,14 @@ export function ResetPasswordForm({ token }: { token: string }) {
       router.replace('/login?reset=1');
     } catch (err) {
       const n = normaliseApiError({ status: (err as { status?: number })?.status, data: (err as { data?: unknown })?.data });
-      setApiError(n.status === 400 ? 'This link is invalid, expired, or the password was used recently. Request a new link.' : n.message);
+      if (n.status === 400 && /password/i.test(n.message)) {
+        // Password-rule rejection (e.g. recently used password): the link is
+        // fine, so surface the backend message verbatim instead of sending
+        // the user off to request a new link.
+        setApiError(n.message);
+      } else {
+        setApiError(n.status === 400 ? 'This link is invalid or expired. Request a new link.' : n.message);
+      }
     }
   };
 
