@@ -51,8 +51,10 @@ describe('validations (secure input gates)', () => {
     it('requires a code and caps length (OTP brute-force surface)', () => {
       expect(verifySchema.safeParse({ code: '' }).success).toBe(false);
       expect(verifySchema.safeParse({ code: '123456' }).success).toBe(true);
+      // recovery codes are longer than 6 digits — allow up to 64
+      expect(verifySchema.safeParse({ code: 'x'.repeat(33) }).success).toBe(true);
       expect(
-        verifySchema.safeParse({ code: 'x'.repeat(33) }).success,
+        verifySchema.safeParse({ code: 'x'.repeat(65) }).success,
       ).toBe(false);
     });
   });

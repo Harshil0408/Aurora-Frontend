@@ -40,7 +40,7 @@ describe('Enroll2fa', () => {
   function storeWithPending() {
     const s = makeStore();
     s.dispatch(
-      setPending({ pendingToken: 'pt', expiresInSeconds: 300, email: 'a@b.co' }),
+      setPending({ pendingToken: 'pt', expiresInSeconds: 300, email: 'a@b.co', channel: 'totp' }),
     );
     return s;
   }

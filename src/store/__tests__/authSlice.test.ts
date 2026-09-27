@@ -32,11 +32,12 @@ describe('authSlice (no session fixation, clean logout)', () => {
   it('setPending moves to verify stage without authenticating', () => {
     const store = makeTestStore();
     store.dispatch(
-      setPending({ pendingToken: 'pt', expiresInSeconds: 300, email: 'a@b.co' }),
+      setPending({ pendingToken: 'pt', expiresInSeconds: 300, email: 'a@b.co', channel: 'totp' }),
     );
     const s = store.getState().auth;
     expect(s.stage).toBe('verify');
     expect(s.pendingToken).toBe('pt');
+    expect(s.pendingChannel).toBe('totp');
     expect(s.isAuthenticated).toBe(false);
     expect(s.pendingExpiresAt).toBeGreaterThan(Date.now());
   });
@@ -67,8 +68,9 @@ describe('authSlice (no session fixation, clean logout)', () => {
   it('resetLoginFlow and setStage / markInitialised behave', () => {
     const store = makeTestStore();
     store.dispatch(
-      setPending({ pendingToken: 'pt', expiresInSeconds: 60, email: 'a@b.co' }),
+      setPending({ pendingToken: 'pt', expiresInSeconds: 60, email: 'a@b.co', channel: 'email_otp' }),
     );
+    expect(store.getState().auth.pendingChannel).toBe('email_otp');
     store.dispatch(resetLoginFlow());
     expect(store.getState().auth.stage).toBe('password');
     expect(store.getState().auth.pendingToken).toBeNull();

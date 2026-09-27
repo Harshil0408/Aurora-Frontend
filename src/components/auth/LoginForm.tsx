@@ -10,16 +10,23 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/services/authApi";
-import { setPending } from "@/store/authSlice";
+import { setPending, setSession } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { loginSchema } from "@/lib/validations";
 import { normaliseApiError } from "@/types/api";
 import { ButtonLoader } from "@/components/ui/Loaders";
 
-/** Step 1: email + password → pendingToken. Generic error copy (no enumeration). */
+/**
+ * Step 1: email + password.
+ * Branches on requires2fa — false → direct session + redirect,
+ * true → pendingToken + channel (totp | email_otp) → verify stage.
+ * Generic error copy (no enumeration).
+ */
 export function LoginForm() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [login, { isLoading }] = useLoginMutation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,11 +51,25 @@ export function LoginForm() {
         email: parsed.data.email.toLowerCase(),
         password: parsed.data.password,
       }).unwrap();
+      if (res.data.requires2fa === false) {
+        dispatch(
+          setSession({
+            accessToken: res.data.accessToken,
+            expiresInSeconds: res.data.expiresInSeconds,
+          }),
+        );
+        const next =
+          new URLSearchParams(window.location.search).get("next") ||
+          "/dashboard";
+        router.replace(next);
+        return;
+      }
       dispatch(
         setPending({
           pendingToken: res.data.pendingToken,
           expiresInSeconds: res.data.expiresInSeconds,
           email: parsed.data.email.toLowerCase(),
+          channel: res.data.channel,
         }),
       );
     } catch (err) {

@@ -31,12 +31,14 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import HistoryIcon from '@mui/icons-material/History';
 import DevicesIcon from '@mui/icons-material/Devices';
+import ShieldIcon from '@mui/icons-material/Shield';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { mercatoTokens } from '@/lib/theme';
 import { Logo } from '@/components/ui/Logo';
 import { logoutAllThunk, logoutThunk } from '@/store/authSlice';
+import { useMeQuery } from '@/services/authApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export const SIDEBAR_WIDTH = 288;
@@ -73,6 +75,7 @@ const sections: { title: string; items: NavItem[] }[] = [
       { label: 'Roles & Permissions', href: '/roles', icon: <VpnKeyIcon fontSize="small" /> },
       { label: 'Activity Log', href: '/activity', icon: <HistoryIcon fontSize="small" /> },
       { label: 'Sessions', href: '/sessions', icon: <DevicesIcon fontSize="small" /> },
+      { label: 'Security', href: '/security', icon: <ShieldIcon fontSize="small" /> },
     ],
   },
   {
@@ -266,6 +269,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const pendingEmail = useAppSelector((s) => s.auth.pendingEmail);
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
   const doLogout = async (global: boolean) => {
@@ -275,7 +280,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     router.replace('/login');
   };
 
-  const displayName = pendingEmail ? pendingEmail.split('@')[0] ?? 'Admin' : 'Admin';
+  const meEmail = meData?.data.email ?? pendingEmail ?? null;
+  const primaryRole = meData?.data.roles[0] ?? 'Super Admin';
+  const displayName = meEmail ? (meEmail.split('@')[0] ?? 'Admin') : 'Admin';
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
@@ -375,10 +382,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 color="text.secondary"
                 sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 'none', maxWidth: '60%' }}
               >
-                {pendingEmail ?? 'Administrator'}
+                {meEmail ?? 'Administrator'}
               </Typography>
               <Chip
-                label="Super Admin"
+                label={primaryRole}
                 size="small"
                 sx={{ height: 20, fontSize: '0.64rem', fontWeight: 800, bgcolor: 'primary.main', color: '#fff' }}
               />

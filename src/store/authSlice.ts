@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { apiClient } from "@/lib/axios";
 import { tokenManager } from "@/lib/tokenManager";
-import type { AuthStage } from "@/types/auth";
+import type { AuthStage, TwoFactorChannel } from "@/types/auth";
 
 interface AuthState {
   accessToken: string | null;
   pendingToken: string | null;
   pendingExpiresAt: number | null;
+  pendingChannel: TwoFactorChannel | null;
   stage: AuthStage;
   pendingEmail: string | null;
   isAuthenticated: boolean;
@@ -17,6 +18,7 @@ const initialState: AuthState = {
   accessToken: null,
   pendingToken: null,
   pendingExpiresAt: null,
+  pendingChannel: null,
   stage: "password",
   pendingEmail: null,
   isAuthenticated: false,
@@ -99,12 +101,14 @@ const authSlice = createSlice({
         pendingToken: string;
         expiresInSeconds: number;
         email: string;
+        channel: TwoFactorChannel;
       }>,
     ) {
       state.pendingToken = action.payload.pendingToken;
       state.pendingExpiresAt =
         Date.now() + action.payload.expiresInSeconds * 1000;
       state.pendingEmail = action.payload.email;
+      state.pendingChannel = action.payload.channel;
       state.stage = "verify";
       state.isAuthenticated = false;
     },
@@ -115,6 +119,7 @@ const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.pendingToken = null;
       state.pendingExpiresAt = null;
+      state.pendingChannel = null;
       state.stage = "done";
       state.isAuthenticated = true;
       state.isInitialised = true;
@@ -130,6 +135,7 @@ const authSlice = createSlice({
     resetLoginFlow(state) {
       state.pendingToken = null;
       state.pendingExpiresAt = null;
+      state.pendingChannel = null;
       state.pendingEmail = null;
       state.stage = "password";
     },
@@ -139,6 +145,7 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.pendingToken = null;
       state.pendingExpiresAt = null;
+      state.pendingChannel = null;
       state.pendingEmail = null;
       state.stage = "password";
       state.isAuthenticated = false;
@@ -172,6 +179,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.pendingToken = null;
         state.pendingExpiresAt = null;
+        state.pendingChannel = null;
         state.pendingEmail = null;
         state.stage = "password";
         state.isAuthenticated = false;
@@ -183,6 +191,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.pendingToken = null;
         state.pendingExpiresAt = null;
+        state.pendingChannel = null;
         state.pendingEmail = null;
         state.stage = "password";
         state.isAuthenticated = false;

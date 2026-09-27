@@ -13,6 +13,7 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/services/authApi', () => ({
   useVerify2faMutation: () => [mockVerify, { isLoading: false }],
+  useResendEmailOtpMutation: () => [jest.fn(), { isLoading: false }],
 }));
 
 describe('Verify2faForm', () => {
@@ -27,7 +28,7 @@ describe('Verify2faForm', () => {
     const store = makeStore();
     if (withToken) {
       store.dispatch(
-        setPending({ pendingToken: 'pt-1', expiresInSeconds: 300, email: 'a@b.co' }),
+        setPending({ pendingToken: 'pt-1', expiresInSeconds: 300, email: 'a@b.co', channel: 'totp' }),
       );
     }
     return store;

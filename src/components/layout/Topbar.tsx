@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useAppSelector } from "@/store/hooks";
+import { useMeQuery } from "@/services/authApi";
 
 /** Sample notifications for the preview — wire to a notifications API later. */
 const notifications = [
@@ -34,7 +35,11 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
   const pendingEmail = useAppSelector((s) => s.auth.pendingEmail);
-  const displayName = pendingEmail ? (pendingEmail.split("@")[0] ?? "Admin") : "Admin";
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
+  const meEmail = meData?.data.email ?? pendingEmail ?? null;
+  const primaryRole = meData?.data.roles[0] ?? 'Super Admin';
+  const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -140,7 +145,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         </Box>
         <Box sx={{ flex: 1 }} />
         <Box
-          aria-label={`Logged in as ${displayName}, Super Admin`}
+          aria-label={`Logged in as ${displayName}, ${primaryRole}`}
           sx={{
             display: { xs: "none", sm: "flex" },
             alignItems: "center",
@@ -160,7 +165,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Typography sx={{ fontSize: "0.82rem", fontWeight: 700, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {displayName}
           </Typography>
-          <Chip label="Super Admin" size="small" sx={{ height: 22, fontSize: "0.68rem", bgcolor: "primary.light", color: "primary.dark" }} />
+          <Chip label={primaryRole} size="small" sx={{ height: 22, fontSize: "0.68rem", bgcolor: "primary.light", color: "primary.dark" }} />
         </Box>
         <IconButton
           aria-label="Notifications, 3 unread"

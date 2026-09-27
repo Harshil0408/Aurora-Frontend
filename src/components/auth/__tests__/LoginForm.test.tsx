@@ -9,6 +9,10 @@ jest.mock('@/services/authApi', () => ({
   useLoginMutation: () => [mockLogin, { isLoading: false }],
 }));
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: jest.fn() }),
+}));
+
 jest.mock('@/store/hooks', () => ({
   useAppDispatch: () => mockDispatch,
 }));
@@ -49,7 +53,7 @@ describe('LoginForm (no enumeration, trims + lowercases)', () => {
 
   it('lowercases + trims email and dispatches pending on success', async () => {
     mockUnwrap.mockResolvedValueOnce({
-      data: { pendingToken: 'pt', expiresInSeconds: 300 },
+      data: { requires2fa: true, channel: 'totp', pendingToken: 'pt', expiresInSeconds: 300 },
     });
     renderWithProviders(<LoginForm />);
     await fill('  ADMIN@Acme.CO ', 's3cret!');
@@ -60,6 +64,19 @@ describe('LoginForm (no enumeration, trims + lowercases)', () => {
     expect(mockDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
         type: expect.stringContaining('setPending'),
+      }),
+    );
+  });
+
+  it('direct session when requires2fa=false (no 2FA method)', async () => {
+    mockUnwrap.mockResolvedValueOnce({
+      data: { requires2fa: false, accessToken: 'at', expiresInSeconds: 300 },
+    });
+    renderWithProviders(<LoginForm />);
+    await fill('a@b.co', 'longenoughpassword');
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: expect.stringContaining('setSession'),
       }),
     );
   });
