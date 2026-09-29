@@ -229,11 +229,11 @@ export function SessionsView() {
               {sessions.map((s) => {
                 const mobile = isMobileUA(s.userAgent);
                 return (
-                  <TableRow
-                    key={s.id}
-                    hover
-                    sx={s.current ? { outline: `2px solid ${mercatoTokens.good}`, outlineOffset: -2, borderRadius: 3 } : undefined}
-                  >
+                    <TableRow
+                      key={s.id}
+                      hover
+                      sx={s.current ? { outline: `2px solid ${mercatoTokens.brand}`, outlineOffset: -2, borderRadius: 3 } : undefined}
+                    >
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <Box
@@ -248,9 +248,9 @@ export function SessionsView() {
                         <Box>
                           <Typography sx={{ fontWeight: 600 }}>
                             {shortUA(s.userAgent)}
-                            {s.current ? (
-                              <Chip label="Current session" size="small" sx={{ ml: 1, height: 22, fontSize: '0.68rem', bgcolor: mercatoTokens.goodSoft, color: mercatoTokens.good }} />
-                            ) : null}
+                              {s.current ? (
+                                <Chip label="Current session" size="small" sx={{ ml: 1, height: 22, fontSize: '0.68rem', bgcolor: mercatoTokens.brandSoft, color: 'primary.dark' }} />
+                              ) : null}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">Last active {timeAgo(s.lastUsedAt)}</Typography>
                         </Box>

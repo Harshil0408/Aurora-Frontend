@@ -4,19 +4,16 @@ import { Box, Paper, Typography } from '@mui/material';
 import { compact, revenueSegments } from '@/lib/sampleData';
 import { mercatoTokens } from '@/lib/theme';
 
-/**
- * Composition-of-total panel (§5): donut + centre total, segment list
- * (swatch, label, sub-label, amount, %), plus plan-mix stack.
- */
 export function BreakdownDonut() {
   const total = revenueSegments.reduce((a, s) => a + s.amount, 0);
-  // Starting offset of each segment along the 100-unit circle.
   const offsets = revenueSegments.map((_, i) =>
     revenueSegments.slice(0, i).reduce((a, s) => a + (s.amount / total) * 100, 0),
   );
+  const segColors = [mercatoTokens.brand, mercatoTokens.accent, mercatoTokens.info];
   const circles = revenueSegments.map((s, i) => {
     const pct = (s.amount / total) * 100;
     const len = pct - 1.8;
+    const color = segColors[i % segColors.length];
     return (
       <circle
         key={s.label}
@@ -24,7 +21,7 @@ export function BreakdownDonut() {
         cy={70}
         r={54}
         pathLength={100}
-        stroke={s.color}
+        stroke={color}
         strokeWidth={16}
         fill="none"
         strokeDasharray={`${len} ${100 - len}`}
@@ -63,13 +60,13 @@ export function BreakdownDonut() {
         </Box>
       </Box>
       <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, mt: 1.5 }}>
-        {revenueSegments.map((s) => (
+        {revenueSegments.map((s, i) => (
           <Box
             key={s.label}
             component="li"
             sx={{ display: 'grid', gridTemplateColumns: '12px 1fr auto auto', alignItems: 'center', gap: 1.5, py: 1.5, borderTop: 1, borderColor: 'divider', '&:first-of-type': { borderTop: 0 } }}
           >
-            <Box aria-hidden sx={{ width: 12, height: 12, borderRadius: '4px', bgcolor: s.color }} />
+            <Box aria-hidden sx={{ width: 12, height: 12, borderRadius: '4px', bgcolor: segColors[i % segColors.length] }} />
             <Box>
               <Typography sx={{ fontWeight: 600 }}>{s.label}</Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.3 }}>

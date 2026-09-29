@@ -272,11 +272,11 @@ export function SalesChart() {
                 {d.full[hover]}
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                <Box component="span"><Box component="i" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', mr: 0.875, bgcolor: '#a594ff' }} />Sales</Box>
+                <Box component="span"><Box component="i" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', mr: 0.875, bgcolor: 'primary.main' }} />Sales</Box>
                 <Box component="b" sx={{ fontWeight: 700 }}>{money(d.cur[hover])}</Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mt: 0.375 }}>
-                <Box component="span"><Box component="i" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', mr: 0.875, bgcolor: '#b9b5d6' }} />Previous</Box>
+                <Box component="span"><Box component="i" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', mr: 0.875, bgcolor: 'text.disabled' }} />Previous</Box>
                 <Box component="b" sx={{ fontWeight: 700 }}>{money(d.prev[hover])}</Box>
               </Box>
               <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(255,255,255,0.14)', color: hoverDiff < 0 ? '#ff9fbd' : '#7be3bf', fontWeight: 600 }}>

@@ -14,13 +14,8 @@ import { SystemHealth } from '@/components/dashboard/SystemHealth';
 import { TopProducts } from '@/components/dashboard/TopProducts';
 import { TopSellers } from '@/components/dashboard/TopSellers';
 import { int, money, topSellers } from '@/lib/sampleData';
+import { mercatoTokens } from '@/lib/theme';
 
-/**
- * Dashboard home: reference layout (page head → KPI ledger → sales/donut →
- * sellers/products → activity/health) plus an access section hosting the
- * auth module's sessions + change-password panels on the single route.
- * Figures are deterministic sample data (see footer) until analytics APIs land.
- */
 function Row({ columns, children }: { columns: string; children: React.ReactNode }) {
   return (
     <Box
@@ -94,10 +89,10 @@ export function DashboardView() {
 
       <KpiLedger
         items={[
-          { key: 'sellers', icon: 'store', label: 'Total sellers', value: '1,248', deltaPct: 4.2, context: '52 joined this month', tint: '#efeaff', ink: '#5b3df5' },
-          { key: 'users', icon: 'users', label: 'Registered users', value: '214,860', deltaPct: 12.8, context: '9,840 new this month', tint: '#e4f2fd', ink: '#1c7cc4' },
-          { key: 'orders', icon: 'orders', label: 'Orders · 30 days', value: int(orders), deltaPct: 8.1, context: <span>{int(today)} today</span>, tint: '#ffece2', ink: '#d4581f' },
-          { key: 'revenue', icon: 'revenue', label: 'Revenue · 30 days', value: money(revenue), deltaPct: 15.4, context: 'from $5.6M in sales', tint: '#e0f5eb', ink: '#0d7d5a' },
+          { key: 'sellers', icon: 'store', label: 'Total sellers', value: '1,248', deltaPct: 4.2, context: '52 joined this month', tint: mercatoTokens.brandSoft, ink: mercatoTokens.brand },
+          { key: 'users', icon: 'users', label: 'Registered users', value: '214,860', deltaPct: 12.8, context: '9,840 new this month', tint: mercatoTokens.infoSoft, ink: mercatoTokens.info },
+          { key: 'orders', icon: 'orders', label: 'Orders · 30 days', value: int(orders), deltaPct: 8.1, context: <span>{int(today)} today</span>, tint: mercatoTokens.accentSoft, ink: mercatoTokens.accentStrong },
+          { key: 'revenue', icon: 'revenue', label: 'Revenue · 30 days', value: money(revenue), deltaPct: 15.4, context: 'from $5.6M in sales', tint: mercatoTokens.goodSoft, ink: mercatoTokens.good },
         ]}
       />
 

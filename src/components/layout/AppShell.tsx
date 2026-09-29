@@ -1,43 +1,50 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Box, Container } from '@mui/material';
-import { Sidebar, SidebarScrim } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
+import { useState } from "react";
+import { Box, Container } from "@mui/material";
+import { mercatoTokens } from "@/lib/theme";
+import { Sidebar, SidebarScrim } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
 
-/**
- * Authenticated app shell (reference): floating sidebar panel + blurred
- * topbar + centred max-width content. Used by the dashboard screen.
- */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { lg: 'auto minmax(0, 1fr)', xs: 'minmax(0, 1fr)' }, minHeight: '100dvh', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          lg: "auto minmax(0, 1fr)",
+          xs: "minmax(0, 1fr)",
+        },
+        minHeight: "100dvh",
+        bgcolor: "background.default",
+      }}
+    >
       <a
         href="#main-content"
         style={{
-          position: 'absolute',
+          position: "absolute",
           left: -9999,
           top: 8,
           zIndex: 1300,
-          background: '#5b3df5',
-          color: '#fff',
-          padding: '10px 16px',
+          background: mercatoTokens.brand,
+          color: "#fff",
+          padding: "10px 16px",
           borderRadius: 10,
           fontWeight: 600,
         }}
         onFocus={(e) => {
-          (e.target as HTMLAnchorElement).style.left = '12px';
+          (e.target as HTMLAnchorElement).style.left = "12px";
         }}
         onBlur={(e) => {
-          (e.target as HTMLAnchorElement).style.left = '-9999px';
+          (e.target as HTMLAnchorElement).style.left = "-9999px";
         }}
       >
         Skip to content
       </a>
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
       <SidebarScrim open={mobileOpen} onClose={() => setMobileOpen(false)} />
-      <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
         <Topbar onMenuClick={() => setMobileOpen(true)} />
         <Container
           component="main"

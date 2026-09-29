@@ -13,6 +13,7 @@ import {
   TextField,
   Toolbar,
   Typography,
+  alpha,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
@@ -20,17 +21,12 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useAppSelector } from "@/store/hooks";
 import { useMeQuery } from "@/services/authApi";
 
-/** Sample notifications for the preview — wire to a notifications API later. */
 const notifications = [
   { title: "Maple & Moss Candles applied to sell", time: "2 min ago" },
   { title: "Order #48213 flagged for payment check", time: "9 min ago" },
   { title: "Payout batch of $86,420 sent to 214 sellers", time: "26 min ago" },
 ];
 
-/**
- * Sticky blurred topbar (reference): menu button, search with "/" shortcut,
- * notification bell with unread pip.
- */
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
@@ -38,7 +34,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
   const meEmail = meData?.data.email ?? pendingEmail ?? null;
-  const primaryRole = meData?.data.roles[0] ?? 'Super Admin';
+  const primaryRole = meData?.data.roles[0] ?? "Super Admin";
   const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
 
   useEffect(() => {
@@ -60,7 +56,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: "rgba(242, 240, 251, 0.84)",
+        bgcolor: (t) => alpha(t.palette.background.default, 0.84),
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
         backgroundImage: "none",
@@ -159,13 +155,39 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
             borderRadius: 9999,
           }}
         >
-          <Avatar sx={{ width: 28, height: 28, fontSize: "0.72rem", fontWeight: 700, bgcolor: "primary.main" }}>
+          <Avatar
+            sx={{
+              width: 28,
+              height: 28,
+              fontSize: "0.72rem",
+              fontWeight: 700,
+              bgcolor: "primary.main",
+            }}
+          >
             {displayName.slice(0, 2).toUpperCase()}
           </Avatar>
-          <Typography sx={{ fontSize: "0.82rem", fontWeight: 700, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <Typography
+            sx={{
+              fontSize: "0.82rem",
+              fontWeight: 700,
+              maxWidth: 120,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             {displayName}
           </Typography>
-          <Chip label={primaryRole} size="small" sx={{ height: 22, fontSize: "0.68rem", bgcolor: "primary.light", color: "primary.dark" }} />
+          <Chip
+            label={primaryRole}
+            size="small"
+            sx={{
+              height: 22,
+              fontSize: "0.68rem",
+              bgcolor: "primary.light",
+              color: "primary.dark",
+            }}
+          />
         </Box>
         <IconButton
           aria-label="Notifications, 3 unread"
