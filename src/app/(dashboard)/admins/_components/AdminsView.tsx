@@ -7,10 +7,6 @@ import {
   Button,
   Checkbox,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControlLabel,
   IconButton,
@@ -294,9 +290,29 @@ export function AdminsView() {
       </Menu>
 
       {/* 1. Create Admin — stepped: account, then roles */}
-      <Dialog open={dialog === 'create'} onClose={() => setDialog(null)} aria-labelledby="create-title" maxWidth="sm" fullWidth>
-        <DialogTitle id="create-title" sx={{ pb: 0.5 }}>Create Admin</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1 }}>
+      <Modal
+        open={dialog === 'create'}
+        onClose={() => setDialog(null)}
+        title="Create Admin"
+        subtitle="Two quick screens: account, then roles."
+        icon={<AddIcon fontSize="small" />}
+        maxWidth="sm"
+        actions={
+          createStep === 0 ? (
+            <>
+              <Button onClick={() => setDialog(null)}>Cancel</Button>
+              <Box sx={{ flex: 1 }} />
+              <Button variant="contained" onClick={() => setCreateStep(1)}>Next: roles</Button>
+            </>
+          ) : (
+            <>
+              <Button color="inherit" onClick={() => setCreateStep(0)}>Back</Button>
+              <Box sx={{ flex: 1 }} />
+              <Button variant="contained" onClick={() => confirm('Admin created — invitation sent (preview).')}>Create admin</Button>
+            </>
+          )
+        }
+      >
           <Stepper activeStep={createStep} alternativeLabel>
             <Step>
               <StepLabel sx={{ '& .MuiStepLabel-label': { fontSize: '0.7rem' } }}>
@@ -354,23 +370,7 @@ export function AdminsView() {
               ) : null}
             </>
           )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 0.5 }}>
-          {createStep === 0 ? (
-            <>
-              <Button onClick={() => setDialog(null)}>Cancel</Button>
-              <Box sx={{ flex: 1 }} />
-              <Button variant="contained" onClick={() => setCreateStep(1)}>Next: roles</Button>
-            </>
-          ) : (
-            <>
-              <Button color="inherit" onClick={() => setCreateStep(0)}>Back</Button>
-              <Box sx={{ flex: 1 }} />
-              <Button variant="contained" onClick={() => confirm('Admin created — invitation sent (preview).')}>Create admin</Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       {/* 2. Admin Details (view) */}
       <Modal
@@ -416,9 +416,23 @@ export function AdminsView() {
       </Modal>
 
       {/* 3. Change Status (+ blocked variant for last Super Admin) */}
-      <Dialog open={dialog === 'status'} onClose={() => setDialog(null)} aria-labelledby="status-title" maxWidth="xs" fullWidth>
-        <DialogTitle id="status-title">Change status — {selected.email}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+      <Modal
+        open={dialog === 'status'}
+        onClose={() => setDialog(null)}
+        title={`Change status — ${selected.email}`}
+        subtitle={selected.lastSuperAdmin ? 'Blocked: last Super Admin.' : 'Takes effect the moment you confirm.'}
+        actions={
+          <>
+            <Button onClick={() => setDialog(null)}>Cancel</Button>
+            <Box sx={{ flex: 1 }} />
+            {selected.lastSuperAdmin ? (
+              <Button variant="contained" onClick={() => openDialog('roles')}>Manage roles instead</Button>
+            ) : (
+              <Button variant="contained" color="error" onClick={() => confirm(`Status change confirmed for ${selected.email} (preview).`)}>Confirm change</Button>
+            )}
+          </>
+        }
+      >
           {selected.lastSuperAdmin ? (
             <Alert severity="error">
               <b>Last active Super Admin.</b> Suspending or disabling this account would leave no active Super Admin.
@@ -437,24 +451,28 @@ export function AdminsView() {
               <FormField label="Reason / note (shows in the Activity Log)" multiline rows={2} placeholder="e.g. Failed KYC re-check" />
             </>
           )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialog(null)}>Cancel</Button>
-          {selected.lastSuperAdmin ? (
-            <Button variant="contained" onClick={() => openDialog('roles')}>Manage roles instead</Button>
-          ) : (
-            <Button variant="contained" color="error" onClick={() => confirm(`Status change confirmed for ${selected.email} (preview).`)}>Confirm change</Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       {/* 4. Manage Roles */}
-      <Dialog open={dialog === 'roles'} onClose={() => setDialog(null)} aria-labelledby="roles-title" maxWidth="xs" fullWidth>
-        <DialogTitle id="roles-title">Manage roles — {selected.email}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-          <Typography color="text.secondary" sx={{ fontSize: '0.84rem', mb: 0.5 }}>
-            Tick the roles they should have. At least one role is required — the save button stays off without one.
-          </Typography>
+      <Modal
+        open={dialog === 'roles'}
+        onClose={() => setDialog(null)}
+        title={`Manage roles — ${selected.email}`}
+        subtitle="Tick the roles they should have. At least one is required."
+        actions={
+          <>
+            <Button onClick={() => setDialog(null)}>Cancel</Button>
+            <Box sx={{ flex: 1 }} />
+            <Button
+              variant="contained"
+              disabled={roleSelection.length === 0}
+              onClick={() => confirm(`Roles updated for ${selected.email} (preview).`)}
+            >
+              Confirm role changes
+            </Button>
+          </>
+        }
+      >
           {ALL_ROLES.map((r) => {
             const lockedOwnSA = selected.you === true && r === 'Super Admin';
             const gatedSA = r === 'Super Admin' && !VIEWER_IS_SUPER_ADMIN;
@@ -481,18 +499,7 @@ export function AdminsView() {
               {removed.length > 0 ? <b>− {removed.join(', ')}</b> : null}
             </Alert>
           )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialog(null)}>Cancel</Button>
-          <Button
-            variant="contained"
-            disabled={roleSelection.length === 0}
-            onClick={() => confirm(`Roles updated for ${selected.email} (preview).`)}
-          >
-            Confirm role changes
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       {/* Revoke sessions confirm */}
       <ConfirmDialog

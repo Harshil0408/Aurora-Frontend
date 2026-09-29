@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import AddIcon from '@mui/icons-material/Add';
+import { FormField, Modal } from '@/components/ui/controls';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { BreakdownDonut } from '@/components/dashboard/BreakdownDonut';
 import { KpiLedger } from '@/components/dashboard/KpiLedger';
@@ -123,33 +124,35 @@ export function DashboardView() {
         <span>Times shown in your local time zone</span>
       </Box>
 
-      <Dialog open={inviteOpen} onClose={() => setInviteOpen(false)} aria-labelledby="invite-title" maxWidth="xs" fullWidth>
-        <DialogTitle id="invite-title">Invite seller</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>
-            Seller onboarding ships with the Sellers module — this preview does not send invites yet.
-          </Typography>
-          <TextField
-            label="Seller email"
-            type="email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            fullWidth
-            autoFocus
-          />
-          {inviteNote ? <Typography role="status" sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{inviteNote}</Typography> : null}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setInviteOpen(false)}>Close</Button>
-          <Button
-            variant="contained"
-            disabled={!inviteEmail.trim()}
-            onClick={() => setInviteNote('Noted — invites activate with the Sellers module. Nothing was sent.')}
-          >
-            Save invite
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Modal
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        title="Invite seller"
+        subtitle="Seller onboarding ships with the Sellers module — this preview does not send invites yet."
+        icon={<AddIcon fontSize="small" />}
+        actions={
+          <>
+            <Button onClick={() => setInviteOpen(false)}>Close</Button>
+            <Box sx={{ flex: 1 }} />
+            <Button
+              variant="contained"
+              disabled={!inviteEmail.trim()}
+              onClick={() => setInviteNote('Noted — invites activate with the Sellers module. Nothing was sent.')}
+            >
+              Save invite
+            </Button>
+          </>
+        }
+      >
+        <FormField
+          label="Seller email"
+          type="email"
+          value={inviteEmail}
+          onChange={(e) => setInviteEmail(e.target.value)}
+          autoFocus
+          hint={inviteNote ?? undefined}
+        />
+      </Modal>
     </Box>
   );
 }

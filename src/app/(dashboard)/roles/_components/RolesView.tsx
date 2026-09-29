@@ -7,10 +7,6 @@ import {
   Button,
   Checkbox,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControlLabel,
   Paper,
   Snackbar,
@@ -20,7 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
 import GroupIcon from "@mui/icons-material/Group";
 import { mercatoTokens } from "@/lib/theme";
-import { FormField } from "@/components/ui/controls";
+import { FormField, Modal } from "@/components/ui/controls";
 import {
   INITIAL_GRANTS,
   INITIAL_ROLES,
@@ -494,17 +490,26 @@ export function RolesView() {
         </Box>
       </Paper>
 
-      <Dialog
+      <Modal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        aria-labelledby="cr-title"
-        maxWidth="xs"
-        fullWidth
+        title="Create Role"
+        subtitle="Starts empty — you assign permissions right after."
+        icon={<AddIcon fontSize="small" />}
+        actions={
+          <>
+            <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Box sx={{ flex: 1 }} />
+            <Button
+              variant="contained"
+              disabled={!keyValid || !newName.trim()}
+              onClick={createRole}
+            >
+              Create role
+            </Button>
+          </>
+        }
       >
-        <DialogTitle id="cr-title">Create Role</DialogTitle>
-        <DialogContent
-          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-        >
           <Typography color="text.secondary" sx={{ fontSize: "0.84rem" }}>
             Custom roles start with <b>zero permissions</b> — you assign them
             in the matrix right after creating.
@@ -538,18 +543,7 @@ export function RolesView() {
             multiline
             rows={2}
           />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            disabled={!keyValid || !newName.trim()}
-            onClick={createRole}
-          >
-            Create role
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       <Snackbar
         open={toast != null}

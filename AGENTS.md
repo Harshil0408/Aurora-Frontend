@@ -29,6 +29,7 @@ Next.js 16 App Router + React 19 + TS strict + MUI v9 + Redux Toolkit + RTK Quer
 - Theme is light-only; single source of truth is `mercatoTokens` in `src/lib/theme.ts` — reuse tokens, never hardcode palette hex. Fonts via `next/font` CSS vars (`--font-display` Sora, `--font-body` Manrope). Styling is Tailwind v4 (`@import "tailwindcss"`) + MUI overrides; keep `:focus-visible` accent outline and `prefers-reduced-motion` handling in `globals.css`.
 - Form validation: Zod schemas in `src/lib/validations.ts` (`loginSchema`, `verifySchema`, `forgotPasswordSchema`, `resetPasswordSchema` min 12 chars).
 - Layout: route groups `src/app/(auth)` (public) and `src/app/(dashboard)` (guarded shell `AppShell`+`Sidebar`+`Topbar`). Components live in `components/{auth,dashboard,layout,ui}` (`DataLoader`/`FallbackUI`/`Loaders` for async states).
+- Shared controls `src/components/ui/controls/` (barrel `index.ts`) — use instead of raw MUI: `FormField` (hint + password toggle), `SelectField`, `DateTimeField` (`mode: date|time|datetime` + ISO helpers), `SearchField` (icon + clear), `Modal` (icon tile + subtitle + actions) for every dialog, `ConfirmDialog` (blast-radius + checkbox/type-to-confirm proofs) for destructive confirms, `TableCard` (title/count, always-visible `toolbar`, `empty` state, `footer`) for every list table. Guide primitives (`GuideAccordion`, `HowRow`, `DetailRow`, `TourDialog`) live in `src/components/ui/Guide.tsx`. Every control ships with tests in `controls/__tests__/.
 
 ## UX bar (assume zero-knowledge users — design defensively)
 

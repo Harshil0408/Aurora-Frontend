@@ -9,10 +9,6 @@ import {
   Button,
   Checkbox,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControlLabel,
   Paper,
@@ -50,7 +46,7 @@ import { normaliseApiError } from "@/types/api";
 import { DataLoader } from "@/components/ui/DataLoader";
 import { FallbackUI } from "@/components/ui/FallbackUI";
 import { ButtonLoader } from "@/components/ui/Loaders";
-import { FormField } from "@/components/ui/controls";
+import { FormField, Modal } from "@/components/ui/controls";
 import {
   DetailRow,
   GuideAccordion,
@@ -1131,22 +1127,55 @@ function SecurityContent() {
       ) : null}
 
       {/* TOTP enroll — wide, stepped screens (no scrollbar) */}
-      <Dialog
+      <Modal
         open={totpDialog === "enroll"}
         onClose={() => {
           setTotpDialog(null);
           setQr(null);
         }}
+        title="Link your authenticator"
+        subtitle="Two quick screens: scan, then save + confirm."
+        icon={<PhonelinkLockIcon fontSize="small" />}
         maxWidth="sm"
-        fullWidth
-        aria-labelledby="te-title"
+        actions={
+          enrollStep === 0 ? (
+            <>
+              <Button
+                onClick={() => {
+                  setTotpDialog(null);
+                  setQr(null);
+                }}
+              >
+                Close
+              </Button>
+              <Box sx={{ flex: 1 }} />
+              <Button variant="contained" onClick={() => setEnrollStep(1)}>
+                Next: save codes
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button color="inherit" onClick={() => setEnrollStep(0)}>
+                Back
+              </Button>
+              <Box sx={{ flex: 1 }} />
+              <Button
+                form="totp-confirm-form"
+                type="submit"
+                variant="contained"
+                disabled={confirmingTotp || !ackCodes || !totpCode.trim()}
+                aria-busy={confirmingTotp}
+              >
+                {confirmingTotp ? (
+                  <ButtonLoader label="Confirming" />
+                ) : (
+                  "Confirm authenticator"
+                )}
+              </Button>
+            </>
+          )
+        }
       >
-        <DialogTitle id="te-title" sx={{ pb: 0.5 }}>
-          Link your authenticator
-        </DialogTitle>
-        <DialogContent
-          sx={{ display: "flex", flexDirection: "column", gap: 1.25, pb: 1 }}
-        >
           <Stepper activeStep={enrollStep} alternativeLabel>
             <Step>
               <StepLabel
@@ -1273,59 +1302,35 @@ function SecurityContent() {
               </Box>
             </>
           ) : null}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 0.5 }}>
-          {enrollStep === 0 ? (
-            <>
-              <Button
-                onClick={() => {
-                  setTotpDialog(null);
-                  setQr(null);
-                }}
-              >
-                Close
-              </Button>
-              <Box sx={{ flex: 1 }} />
-              <Button variant="contained" onClick={() => setEnrollStep(1)}>
-                Next: save codes
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button color="inherit" onClick={() => setEnrollStep(0)}>
-                Back
-              </Button>
-              <Box sx={{ flex: 1 }} />
-              <Button
-                form="totp-confirm-form"
-                type="submit"
-                variant="contained"
-                disabled={confirmingTotp || !ackCodes || !totpCode.trim()}
-                aria-busy={confirmingTotp}
-              >
-                {confirmingTotp ? (
-                  <ButtonLoader label="Confirming" />
-                ) : (
-                  "Confirm authenticator"
-                )}
-              </Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
-      {/* TOTP disable — kills sessions */}
-      <Dialog
+      <Modal
         open={totpDialog === "disable"}
         onClose={() => setTotpDialog(null)}
-        maxWidth="xs"
-        fullWidth
-        aria-labelledby="td-title"
+        title="Turn off authenticator?"
+        subtitle="Proof first, then everything is wiped."
+        icon={<PhonelinkLockIcon fontSize="small" />}
+        actions={
+          <>
+            <Button onClick={() => setTotpDialog(null)}>Cancel</Button>
+            <Box sx={{ flex: 1 }} />
+            <Button
+              form="totp-disable-form"
+              type="submit"
+              variant="contained"
+              color="error"
+              disabled={disablingTotp || !totpPassword || !totpDisableCode.trim()}
+              aria-busy={disablingTotp}
+            >
+              {disablingTotp ? (
+                <ButtonLoader label="Turning off" />
+              ) : (
+                "Turn off + sign out"
+              )}
+            </Button>
+          </>
+        }
       >
-        <DialogTitle id="td-title">Turn off authenticator?</DialogTitle>
-        <DialogContent
-          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-        >
           <Alert severity="error">
             <b>You will be signed out everywhere.</b> The app link and all
             recovery codes are permanently deleted. With no method left, sign-in
@@ -1355,38 +1360,35 @@ function SecurityContent() {
               onChange={(e) => setTotpDisableCode(e.target.value)}
             />
           </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTotpDialog(null)}>Cancel</Button>
-          <Button
-            form="totp-disable-form"
-            type="submit"
-            variant="contained"
-            color="error"
-            disabled={disablingTotp || !totpPassword || !totpDisableCode.trim()}
-            aria-busy={disablingTotp}
-          >
-            {disablingTotp ? (
-              <ButtonLoader label="Turning off" />
-            ) : (
-              "Turn off + sign out"
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       {/* Email enable */}
-      <Dialog
+      <Modal
         open={emailDialog === "enable"}
         onClose={() => setEmailDialog(null)}
-        maxWidth="xs"
-        fullWidth
-        aria-labelledby="ee-title"
+        title="Enable email codes"
+        subtitle="We emailed you — type it back."
+        icon={<MarkEmailReadIcon fontSize="small" />}
+        actions={
+          <>
+            <Button onClick={() => setEmailDialog(null)}>Cancel</Button>
+            <Box sx={{ flex: 1 }} />
+            <Button
+              form="email-enable-form"
+              type="submit"
+              variant="contained"
+              disabled={confirmingEmail || !/^\d{6}$/.test(emailCode.trim())}
+              aria-busy={confirmingEmail}
+            >
+              {confirmingEmail ? (
+                <ButtonLoader label="Confirming" />
+              ) : (
+                "Confirm + turn on"
+              )}
+            </Button>
+          </>
+        }
       >
-        <DialogTitle id="ee-title">Enable email codes</DialogTitle>
-        <DialogContent
-          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-        >
           <Stepper activeStep={1} alternativeLabel>
             <Step>
               <StepLabel
@@ -1439,37 +1441,40 @@ function SecurityContent() {
               slotProps={{ htmlInput: { maxLength: 6 } }}
             />
           </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEmailDialog(null)}>Cancel</Button>
-          <Button
-            form="email-enable-form"
-            type="submit"
-            variant="contained"
-            disabled={confirmingEmail || !/^\d{6}$/.test(emailCode.trim())}
-            aria-busy={confirmingEmail}
-          >
-            {confirmingEmail ? (
-              <ButtonLoader label="Confirming" />
-            ) : (
-              "Confirm + turn on"
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       {/* Email disable — kills sessions */}
-      <Dialog
+      <Modal
         open={emailDialog === "disable"}
         onClose={() => setEmailDialog(null)}
-        maxWidth="xs"
-        fullWidth
-        aria-labelledby="ed-title"
+        title="Turn off email codes?"
+        subtitle="Proof first, then you sign out everywhere."
+        icon={<MarkEmailReadIcon fontSize="small" />}
+        actions={
+          <>
+            <Button onClick={() => setEmailDialog(null)}>Cancel</Button>
+            <Box sx={{ flex: 1 }} />
+            <Button
+              form="email-disable-form"
+              type="submit"
+              variant="contained"
+              color="error"
+              disabled={
+                disablingEmail ||
+                !emailPassword ||
+                !/^\d{6}$/.test(emailDisableCode.trim())
+              }
+              aria-busy={disablingEmail}
+            >
+              {disablingEmail ? (
+                <ButtonLoader label="Turning off" />
+              ) : (
+                "Turn off + sign out"
+              )}
+            </Button>
+          </>
+        }
       >
-        <DialogTitle id="ed-title">Turn off email codes?</DialogTitle>
-        <DialogContent
-          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-        >
           <Alert severity="error">
             <b>You will be signed out everywhere.</b> A fresh code was just
             emailed — type it below with your password to confirm it is you.
@@ -1499,29 +1504,7 @@ function SecurityContent() {
               slotProps={{ htmlInput: { maxLength: 6 } }}
             />
           </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEmailDialog(null)}>Cancel</Button>
-          <Button
-            form="email-disable-form"
-            type="submit"
-            variant="contained"
-            color="error"
-            disabled={
-              disablingEmail ||
-              !emailPassword ||
-              !/^\d{6}$/.test(emailDisableCode.trim())
-            }
-            aria-busy={disablingEmail}
-          >
-            {disablingEmail ? (
-              <ButtonLoader label="Turning off" />
-            ) : (
-              "Turn off + sign out"
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Modal>
     </Box>
   );
 }
