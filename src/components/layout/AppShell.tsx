@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Box, Container } from "@mui/material";
 import { mercatoTokens } from "@/lib/theme";
-import { Sidebar, SidebarScrim } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -43,7 +43,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-      <SidebarScrim open={mobileOpen} onClose={() => setMobileOpen(false)} />
       <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
         <Topbar onMenuClick={() => setMobileOpen(true)} />
         <Container

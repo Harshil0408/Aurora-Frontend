@@ -8,6 +8,7 @@ export {
   toDateTimeInput,
   type DateTimeFieldProps,
   type DateTimeMode,
+  type DateRangeValue,
 } from './DateTimeField';
 export { SearchField, type SearchFieldProps } from './SearchField';
 export { Modal, type ModalProps } from './Modal';

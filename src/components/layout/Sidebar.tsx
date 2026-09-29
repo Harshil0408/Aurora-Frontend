@@ -1,22 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import {
   Avatar,
   Box,
-  Chip,
   Drawer,
   List,
   ListItemButton,
   ListItemText,
-  Menu,
-  MenuItem,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import GridViewIcon from "@mui/icons-material/GridView";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import StoreIcon from "@mui/icons-material/Store";
@@ -34,15 +30,13 @@ import DevicesIcon from "@mui/icons-material/Devices";
 import ShieldIcon from "@mui/icons-material/Shield";
 import PaletteIcon from "@mui/icons-material/Palette";
 import SettingsIcon from "@mui/icons-material/Settings";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { hexToRgba, mercatoTokens } from "@/lib/theme";
 import { Logo } from "@/components/ui/Logo";
-import { logoutAllThunk, logoutThunk } from "@/store/authSlice";
 import { useMeQuery } from "@/services/authApi";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppSelector } from "@/store/hooks";
 
-export const SIDEBAR_WIDTH = 288;
+/** Roomy rail width — flush to the viewport edge, no floating margins. */
+export const SIDEBAR_WIDTH = 272;
 
 interface NavItem {
   label: string;
@@ -132,50 +126,50 @@ const sections: { title: string; items: NavItem[] }[] = [
 
 function BrandMark() {
   return (
-    <Box sx={{ px: 1 }}>
-      <Box
-        component={Link}
-        href="/dashboard"
-        aria-label="Aurora admin home"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          textDecoration: "none",
-          borderRadius: 3,
-          py: 0.5,
-        }}
-      >
-        <Logo size={40} />
-        <Box sx={{ minWidth: 0 }}>
-          <Typography
-            variant="h2"
-            component="span"
-            sx={{
-              display: "block",
-              fontSize: "1.28rem",
-              letterSpacing: "-0.025em",
-              lineHeight: 1.05,
-            }}
-          >
-            Aurora
-          </Typography>
-          <Typography
-            variant="caption"
-            component="span"
-            sx={{
-              display: "block",
-              mt: 0.25,
-              fontSize: "0.68rem",
-              fontWeight: 800,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "primary.main",
-            }}
-          >
-            Admin console
-          </Typography>
-        </Box>
+    <Box
+      component={Link}
+      href="/dashboard"
+      aria-label="Aurora admin home"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.25,
+        px: 1,
+        py: 0.5,
+        textDecoration: "none",
+        borderRadius: 2,
+        minWidth: 0,
+      }}
+    >
+      <Logo size={32} />
+      <Box sx={{ minWidth: 0 }}>
+        <Typography
+          variant="h2"
+          component="span"
+          sx={{
+            display: "block",
+            fontSize: "1.05rem",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.1,
+          }}
+        >
+          Aurora
+        </Typography>
+        <Typography
+          variant="caption"
+          component="span"
+          sx={{
+            display: "block",
+            mt: 0.125,
+            fontSize: "0.6rem",
+            fontWeight: 800,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "primary.main",
+          }}
+        >
+          Admin console
+        </Typography>
       </Box>
     </Box>
   );
@@ -201,10 +195,10 @@ function NavRow({
       title={disabled ? `${item.label} — coming soon` : undefined}
       sx={{
         position: "relative",
-        borderRadius: "14px",
-        px: 1.25,
-        py: 0.875,
-        gap: 1.25,
+        borderRadius: 2.5,
+        px: 1,
+        py: 0.625,
+        gap: 1,
         color: active ? "primary.dark" : "text.secondary",
         bgcolor: active ? mercatoTokens.brandSoft : "transparent",
         transition: "background-color 200ms ease, color 200ms ease",
@@ -225,9 +219,9 @@ function NavRow({
           sx={{
             position: "absolute",
             left: 0,
-            top: 10,
-            bottom: 10,
-            width: 4,
+            top: 8,
+            bottom: 8,
+            width: 3,
             borderRadius: 9999,
             bgcolor: "primary.main",
             boxShadow: `0 4px 12px -2px ${hexToRgba(mercatoTokens.brand, 0.7)}`,
@@ -240,9 +234,9 @@ function NavRow({
           display: "grid",
           placeItems: "center",
           flex: "none",
-          width: 34,
-          height: 34,
-          borderRadius: "11px",
+          width: 30,
+          height: 30,
+          borderRadius: "10px",
           bgcolor: active ? "primary.main" : mercatoTokens.surface2,
           color: active ? "#fff" : "primary.main",
           border: 1,
@@ -251,6 +245,7 @@ function NavRow({
             ? `0 8px 16px -8px ${hexToRgba(mercatoTokens.brand, 0.8)}`
             : "none",
           transition: "background-color 200ms ease, color 200ms ease",
+          "& svg": { fontSize: "1.05rem" },
         }}
       >
         {item.icon}
@@ -260,7 +255,7 @@ function NavRow({
         slotProps={{
           primary: {
             sx: {
-              fontSize: "0.9rem",
+              fontSize: "0.84rem",
               fontWeight: active ? 700 : 600,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -275,12 +270,11 @@ function NavRow({
           sx={{
             ml: "auto",
             flex: "none",
-            px: 1.1,
-            py: 0.3,
+            px: 0.875,
+            py: 0.25,
             borderRadius: 9999,
-            fontSize: "0.7rem",
+            fontSize: "0.66rem",
             fontWeight: 800,
-            letterSpacing: "0.01em",
             bgcolor: item.quietBadge
               ? mercatoTokens.surface2
               : mercatoTokens.accentSoft,
@@ -300,10 +294,10 @@ function NavRow({
           sx={{
             ml: item.badge ? 0 : "auto",
             flex: "none",
-            px: 1,
-            py: 0.3,
+            px: 0.75,
+            py: 0.25,
             borderRadius: 9999,
-            fontSize: "0.66rem",
+            fontSize: "0.6rem",
             fontWeight: 800,
             letterSpacing: "0.06em",
             textTransform: "uppercase",
@@ -322,22 +316,11 @@ function NavRow({
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const dispatch = useAppDispatch();
   const pendingEmail = useAppSelector((s) => s.auth.pendingEmail);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
-  const [anchor, setAnchor] = useState<null | HTMLElement>(null);
-
-  const doLogout = async (global: boolean) => {
-    setAnchor(null);
-    onNavigate?.();
-    await dispatch(global ? logoutAllThunk() : logoutThunk());
-    router.replace("/login");
-  };
 
   const meEmail = meData?.data.email ?? pendingEmail ?? null;
-  const primaryRole = meData?.data.roles[0] ?? "Super Admin";
   const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
 
@@ -349,23 +332,28 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        py: 2.5,
-        px: 1.75,
+        minHeight: 0,
+        py: 1.75,
       }}
     >
-      <BrandMark />
+      <Box sx={{ px: 1.25 }}>
+        <BrandMark />
+      </Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2.5,
+          gap: 2,
           flex: 1,
+          minHeight: 0,
           overflowY: "auto",
-          mt: 2.5,
-          pr: 0.5,
+          mt: 2,
+          scrollbarWidth: "thin",
+          scrollbarColor: `${mercatoTokens.brand} transparent`,
           "&::-webkit-scrollbar": { width: 6 },
+          "&::-webkit-scrollbar-track": { background: "transparent" },
           "&::-webkit-scrollbar-thumb": {
-            bgcolor: mercatoTokens.line,
+            bgcolor: mercatoTokens.brand,
             borderRadius: 9999,
           },
         }}
@@ -375,14 +363,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             key={section.title}
             component="section"
             aria-label={section.title}
+            sx={{ px: 1.25 }}
           >
             <Typography
               variant="caption"
               component="p"
               sx={{
-                px: 1.5,
-                pb: 0.75,
-                fontSize: "0.68rem",
+                px: 1.25,
+                pb: 0.5,
+                fontSize: "0.62rem",
                 fontWeight: 800,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
@@ -393,7 +382,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </Typography>
             <List
               disablePadding
-              sx={{ display: "flex", flexDirection: "column", gap: 2 / 8 }}
+              sx={{ display: "flex", flexDirection: "column", gap: 1 / 8 }}
             >
               {section.items.map((item) => {
                 const active =
@@ -413,119 +402,63 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </Box>
         ))}
       </Box>
-      <Box sx={{ pt: 1.5, mt: 1, borderTop: 1, borderColor: "divider" }}>
-        <Box
-          component="button"
-          type="button"
-          onClick={(e) => setAnchor(e.currentTarget)}
-          aria-haspopup="menu"
-          aria-label="Account menu"
+      <Box
+        aria-label={meEmail ? `Signed in as ${meEmail}` : "Signed in as guest"}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          mt: 1,
+          mx: 1.25,
+          pt: 1.25,
+          px: 0.75,
+          borderTop: 1,
+          borderColor: "divider",
+          minWidth: 0,
+        }}
+      >
+        <Avatar
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.25,
-            p: 1.25,
-            borderRadius: "18px",
-            background: `linear-gradient(135deg, ${mercatoTokens.brandSoft} 0%, ${mercatoTokens.surface2} 100%)`,
-            border: 1,
-            borderColor: "divider",
-            color: "text.primary",
-            cursor: "pointer",
-            textAlign: "left",
-            width: "100%",
-            transition: "border-color 200ms ease, box-shadow 200ms ease",
-            "&:hover": {
-              borderColor: mercatoTokens.lineStrong,
-              boxShadow: mercatoTokens.shadow1,
-            },
-            "&:focus-visible": {
-              outline: `2px solid ${mercatoTokens.accent}`,
-              outlineOffset: 2,
-            },
+            width: 32,
+            height: 32,
+            borderRadius: "11px",
+            background: `linear-gradient(135deg, ${mercatoTokens.brand} 0%, ${mercatoTokens.brandStrong} 100%)`,
+            fontSize: "0.74rem",
+            fontWeight: 800,
+            flex: "none",
           }}
         >
-          <Avatar
+          {initials}
+        </Avatar>
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography
             sx={{
-              width: 40,
-              height: 40,
-              borderRadius: "14px",
-              background: `linear-gradient(135deg, ${mercatoTokens.brand} 0%, ${mercatoTokens.brandStrong} 100%)`,
-              fontSize: "0.88rem",
-              fontWeight: 800,
-              boxShadow: `0 8px 16px -8px ${hexToRgba(mercatoTokens.brand, 0.8)}`,
+              fontWeight: 700,
+              fontSize: "0.8rem",
+              lineHeight: 1.25,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
-            {initials}
-          </Avatar>
-          <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography
-              variant="body1"
-              sx={{
-                fontWeight: 700,
-                fontSize: "0.88rem",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {displayName}
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.75,
-                mt: 0.375,
-                minWidth: 0,
-              }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  flex: "none",
-                  maxWidth: "60%",
-                }}
-              >
-                {meEmail ?? "Administrator"}
-              </Typography>
-              <Chip
-                label={primaryRole}
-                size="small"
-                sx={{
-                  height: 20,
-                  fontSize: "0.64rem",
-                  fontWeight: 800,
-                  bgcolor: "primary.main",
-                  color: "#fff",
-                }}
-              />
-            </Box>
-          </Box>
-          <ChevronRightIcon
-            fontSize="small"
-            sx={{ color: "text.disabled", flex: "none" }}
-          />
+            {displayName}
+          </Typography>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              display: "block",
+              fontSize: "0.68rem",
+              lineHeight: 1.25,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {meEmail ?? "Administrator"}
+          </Typography>
         </Box>
       </Box>
-      <Menu
-        anchorEl={anchor}
-        open={Boolean(anchor)}
-        onClose={() => setAnchor(null)}
-        aria-label="Account menu"
-      >
-        <MenuItem onClick={() => doLogout(false)}>
-          <LogoutIcon fontSize="small" style={{ marginRight: 8 }} /> Sign out
-          this session
-        </MenuItem>
-        <MenuItem onClick={() => doLogout(true)}>
-          <LogoutIcon fontSize="small" style={{ marginRight: 8 }} /> Sign out
-          everywhere
-        </MenuItem>
-      </Menu>
     </Box>
   );
 }
@@ -535,15 +468,6 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const panelSx = () => ({
-  bgcolor: "background.paper",
-  backgroundImage: `linear-gradient(180deg, ${mercatoTokens.surface} 0%, ${mercatoTokens.surface2} 100%)`,
-  border: 1,
-  borderColor: "divider",
-  boxShadow: mercatoTokens.shadow1,
-  overflow: "hidden",
-});
-
 export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
@@ -552,15 +476,15 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
     return (
       <Box
         sx={{
-          ...panelSx(),
           width: SIDEBAR_WIDTH,
           flexShrink: 0,
           position: "sticky",
-          top: 14,
-          height: "calc(100dvh - 28px)",
-          ml: "14px",
-          my: "14px",
-          borderRadius: "28px",
+          top: 0,
+          height: "100dvh",
+          bgcolor: "background.paper",
+          borderRight: 1,
+          borderColor: "divider",
+          overflow: "hidden",
           display: { xs: "none", lg: "block" },
         }}
       >
@@ -576,36 +500,13 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       sx={{
         display: { xs: "block", lg: "none" },
         "& .MuiDrawer-paper": {
-          ...panelSx(),
-          width: 296,
-          borderRadius: "0 28px 28px 0",
+          width: 280,
+          bgcolor: "background.paper",
+          backgroundImage: "none",
         },
       }}
     >
       <SidebarContent onNavigate={onClose} />
     </Drawer>
-  );
-}
-
-export function SidebarScrim({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
-  if (!open) return null;
-  return (
-    <Box
-      onClick={onClose}
-      aria-hidden
-      sx={{
-        display: { xs: "block", lg: "none" },
-        position: "fixed",
-        inset: 0,
-        zIndex: (t) => t.zIndex.drawer - 1,
-        bgcolor: hexToRgba(mercatoTokens.text, 0.45),
-      }}
-    />
   );
 }
