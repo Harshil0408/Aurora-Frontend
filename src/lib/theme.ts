@@ -1,6 +1,9 @@
 'use client';
 
 import { createTheme } from '@mui/material/styles';
+import { AURORA_COLORS } from './themePresets';
+
+export { AURORA_COLORS };
 
 export interface ThemeColors {
   bg: string;
@@ -78,20 +81,6 @@ export function radiusForLg(lg: number): { lg: number; md: number; sm: number } 
   const v = Math.min(28, Math.max(0, Math.round(lg)));
   return { lg: v, md: Math.round(v * 0.66), sm: Math.round(v * 0.5) };
 }
-
-export const AURORA_COLORS: ThemeColors = {
-  bg: '#f2f0fb',
-  surface: '#ffffff',
-  surface2: '#f8f7fd',
-  line: '#e6e3f3',
-  lineStrong: '#d2cdea',
-  text: '#1d1a3b',
-  muted: '#68648a',
-  faint: '#9a96b8',
-  brand: '#5b3df5',
-  brandStrong: '#4327d6',
-  brandSoft: '#ece8ff',
-};
 
 export interface TokenOptions {
   radiusLg?: number;

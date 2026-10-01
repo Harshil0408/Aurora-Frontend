@@ -12,13 +12,16 @@ import GroupIcon from '@mui/icons-material/Group';
 import { feedEvents, type FeedTone, type FeedType } from '@/lib/sampleData';
 import { mercatoTokens } from '@/lib/theme';
 
-const tone: Record<FeedTone, { bg: string; color: string }> = {
-  brand: { bg: mercatoTokens.brandSoft, color: mercatoTokens.brandStrong },
-  good: { bg: mercatoTokens.goodSoft, color: mercatoTokens.good },
-  warn: { bg: mercatoTokens.accentSoft, color: mercatoTokens.accentStrong },
-  bad: { bg: mercatoTokens.badSoft, color: mercatoTokens.bad },
-  info: { bg: mercatoTokens.infoSoft, color: mercatoTokens.info },
-};
+/** Resolved per render — module-scope would snapshot the default palette. */
+function getTone(): Record<FeedTone, { bg: string; color: string }> {
+  return {
+    brand: { bg: mercatoTokens.brandSoft, color: mercatoTokens.brandStrong },
+    good: { bg: mercatoTokens.goodSoft, color: mercatoTokens.good },
+    warn: { bg: mercatoTokens.accentSoft, color: mercatoTokens.accentStrong },
+    bad: { bg: mercatoTokens.badSoft, color: mercatoTokens.bad },
+    info: { bg: mercatoTokens.infoSoft, color: mercatoTokens.info },
+  };
+}
 
 const icons = {
   'user-plus': <PersonAddIcon sx={{ width: 18, height: 18 }} />,
@@ -41,6 +44,7 @@ const filters: { key: FeedType | 'all'; label: string }[] = [
 export function ActivityFeed() {
   const [filter, setFilter] = useState<FeedType | 'all'>('all');
   const visible = feedEvents.filter((e) => filter === 'all' || e.type === filter);
+  const tone = getTone();
 
   return (
     <Paper component="section" aria-labelledby="feed-title">

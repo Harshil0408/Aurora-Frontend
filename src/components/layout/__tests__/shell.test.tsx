@@ -13,6 +13,16 @@ jest.mock('@mui/material/useMediaQuery', () => ({
   default: () => true,
 }));
 
+// Sidebar gates Administration items on permissions — simulate a Super Admin.
+jest.mock('@/services/rbacApi', () => ({
+  useMyPermissionsQuery: () => ({
+    data: { success: true, data: { permissions: ['admin.read', 'role.read', 'audit.read'] } },
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  }),
+}));
+
 function renderShell() {
   return renderWithProviders(
     <AppShell>

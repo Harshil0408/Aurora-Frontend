@@ -16,12 +16,15 @@ export function PageLoader({ label = 'Preparing your workspace' }: { label?: str
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
-        bgcolor: 'background.default',
-        color: 'text.secondary',
+        // CSS vars (not the MUI palette) so the pre-paint boot script in
+        // layout.tsx already shows the saved theme on reload — the server
+        // HTML is identical for every theme, only the var values differ.
+        bgcolor: 'var(--background)',
+        color: 'var(--muted)',
         fontSize: '0.95rem',
       }}
     >
-      <CircularProgress color="primary" aria-hidden />
+      <CircularProgress aria-hidden sx={{ color: 'var(--brand)' }} />
       {label}…
     </Box>
   );

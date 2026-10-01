@@ -20,14 +20,12 @@ import {
   Step,
   StepLabel,
   Stepper,
-  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Tabs,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -43,6 +41,7 @@ import {
   FormField,
   Modal,
   SearchField,
+  SegmentedFilter,
   SelectField,
   TableCard,
 } from '@/components/ui/controls';
@@ -56,14 +55,15 @@ import {
   useGeneratePasswordMutation,
   useLazyCheckEmailQuery,
   useListAdminsQuery,
-  useListRolesQuery,
   useRevokeAdminSessionsMutation,
   useUpdateRolesMutation,
   useUpdateStatusMutation,
 } from '@/services/adminsApi';
+import { useListRolesQuery } from '@/services/rbacApi';
 import { clearAuth } from '@/store/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { normaliseApiError } from '@/types/api';
+import { useResetKey } from '@/lib/utils';
 import type {
   AdminListItem,
   AdminRoleOption,
@@ -122,6 +122,8 @@ function MiniStat({ value, label }: { value: string; label: string }) {
   );
 }
 
+/* Status filter UI: shared SegmentedFilter control (rendered in the table toolbar). */
+
 
 export function AdminsView() {
   const router = useRouter();
@@ -144,9 +146,8 @@ export function AdminsView() {
     const t = setTimeout(() => setDebounced(query.trim()), 300);
     return () => clearTimeout(t);
   }, [query]);
-  useEffect(() => {
-    setPage(1);
-  }, [tab, roleFilter, debounced]);
+  // Page resets on any filter change (render-phase reset, not an effect).
+  useResetKey(`${tab}|${roleFilter}|${debounced}`, () => setPage(1));
 
   const listArgs = {
     page,
@@ -183,7 +184,7 @@ export function AdminsView() {
   // Role options: canonical list from the API; fall back to the union of
   // roles present on loaded rows (never a hardcoded constant).
   const roleOptions: AdminRoleOption[] = useMemo(() => {
-    if (rolesRes?.data?.length) return rolesRes.data;
+    if (rolesRes?.data?.length) return rolesRes.data.map((r) => ({ key: r.key, name: r.name }));
     const seen = new Map<string, string>();
     for (const a of rows) for (const r of a.roles) seen.set(r.key, r.name);
     return [...seen].map(([key, name]) => ({ key, name }));
@@ -468,26 +469,17 @@ export function AdminsView() {
         }
         toolbar={
           <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
-            <Tabs
+            <SegmentedFilter<AdminStatusTab>
+              ariaLabel="Filter admins by status"
               value={tab}
-              onChange={(_, v: AdminStatusTab) => setTab(v)}
-              aria-label="Filter by status"
-              sx={{ minHeight: 40 }}
-            >
-              {(['All', 'ACTIVE', 'SUSPENDED', 'DISABLED'] as AdminStatusTab[]).map((t) => {
-                const label = t === 'All' ? 'All' : ADMIN_STATUS_LABEL[t];
-                const count =
-                  t === 'All' ? counts.total : counts[t.toLowerCase() as keyof typeof counts] ?? 0;
-                return (
-                  <Tab
-                    key={t}
-                    value={t}
-                    label={`${label} · ${count}`}
-                    sx={{ minHeight: 40, textTransform: 'none', fontWeight: 600 }}
-                  />
-                );
-              })}
-            </Tabs>
+              onChange={setTab}
+              options={[
+                { value: 'All', label: 'All', count: counts.total, dot: mercatoTokens.brand, ariaLabel: `Show all admins (${counts.total})` },
+                { value: 'ACTIVE', label: ADMIN_STATUS_LABEL.ACTIVE, count: counts.active, dot: mercatoTokens.good, ariaLabel: `Show active admins (${counts.active})` },
+                { value: 'SUSPENDED', label: ADMIN_STATUS_LABEL.SUSPENDED, count: counts.suspended, dot: mercatoTokens.accentStrong, ariaLabel: `Show suspended admins (${counts.suspended})` },
+                { value: 'DISABLED', label: ADMIN_STATUS_LABEL.DISABLED, count: counts.disabled, dot: mercatoTokens.bad, ariaLabel: `Show disabled admins (${counts.disabled})` },
+              ]}
+            />
             <Box sx={{ flex: 1 }} />
             <SearchField
               placeholder="Search name or email…"
@@ -525,7 +517,7 @@ export function AdminsView() {
         empty={{
           when: !listLoading && !listError && rows.length === 0,
           title: 'No admins match these filters',
-          description: 'Try a different name, status tab, or role — or clear the search.',
+          description: 'Try a different name, status filter, or role — or clear the search.',
           actionLabel: 'Clear filters',
           onAction: clearFilters,
         }}

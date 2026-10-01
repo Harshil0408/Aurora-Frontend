@@ -17,17 +17,21 @@ import { Delta } from '@/components/dashboard/Delta';
 import { int, money, topSellers } from '@/lib/sampleData';
 import { mercatoTokens } from '@/lib/theme';
 
-const planTone: Record<string, { bg: string; color: string; border: string }> = {
-  Scale: { bg: mercatoTokens.accentSoft, color: mercatoTokens.accentStrong, border: 'transparent' },
-  Growth: { bg: mercatoTokens.infoSoft, color: mercatoTokens.info, border: 'transparent' },
-  Starter: { bg: 'transparent', color: mercatoTokens.muted, border: mercatoTokens.lineStrong },
-};
+/** Resolved per render — module-scope would snapshot the default palette. */
+function getPlanTone(): Record<string, { bg: string; color: string; border: string }> {
+  return {
+    Scale: { bg: mercatoTokens.accentSoft, color: mercatoTokens.accentStrong, border: 'transparent' },
+    Growth: { bg: mercatoTokens.infoSoft, color: mercatoTokens.info, border: 'transparent' },
+    Starter: { bg: 'transparent', color: mercatoTokens.muted, border: mercatoTokens.lineStrong },
+  };
+}
 
 /**
  * Ranked table with inline bar (§5): seller cell (logo + name + sub),
  * value column pairs the number with a proportional bar, plan as chip.
  */
 export function TopSellers() {
+  const planTone = getPlanTone();
   return (
     <Paper component="section" aria-labelledby="sellers-title">
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>

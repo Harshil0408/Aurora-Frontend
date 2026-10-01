@@ -193,6 +193,8 @@ describe('DateTimeField', () => {
     // Navigate the calendar to September 2026.
     await user.click(screen.getByLabelText('Year'));
     await user.click(await screen.findByRole('option', { name: '2026' }));
+    await user.click(screen.getByLabelText('Month'));
+    await user.click(await screen.findByRole('option', { name: 'September' }));
     const before = screen.getByRole('gridcell', { name: 'Wednesday, September 9, 2026' });
     const inside = screen.getByRole('gridcell', { name: 'Thursday, September 10, 2026' });
     expect(before).toBeDisabled();

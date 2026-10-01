@@ -3,6 +3,13 @@
 :root {
   --background: #f2f0fb;
   --foreground: #1d1a3b;
+  --surface: #ffffff;
+  --surface-2: #f8f7fd;
+  --line: #e6e3f3;
+  --muted: #68648a;
+  --brand: #5b3df5;
+  --brand-strong: #4327d6;
+  --brand-soft: #ece8ff;
   color-scheme: light;
 }
 

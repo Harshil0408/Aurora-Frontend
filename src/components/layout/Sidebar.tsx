@@ -34,6 +34,7 @@ import { hexToRgba, mercatoTokens } from "@/lib/theme";
 import { Logo } from "@/components/ui/Logo";
 import { useMeQuery } from "@/services/authApi";
 import { useAppSelector } from "@/store/hooks";
+import { usePermissions } from "@/components/auth/RbacGuard";
 
 /** Roomy rail width — flush to the viewport edge, no floating margins. */
 export const SIDEBAR_WIDTH = 272;
@@ -44,6 +45,8 @@ interface NavItem {
   icon: React.ReactNode;
   badge?: string;
   quietBadge?: boolean;
+  /** Permission key required to see this item (hidden otherwise). */
+  perm?: string;
 }
 
 const sections: { title: string; items: NavItem[] }[] = [
@@ -79,16 +82,19 @@ const sections: { title: string; items: NavItem[] }[] = [
         label: "Admins",
         href: "/admins",
         icon: <AdminPanelSettingsIcon fontSize="small" />,
+        perm: "admin.read",
       },
       {
         label: "Roles & Permissions",
         href: "/roles",
         icon: <VpnKeyIcon fontSize="small" />,
+        perm: "role.read",
       },
       {
         label: "Activity Log",
         href: "/activity",
         icon: <HistoryIcon fontSize="small" />,
+        perm: "audit.read",
       },
       {
         label: "Sessions",
@@ -323,6 +329,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const meEmail = meData?.data.email ?? pendingEmail ?? null;
   const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
+  const { can, isLoading: permsLoading } = usePermissions();
+  // While permissions load, show everything (avoids a nav flicker on boot).
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => permsLoading || !item.perm || can(item.perm)),
+    }))
+    .filter((section) => section.items.length > 0);
 
   return (
     <Box
@@ -358,7 +372,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           },
         }}
       >
-        {sections.map((section) => (
+        {visibleSections.map((section) => (
           <Box
             key={section.title}
             component="section"

@@ -34,10 +34,20 @@ export const ALL_ROLES = ['Super Admin', 'Sub-Admin', 'Support', 'Finance'];
 /** Signed-in viewer is a Super Admin (see topbar chip). Non-Super-Admins never see the SA grant. */
 export const VIEWER_IS_SUPER_ADMIN = true;
 
+/**
+ * Status tones read live from `mercatoTokens` (getters, not a snapshot) so a
+ * saved theme still applies after reload / preset switch.
+ */
 export const statusTone: Record<AdminStatus, { bg: string; color: string }> = {
-  Active: { bg: mercatoTokens.goodSoft, color: mercatoTokens.good },
-  Suspended: { bg: mercatoTokens.accentSoft, color: mercatoTokens.accentStrong },
-  Disabled: { bg: mercatoTokens.badSoft, color: mercatoTokens.bad },
+  get Active() {
+    return { bg: mercatoTokens.goodSoft, color: mercatoTokens.good };
+  },
+  get Suspended() {
+    return { bg: mercatoTokens.accentSoft, color: mercatoTokens.accentStrong };
+  },
+  get Disabled() {
+    return { bg: mercatoTokens.badSoft, color: mercatoTokens.bad };
+  },
 };
 
 export const tabs: Array<'All' | AdminStatus> = ['All', 'Active', 'Suspended', 'Disabled'];
@@ -45,87 +55,8 @@ export const tabs: Array<'All' | AdminStatus> = ['All', 'Active', 'Suspended', '
 export type DialogKind = null | 'create' | 'details' | 'status' | 'roles' | 'revoke';
 
 /* ------------------------------- /roles ------------------------------- */
-
-export interface Role {
-  key: string;
-  name: string;
-  description: string;
-  system?: boolean;
-}
-
-export interface PermGroup {
-  group: string;
-  perms: Array<{ key: string; label: string; hint: string }>;
-}
-
-export const PERM_GROUPS: PermGroup[] = [
-  {
-    group: 'Admins',
-    perms: [
-      { key: 'admins.view', label: 'View', hint: 'List and inspect admin accounts' },
-      { key: 'admins.create', label: 'Create', hint: 'Invite new admin accounts' },
-      { key: 'admins.edit', label: 'Edit', hint: 'Change status and details' },
-      { key: 'admins.suspend', label: 'Suspend', hint: 'Suspend or disable accounts' },
-    ],
-  },
-  {
-    group: 'Roles',
-    perms: [
-      { key: 'roles.view', label: 'View', hint: 'List roles and permissions' },
-      { key: 'roles.create', label: 'Create', hint: 'Create new custom roles' },
-      { key: 'roles.edit', label: 'Edit', hint: 'Change permissions of a role' },
-      { key: 'roles.assign', label: 'Assign', hint: 'Grant or remove roles on admins' },
-    ],
-  },
-  {
-    group: 'Activity',
-    perms: [
-      { key: 'activity.view', label: 'View', hint: 'Read the activity log' },
-      { key: 'activity.export', label: 'Export', hint: 'Download log excerpts' },
-    ],
-  },
-  {
-    group: 'Sessions',
-    perms: [
-      { key: 'sessions.view', label: 'View', hint: 'List active admin sessions' },
-      { key: 'sessions.revoke', label: 'Revoke', hint: 'Revoke one or all sessions' },
-    ],
-  },
-];
-
-export const INITIAL_ROLES: Role[] = [
-  {
-    key: 'super-admin',
-    name: 'Super Admin',
-    description: 'Full access, including role grants and admin suspension.',
-    system: true,
-  },
-  {
-    key: 'sub-admin',
-    name: 'Sub-Admin',
-    description: 'Manage sellers, products and orders. Cannot touch roles.',
-    system: true,
-  },
-  {
-    key: 'support',
-    name: 'Support',
-    description: 'Read-only access plus refunds and ticket replies.',
-    system: true,
-  },
-  {
-    key: 'finance',
-    name: 'Finance',
-    description: 'Payouts, commissions and subscriptions.',
-    system: false,
-  },
-];
-
-export const INITIAL_GRANTS: Record<string, string[]> = {
-  'super-admin': PERM_GROUPS.flatMap((g) => g.perms.map((p) => p.key)),
-  'sub-admin': ['admins.view', 'activity.view', 'sessions.view'],
-  support: ['activity.view'],
-  finance: ['activity.view', 'activity.export', 'sessions.view'],
-};
+/* (Role/permission data is live from GET /admin/{roles,permissions} — see
+   src/types/rbac.ts. No preview constants.) */
 
 /* ------------------------------ /activity ----------------------------- */
 

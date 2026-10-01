@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  AURORA_COLORS,
   DEFAULT_RADIUS_LG,
   applyThemeTokens,
   radiusForLg,
@@ -10,318 +9,46 @@ import {
   type ThemeColors,
   type ThemeTokens,
 } from '@/lib/theme';
+import {
+  DEFAULT_PRESET_ID,
+  RESOLVED_KEY,
+  THEME_CSS_VARS,
+  THEME_PRESETS,
+  getPreset,
+  type ThemePreset,
+} from './themePresets';
 
-/**
- * Theme Manager presets — polished light-mode palettes for the console.
- * The active palette is applied live to `mercatoTokens` and persisted to
- * localStorage, so it survives reloads. 80–90% of surfaces stay neutral;
- * the brand color drives actions, active states, links, and focus rings.
- */
+export {
+  DEFAULT_PRESET_ID,
+  RESOLVED_KEY,
+  THEME_CSS_VARS,
+  THEME_PRESETS,
+  getPreset,
+} from './themePresets';
+export type { ThemePreset } from './themePresets';
 
-export interface ThemePreset {
-  id: string;
-  name: string;
-  tagline: string;
-  vibe: string;
-  bestFor: string;
-  colors: ThemeColors;
-}
-
-export const THEME_PRESETS: ThemePreset[] = [
-  {
-    id: 'aurora',
-    name: 'Aurora Violet',
-    tagline: 'The out-of-box look — lilac mist, ink text, electric violet.',
-    vibe: 'Premium · creative · signature',
-    bestFor: 'Default for Aurora Admin',
-    colors: { ...AURORA_COLORS },
-  },
-  {
-    id: 'indigo',
-    name: 'Indigo',
-    tagline: 'Premium SaaS blue-violet. The safest premium pick.',
-    vibe: 'Premium · modern · trustworthy',
-    bestFor: 'Admin panels, B2B SaaS, analytics',
-    colors: {
-      bg: '#FAFAF9',
-      surface: '#FFFFFF',
-      surface2: '#F5F5F4',
-      line: '#E7E5E4',
-      lineStrong: '#D6D3D1',
-      text: '#18181B',
-      muted: '#71717A',
-      faint: '#A1A1AA',
-      brand: '#4F46E5',
-      brandStrong: '#4338CA',
-      brandSoft: '#EEEDFE',
-    },
-  },
-  {
-    id: 'blue',
-    name: 'Corporate Blue',
-    tagline: 'Clean, familiar enterprise blue.',
-    vibe: 'Professional · reliable · familiar',
-    bestFor: 'CRM, ERP, fintech, business platforms',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#F1F5F9',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#2563EB',
-      brandStrong: '#1D4ED8',
-      brandSoft: '#EFF6FF',
-    },
-  },
-  {
-    id: 'emerald',
-    name: 'Emerald',
-    tagline: 'Fresh green for productive teams.',
-    vibe: 'Fresh · positive · productive',
-    bestFor: 'Productivity, finance, health, project tools',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#F0FDF4',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#059669',
-      brandStrong: '#047857',
-      brandSoft: '#ECFDF5',
-    },
-  },
-  {
-    id: 'cyan',
-    name: 'Cyan Tech',
-    tagline: 'Energetic cyan for technical products.',
-    vibe: 'Technical · modern · energetic',
-    bestFor: 'Developer tools, AI SaaS, APIs, cloud',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#ECFEFF',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#0891B2',
-      brandStrong: '#0E7490',
-      brandSoft: '#E0F7FD',
-    },
-  },
-  {
-    id: 'violet',
-    name: 'Creative Violet',
-    tagline: 'Sophisticated violet with a futuristic edge.',
-    vibe: 'Creative · sophisticated · futuristic',
-    bestFor: 'AI products, design tools, marketing',
-    colors: {
-      bg: '#FAFAFF',
-      surface: '#FFFFFF',
-      surface2: '#F5F3FF',
-      line: '#E5E7EB',
-      lineStrong: '#D1D5DB',
-      text: '#18181B',
-      muted: '#71717A',
-      faint: '#A1A1AA',
-      brand: '#7C3AED',
-      brandStrong: '#6D28D9',
-      brandSoft: '#EFE9FE',
-    },
-  },
-  {
-    id: 'rose',
-    name: 'Startup Rose',
-    tagline: 'Bold rose for youthful products.',
-    vibe: 'Bold · youthful · startup',
-    bestFor: 'Consumer SaaS, communities, social',
-    colors: {
-      bg: '#FFFDFD',
-      surface: '#FFFFFF',
-      surface2: '#FFF1F2',
-      line: '#E5E7EB',
-      lineStrong: '#D1D5DB',
-      text: '#18181B',
-      muted: '#71717A',
-      faint: '#A1A1AA',
-      brand: '#E11D48',
-      brandStrong: '#BE123C',
-      brandSoft: '#FFE4E9',
-    },
-  },
-  {
-    id: 'amber',
-    name: 'Warm Amber',
-    tagline: 'Approachable warm premium.',
-    vibe: 'Warm · premium · approachable',
-    bestFor: 'Finance, consulting, marketplaces',
-    colors: {
-      bg: '#FFFCF7',
-      surface: '#FFFFFF',
-      surface2: '#FFFBEB',
-      line: '#E7E5E4',
-      lineStrong: '#D6D3D1',
-      text: '#1C1917',
-      muted: '#78716C',
-      faint: '#A8A29E',
-      brand: '#D97706',
-      brandStrong: '#B45309',
-      brandSoft: '#FEF3DF',
-    },
-  },
-  {
-    id: 'slate',
-    name: 'Minimal Slate',
-    tagline: 'Serious, Linear-like minimalism.',
-    vibe: 'Minimal · serious · sophisticated',
-    bestFor: 'Dev tools, enterprise SaaS, productivity',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#F1F5F9',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#334155',
-      brandStrong: '#1E293B',
-      brandSoft: '#E8EDF3',
-    },
-  },
-  {
-    id: 'teal',
-    name: 'Deep Teal',
-    tagline: 'Calm teal for focused operations.',
-    vibe: 'Calm · balanced · dependable',
-    bestFor: 'Support desks, health ops, logistics',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#F0FDFA',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#0D9488',
-      brandStrong: '#0F766E',
-      brandSoft: '#DFF7F1',
-    },
-  },
-  {
-    id: 'sky',
-    name: 'Airy Sky',
-    tagline: 'Light, communicative sky blue.',
-    vibe: 'Airy · friendly · open',
-    bestFor: 'Collaboration, comms, education',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#F0F9FF',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#0284C7',
-      brandStrong: '#0369A1',
-      brandSoft: '#E0F2FE',
-    },
-  },
-  {
-    id: 'fuchsia',
-    name: 'Bold Fuchsia',
-    tagline: 'Expressive magenta for standout brands.',
-    vibe: 'Expressive · bold · memorable',
-    bestFor: 'Marketing, creator tools, events',
-    colors: {
-      bg: '#FDFCFD',
-      surface: '#FFFFFF',
-      surface2: '#FDF4FF',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#C026D3',
-      brandStrong: '#A21CAF',
-      brandSoft: '#F8E3FD',
-    },
-  },
-  {
-    id: 'orange',
-    name: 'Vivid Orange',
-    tagline: 'Energetic orange with warm neutrals.',
-    vibe: 'Energetic · friendly · optimistic',
-    bestFor: 'Marketplaces, food, logistics, retail',
-    colors: {
-      bg: '#FFFDF8',
-      surface: '#FFFFFF',
-      surface2: '#FFF7ED',
-      line: '#E7E5E4',
-      lineStrong: '#D6D3D1',
-      text: '#1C1917',
-      muted: '#78716C',
-      faint: '#A8A29E',
-      brand: '#EA580C',
-      brandStrong: '#C2410C',
-      brandSoft: '#FFE9D6',
-    },
-  },
-  {
-    id: 'lime',
-    name: 'Fresh Lime',
-    tagline: 'Zesty green for growth-stage teams.',
-    vibe: 'Zesty · fresh · growth',
-    bestFor: 'Startups, analytics, growth tools',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#F7FEE7',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#65A30D',
-      brandStrong: '#4D7C0F',
-      brandSoft: '#E9F6CF',
-    },
-  },
-  {
-    id: 'midnight',
-    name: 'Midnight Navy',
-    tagline: 'Deep navy for serious money matters.',
-    vibe: 'Deep · prestigious · calm',
-    bestFor: 'Banking, legal, insurance, enterprise',
-    colors: {
-      bg: '#F8FAFC',
-      surface: '#FFFFFF',
-      surface2: '#EEF2FF',
-      line: '#E2E8F0',
-      lineStrong: '#CBD5E1',
-      text: '#0F172A',
-      muted: '#64748B',
-      faint: '#94A3B8',
-      brand: '#1E40AF',
-      brandStrong: '#1E3A8A',
-      brandSoft: '#E3EAF9',
-    },
-  },
-];
-
-export const DEFAULT_PRESET_ID = 'aurora';
+/* Preset data (table, ids, boot keys, CSS-var map) lives in ./themePresets.ts
+   (server-safe, no 'use client') and is re-exported at the top of this file. */
 
 const PRESET_KEY = 'aurora-theme-preset';
 const CUSTOM_KEY = 'aurora-theme-custom';
+
+type CssVarSource = Partial<Record<keyof typeof THEME_CSS_VARS, string>>;
+
+/** Push theme colors into `:root` vars (body + loader paint from these pre-hydration). */
+export function applyCssVars(colors: CssVarSource): void {
+  try {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    (Object.keys(THEME_CSS_VARS) as Array<keyof typeof THEME_CSS_VARS>).forEach((k) => {
+      const v = colors[k];
+      if (typeof v === 'string') root.style.setProperty(THEME_CSS_VARS[k], v);
+    });
+    root.style.setProperty('color-scheme', 'light');
+  } catch {
+    /* non-DOM environment */
+  }
+}
 
 export interface SavedTheme {
   presetId: string;
@@ -332,10 +59,6 @@ export interface SavedTheme {
 export interface ThemeCustom extends Partial<ThemeColors>, Partial<StatusColors> {
   radiusLg?: number;
   shadowScale?: number;
-}
-
-export function getPreset(id: string): ThemePreset {
-  return THEME_PRESETS.find((p) => p.id === id) ?? THEME_PRESETS[0];
 }
 
 function hexToRgbTuple(hex: string): [number, number, number] {
@@ -420,17 +143,11 @@ export function activatePreset(
     radiusLg: clean?.radiusLg,
     shadowScale: clean?.shadowScale,
   });
-  try {
-    if (typeof document !== 'undefined') {
-      // Keep the pre-hydration CSS fallbacks (globals.css) in sync.
-      document.documentElement.style.setProperty('--background', merged.bg);
-      document.documentElement.style.setProperty('--foreground', merged.text);
-    }
-  } catch {
-    /* non-DOM environment */
-  }
+  // Keep the pre-hydration CSS fallbacks (globals.css) in sync.
+  applyCssVars(merged);
   writeStorage(PRESET_KEY, preset.id);
   writeStorage(CUSTOM_KEY, clean ? JSON.stringify(clean) : null);
+  writeStorage(RESOLVED_KEY, JSON.stringify(merged));
   return preset;
 }
 

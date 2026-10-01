@@ -3,7 +3,6 @@ import type { ApiPaginated, ApiSuccess } from '@/types/api';
 import type {
   AdminDetail,
   AdminListItem,
-  AdminRoleOption,
   AdminsCounts,
   AdminsSummary,
   AdminStatus,
@@ -45,10 +44,6 @@ export const adminsApi = api.injectEndpoints({
     adminDetail: build.query<ApiSuccess<AdminDetail>, string>({
       query: (id) => ({ url: `/admin/admins/${id}`, method: 'GET' }),
       providesTags: (_res, _err, id) => [{ type: 'AdminDetail', id }],
-    }),
-    listRoles: build.query<ApiSuccess<AdminRoleOption[]>, void>({
-      query: () => ({ url: '/admin/roles', method: 'GET' }),
-      providesTags: ['Roles'],
     }),
     checkEmail: build.query<ApiSuccess<{ available: boolean }>, string>({
       query: (email) => ({
@@ -96,7 +91,6 @@ export const {
   useListAdminsQuery,
   useAdminSummaryQuery,
   useAdminDetailQuery,
-  useListRolesQuery,
   useLazyCheckEmailQuery,
   useGeneratePasswordMutation,
   useCreateAdminMutation,

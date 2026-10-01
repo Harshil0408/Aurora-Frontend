@@ -18,7 +18,6 @@ jest.mock('@/services/adminsApi', () => ({
   useListAdminsQuery: (...args: unknown[]) => mockListQuery(...args),
   useAdminSummaryQuery: (...args: unknown[]) => mockSummaryQuery(...args),
   useAdminDetailQuery: (...args: unknown[]) => mockDetailQuery(...args),
-  useListRolesQuery: (...args: unknown[]) => mockRolesQuery(...args),
   useLazyCheckEmailQuery: () => [mockTriggerCheck, { isLoading: false }],
   useGeneratePasswordMutation: () => [mockTriggerGenerate, { isLoading: false }],
   useCreateAdminMutation: () => [mockTriggerCreate, { isLoading: false }],
@@ -29,6 +28,10 @@ jest.mock('@/services/adminsApi', () => ({
 
 jest.mock('@/services/authApi', () => ({
   useMeQuery: (...args: unknown[]) => mockMeQuery(...args),
+}));
+
+jest.mock('@/services/rbacApi', () => ({
+  useListRolesQuery: (...args: unknown[]) => mockRolesQuery(...args),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -126,7 +129,7 @@ describe('AdminsView (live API wiring)', () => {
     const user = userEvent.setup();
     renderWithProviders(<AdminsView />);
     await screen.findByText('ines@mercato.com');
-    await user.click(screen.getByRole('tab', { name: /Suspended/ }));
+    await user.click(screen.getByRole('button', { name: /suspended/i }));
     await screen.findByText('ines@mercato.com');
     const lastCall = mockListQuery.mock.calls[mockListQuery.mock.calls.length - 1][0];
     expect(lastCall).toEqual(expect.objectContaining({ status: 'SUSPENDED', page: 1 }));
