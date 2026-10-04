@@ -1,8 +1,11 @@
 import { renderWithProviders, screen, userEvent } from '@/test-utils';
-import { AccessDenied, RbacGuard, useViewerIsSuperAdmin } from '../RbacGuard';
+import { AccessDenied, Can, RbacGuard, useViewerIsSuperAdmin } from '../RbacGuard';
 
 const mockMyPermissions = jest.fn();
 const mockMeQuery = jest.fn();
+const mockNotFound = jest.fn((): never => {
+  throw new Error('NEXT_NOT_FOUND');
+});
 
 jest.mock('@/services/rbacApi', () => ({
   useMyPermissionsQuery: (...args: unknown[]) => mockMyPermissions(...args),
@@ -10,6 +13,10 @@ jest.mock('@/services/rbacApi', () => ({
 
 jest.mock('@/services/authApi', () => ({
   useMeQuery: (...args: unknown[]) => mockMeQuery(...args),
+}));
+
+jest.mock('next/navigation', () => ({
+  notFound: () => mockNotFound(),
 }));
 
 function permsPayload(permissions: string[]) {
@@ -39,14 +46,16 @@ describe('RbacGuard', () => {
     expect(screen.queryByText('secret')).not.toBeInTheDocument();
   });
 
-  it('renders Access Denied when the key is missing', () => {
+  it('calls notFound (404) when the key is missing', () => {
     mockMyPermissions.mockReturnValue(permsPayload(['admin.read']));
-    renderWithProviders(
-      <RbacGuard perm="role.read">
-        <p>secret</p>
-      </RbacGuard>,
-    );
-    expect(screen.getByRole('alert', { name: 'Access Denied' })).toBeInTheDocument();
+    expect(() =>
+      renderWithProviders(
+        <RbacGuard perm="role.read">
+          <p>secret</p>
+        </RbacGuard>,
+      ),
+    ).toThrow('NEXT_NOT_FOUND');
+    expect(mockNotFound).toHaveBeenCalled();
     expect(screen.queryByText('secret')).not.toBeInTheDocument();
   });
 
@@ -58,6 +67,34 @@ describe('RbacGuard', () => {
       </RbacGuard>,
     );
     expect(screen.getByText('secret')).toBeInTheDocument();
+  });
+
+  it('Can hides gated UI without permission and shows it with permission', () => {
+    mockMyPermissions.mockReturnValue(permsPayload(['admin.read']));
+    const { unmount } = renderWithProviders(
+      <Can perm="admin.create">
+        <button>Create Admin</button>
+      </Can>,
+    );
+    expect(screen.queryByRole('button', { name: 'Create Admin' })).not.toBeInTheDocument();
+    unmount();
+    mockMyPermissions.mockReturnValue(permsPayload(['admin.read', 'admin.create']));
+    renderWithProviders(
+      <Can perm="admin.create">
+        <button>Create Admin</button>
+      </Can>,
+    );
+    expect(screen.getByRole('button', { name: 'Create Admin' })).toBeInTheDocument();
+  });
+
+  it('Can returns null while permissions load (no flash of forbidden UI)', () => {
+    mockMyPermissions.mockReturnValue({ data: undefined, isLoading: true });
+    renderWithProviders(
+      <Can perm="admin.create">
+        <button>Create Admin</button>
+      </Can>,
+    );
+    expect(screen.queryByRole('button', { name: 'Create Admin' })).not.toBeInTheDocument();
   });
 
   it('AccessDenied shows a retry action when provided', async () => {

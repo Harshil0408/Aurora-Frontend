@@ -3,7 +3,9 @@ import { config } from "@/lib/config";
 import { tokenManager } from "@/lib/tokenManager";
 
 export const apiClient = axios.create({
-  baseURL: config.apiBaseUrl,
+  // Same-origin BFF (`src/app/api/[...path]/route.ts`) — never the backend
+  // origin directly. Keeps the refresh cookie first-party + avoids CORS.
+  baseURL: config.apiProxyBase,
   withCredentials: true,
   timeout: 15_000,
   headers: { "Content-Type": "application/json" },
@@ -27,7 +29,7 @@ async function performRefresh(): Promise<string | null> {
     success: true;
     data: { accessToken: string; expiresInSeconds: number };
   }>(
-    `${config.apiBaseUrl}/admin/auth/refresh`,
+    `${config.apiProxyBase}/admin/auth/refresh`,
     {},
     { withCredentials: true, timeout: 15_000 },
   );

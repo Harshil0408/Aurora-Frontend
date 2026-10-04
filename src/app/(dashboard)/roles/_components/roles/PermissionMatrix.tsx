@@ -35,7 +35,7 @@ export function PermissionMatrix({
   if (!groups || groups.length === 0) {
     return (
       <Typography color="text.secondary" sx={{ fontSize: '0.86rem', py: 1 }}>
-        No permissions in the catalog yet — define the first one from the Permissions screen.
+        No permissions in the catalog yet — permission keys are seeded by the backend.
       </Typography>
     );
   }

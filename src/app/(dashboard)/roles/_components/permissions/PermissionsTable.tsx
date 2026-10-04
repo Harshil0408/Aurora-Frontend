@@ -4,9 +4,6 @@ import { useMemo, useState } from 'react';
 import {
   Box,
   Chip,
-  IconButton,
-  Menu,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -15,31 +12,26 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { DataLoader } from '@/components/ui/DataLoader';
 import { FallbackUI } from '@/components/ui/FallbackUI';
-import { AccessDenied, usePermissions, useViewerIsSuperAdmin } from '@/components/auth/RbacGuard';
+import { AccessDenied } from '@/components/auth/RbacGuard';
 import { SearchField, SegmentedFilter, TableCard } from '@/components/ui/controls';
 import { useListPermissionsQuery } from '@/services/rbacApi';
-import { useAppDispatch } from '@/store/hooks';
-import { openPermissionDialog } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
-import type { Permission, PermissionStatus } from '@/types/rbac';
+import type { PermissionStatus } from '@/types/rbac';
 import { formatMonth } from '@/lib/utils';
 import { mercatoTokens } from '@/lib/theme';
 
 type StatusFilter = 'ALL' | PermissionStatus;
 
-/** Permissions catalog table — search + status filter + guarded row menu. */
+/**
+ * Permissions catalog table — read-only. Keys are code-defined + seeded by
+ * the backend; there is no API to create, edit, or delete them, so this
+ * table has search + status filter and no row actions.
+ */
 export function PermissionsTable() {
-  const dispatch = useAppDispatch();
-  const { can } = usePermissions();
-  const viewerIsSuperAdmin = useViewerIsSuperAdmin();
-
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-  const [menuPerm, setMenuPerm] = useState<Permission | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useListPermissionsQuery(undefined);
   const permissions = useMemo(() => data?.data ?? [], [data]);
@@ -68,17 +60,6 @@ export function PermissionsTable() {
     });
   }, [permissions, search, statusFilter]);
 
-  const canUpdate = can('role.update');
-
-  const openMenu = (e: React.MouseEvent<HTMLElement>, perm: Permission) => {
-    setMenuPerm(perm);
-    setMenuAnchor(e.currentTarget);
-  };
-  const closeMenu = () => {
-    setMenuAnchor(null);
-    setMenuPerm(null);
-  };
-
   if (!isLoading && isError && normaliseApiError(error).status === 403) {
     return <AccessDenied description="You don't hold role.read — contact an administrator." />;
   }
@@ -88,8 +69,8 @@ export function PermissionsTable() {
       title="Permission catalog"
       subtitle={
         permissions.length > 0
-          ? `${permissions.length} permission${permissions.length === 1 ? '' : 's'} · ${counts.inactive} disabled — keys are permanent, labels are editable`
-          : 'Permissions live here once the first one is defined.'
+          ? `${permissions.length} permission${permissions.length === 1 ? '' : 's'} · ${counts.inactive} disabled — keys are code-defined and seeded, read-only here`
+          : 'Permissions live here once the backend seeds the first ones.'
       }
       toolbar={
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
@@ -118,7 +99,7 @@ export function PermissionsTable() {
         title: permissions.length === 0 ? 'No permissions yet' : 'No permissions match these filters',
         description:
           permissions.length === 0
-            ? 'Define the first permission — it becomes assignable to roles immediately.'
+            ? 'Permission keys are seeded by the backend — nothing to define here.'
             : 'Try a different term or status filter.',
       }}
     >
@@ -146,7 +127,6 @@ export function PermissionsTable() {
                 <TableCell>Status</TableCell>
                 <TableCell>Roles</TableCell>
                 <TableCell>Updated</TableCell>
-                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -188,51 +168,12 @@ export function PermissionsTable() {
                     </Typography>
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>{formatMonth(p.updatedAt)}</TableCell>
-                  <TableCell align="right">
-                    <IconButton aria-label={`Actions for ${p.key}`} aria-haspopup="menu" onClick={(e) => openMenu(e, p)}>
-                      <MoreVertIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
-
-      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeMenu} aria-label="Permission actions">
-        {canUpdate ? (
-          <MenuItem
-            onClick={() => {
-              if (menuPerm) dispatch(openPermissionDialog({ kind: 'edit', permissionKey: menuPerm.key }));
-              closeMenu();
-            }}
-          >
-            Edit label
-          </MenuItem>
-        ) : null}
-        {canUpdate ? (
-          <MenuItem
-            onClick={() => {
-              if (menuPerm) dispatch(openPermissionDialog({ kind: 'status', permissionKey: menuPerm.key }));
-              closeMenu();
-            }}
-          >
-            {menuPerm?.status === 'ACTIVE' ? 'Disable' : 'Re-enable'}
-          </MenuItem>
-        ) : null}
-        {canUpdate && viewerIsSuperAdmin && menuPerm && !menuPerm.isSystem && menuPerm.roleCount === 0 ? (
-          <MenuItem
-            onClick={() => {
-              if (menuPerm) dispatch(openPermissionDialog({ kind: 'delete', permissionKey: menuPerm.key }));
-              closeMenu();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            Delete
-          </MenuItem>
-        ) : null}
-      </Menu>
     </TableCard>
   );
 }

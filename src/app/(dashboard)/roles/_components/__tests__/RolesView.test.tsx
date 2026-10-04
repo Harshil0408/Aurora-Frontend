@@ -16,10 +16,6 @@ const mockUpdateMeta = jest.fn();
 const mockSave = jest.fn();
 const mockStatus = jest.fn();
 const mockDeleteRole = jest.fn();
-const mockDefine = jest.fn();
-const mockUpdatePerm = jest.fn();
-const mockPermStatus = jest.fn();
-const mockDeletePerm = jest.fn();
 
 jest.mock('@/services/rbacApi', () => ({
   useMyPermissionsQuery: (...args: unknown[]) => mockMyPermissions(...args),
@@ -31,16 +27,22 @@ jest.mock('@/services/rbacApi', () => ({
   useCloneRoleMutation: () => [mockClone, { isLoading: false }],
   useUpdateRoleMetaMutation: () => [mockUpdateMeta, { isLoading: false }],
   useReplaceRolePermissionsMutation: () => [mockSave, { isLoading: false }],
+  useGrantRolePermissionsMutation: () => [jest.fn(), { isLoading: false }],
+  useRevokeRolePermissionsMutation: () => [jest.fn(), { isLoading: false }],
   useUpdateRoleStatusMutation: () => [mockStatus, { isLoading: false }],
   useDeleteRoleMutation: () => [mockDeleteRole, { isLoading: false }],
-  useDefinePermissionMutation: () => [mockDefine, { isLoading: false }],
-  useUpdatePermissionMutation: () => [mockUpdatePerm, { isLoading: false }],
-  useUpdatePermissionStatusMutation: () => [mockPermStatus, { isLoading: false }],
-  useDeletePermissionMutation: () => [mockDeletePerm, { isLoading: false }],
 }));
 
 jest.mock('@/services/authApi', () => ({
   useMeQuery: (...args: unknown[]) => mockMeQuery(...args),
+}));
+
+const mockNotFound = jest.fn((): never => {
+  throw new Error('NEXT_NOT_FOUND');
+});
+
+jest.mock('next/navigation', () => ({
+  notFound: () => mockNotFound(),
 }));
 
 jest.mock('next/link', () => ({
@@ -161,16 +163,15 @@ describe('RolesView (live RBAC wiring)', () => {
     expect(within(table).getByText('Inactive')).toBeInTheDocument();
   });
 
-  it('denies the whole page without role.read', async () => {
+  it('renders 404 without role.read even via direct route', async () => {
     mockMyPermissions.mockReturnValue({
       data: { success: true, data: { permissions: ['admin.read'] } },
       isLoading: false,
       isError: false,
       refetch: jest.fn(),
     });
-    renderWithProviders(<RolesView />);
-    expect(await screen.findByRole('alert', { name: 'Access Denied' })).toBeInTheDocument();
-    expect(screen.queryByText('Support')).not.toBeInTheDocument();
+    expect(() => renderWithProviders(<RolesView />)).toThrow('NEXT_NOT_FOUND');
+    expect(mockNotFound).toHaveBeenCalled();
   });
 
   it('status filter and search narrow the table', async () => {
@@ -217,9 +218,10 @@ describe('RolesView (live RBAC wiring)', () => {
           data: {
             success: false,
             error: {
-              code: 'CANNOT_GRANT_UNHELD_PERMISSION',
+              code: 'FORBIDDEN',
               message: "You don't hold these",
-              details: { unheld: ['admin.read'] },
+              details: { code: 'CANNOT_GRANT_UNHELD_PERMISSION', unheld: ['admin.read'] },
+              requestId: 'req-unheld-1',
             },
           },
         }),
@@ -236,7 +238,7 @@ describe('RolesView (live RBAC wiring)', () => {
     expect(await screen.findByText(/Ask a Super Admin/)).toBeInTheDocument();
   });
 
-  it('create modal validates the slug live and selects the new role', async () => {
+  it('create modal validates the slug live and sends an explicit empty list', async () => {
     const user = userEvent.setup();
     mockCreate.mockReturnValue({
       unwrap: () =>
@@ -249,19 +251,48 @@ describe('RolesView (live RBAC wiring)', () => {
     await user.click(screen.getByRole('button', { name: 'Create Role' }));
     const keyField = screen.getByPlaceholderText('e.g. catalog-manager');
     await user.type(keyField, 'Bad Key!!');
-    expect(screen.getByRole('button', { name: 'Create role' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next: permissions' })).toBeDisabled();
     await user.clear(keyField);
     await user.type(keyField, 'catalog-manager');
     await user.type(screen.getByPlaceholderText('e.g. Catalog Manager'), 'Catalog Manager');
-    await user.click(screen.getByRole('button', { name: 'Create role' }));
+    await user.click(screen.getByRole('button', { name: 'Next: permissions' }));
+    // Nothing checked — the form still sends an explicit empty list (never omitted).
+    await user.click(screen.getByRole('button', { name: 'Create empty role' }));
     await waitFor(() =>
       expect(mockCreate).toHaveBeenCalledWith({
         key: 'catalog-manager',
         name: 'Catalog Manager',
         description: undefined,
+        permissionKeys: [],
       }),
     );
     expect(await screen.findByText(/Logged to Activity log/)).toBeInTheDocument();
+  });
+
+  it('create modal sends the picked starting permissions explicitly', async () => {
+    const user = userEvent.setup();
+    mockCreate.mockReturnValue({
+      unwrap: () =>
+        Promise.resolve({
+          data: { ...SUPPORT, key: 'billing-analyst', name: 'Billing Analyst', permissions: ['admin.read'], permissionCount: 1 },
+        }),
+    });
+    renderWithProviders(<RolesView />);
+    await screen.findByText('Support');
+    await user.click(screen.getByRole('button', { name: 'Create Role' }));
+    await user.type(screen.getByPlaceholderText('e.g. catalog-manager'), 'billing-analyst');
+    await user.type(screen.getByPlaceholderText('e.g. Catalog Manager'), 'Billing Analyst');
+    await user.click(screen.getByRole('button', { name: 'Next: permissions' }));
+    await user.click(await screen.findByRole('checkbox', { name: /Read admins/ }));
+    await user.click(screen.getByRole('button', { name: 'Create with 1' }));
+    await waitFor(() =>
+      expect(mockCreate).toHaveBeenCalledWith({
+        key: 'billing-analyst',
+        name: 'Billing Analyst',
+        description: undefined,
+        permissionKeys: ['admin.read'],
+      }),
+    );
   });
 
   it('clone pre-fills from source and status change requires a logged reason', async () => {
@@ -353,7 +384,7 @@ describe('RolesView (live RBAC wiring)', () => {
     expect(screen.getByRole('button', { name: 'Confirm + save' })).toBeDisabled();
   });
 
-  it('permissions screen renders the catalog and opens define', async () => {
+  it('permissions screen is a read-only catalog reference', async () => {
     const user = userEvent.setup();
     mockListPermissions.mockReturnValue({
       data: {
@@ -377,22 +408,14 @@ describe('RolesView (live RBAC wiring)', () => {
       isError: false,
       refetch: jest.fn(),
     });
-    mockDefine.mockReturnValue({
-      unwrap: () => Promise.resolve({ data: { key: 'inventory.adjust' } }),
-    });
     renderWithProviders(<RolesView />);
     await screen.findByText('Support');
     await user.click(screen.getByRole('button', { name: 'Show Permissions screen' }));
     expect(await screen.findByText('Ban users')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Define Permission' }));
-    await user.type(screen.getByPlaceholderText('e.g. inventory.adjust'), 'inventory.adjust');
-    await user.click(screen.getByRole('button', { name: 'Define permission' }));
-    await waitFor(() =>
-      expect(mockDefine).toHaveBeenCalledWith({
-        key: 'inventory.adjust',
-        label: undefined,
-        description: undefined,
-      }),
-    );
+    // No create/edit/delete affordances — keys are code-defined + seeded.
+    expect(screen.queryByRole('button', { name: 'Define Permission' })).not.toBeInTheDocument();
+    expect(screen.getByText(/code-defined and seeded/)).toBeInTheDocument();
+    const table = screen.getByRole('table', { name: 'Permissions' });
+    expect(within(table).queryByRole('button')).not.toBeInTheDocument();
   });
 });

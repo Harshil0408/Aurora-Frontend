@@ -18,6 +18,17 @@ export function machineCode(err: unknown): string | undefined {
 }
 
 /**
+ * Backend machine code from `error.details.code` (e.g.
+ * `CANNOT_GRANT_UNHELD_PERMISSION`, `PERMISSION_INACTIVE`). The envelope
+ * `error.code` only carries the HTTP enum — always read RBAC machine codes
+ * from here instead of `machineCode()`.
+ */
+export function detailsCode(err: unknown): string | undefined {
+  const details = normaliseApiError(err).details as { code?: unknown } | null | undefined;
+  return typeof details?.code === 'string' ? details.code : undefined;
+}
+
+/**
  * Reset-on-change for dialog/draft state (render-phase, no effect).
  * Runs `reset` when `key` changes — e.g. form prefill when async data
  * arrives, or draft resync when another role is selected. Prefer this over

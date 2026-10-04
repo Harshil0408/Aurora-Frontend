@@ -27,6 +27,20 @@ const initialState: AuthState = {
 
 const SESSION_HINT_KEY = "ecomm-admin-has-session";
 
+function setCookieHint(): void {
+  try {
+    // Mirror of the localStorage hint, visible to `middleware.ts`.
+    // UX-only (client-writable); the backend re-authorizes every request.
+    document.cookie = `${SESSION_HINT_KEY}=1; Path=/; Max-Age=86400; SameSite=Lax`;
+  } catch {}
+}
+
+function clearCookieHint(): void {
+  try {
+    document.cookie = `${SESSION_HINT_KEY}=; Path=/; Max-Age=0; SameSite=Lax`;
+  } catch {}
+}
+
 export function hasSessionHint(): boolean {
   try {
     return window.localStorage.getItem(SESSION_HINT_KEY) === "1";
@@ -39,12 +53,14 @@ function setSessionHint(): void {
   try {
     window.localStorage.setItem(SESSION_HINT_KEY, "1");
   } catch {}
+  setCookieHint();
 }
 
 function clearSessionHint(): void {
   try {
     window.localStorage.removeItem(SESSION_HINT_KEY);
   } catch {}
+  clearCookieHint();
 }
 
 let bootstrapPromise: Promise<{

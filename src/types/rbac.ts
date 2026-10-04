@@ -78,23 +78,28 @@ export interface RoleStatusRequest {
   reason: string;
 }
 
-export interface DefinePermissionRequest {
-  key: string;
-  label?: string;
-  description?: string;
+/**
+ * Result of POST (grant) / DELETE (revoke) /admin/roles/:key/permissions.
+ * Both are idempotent: already-granted keys land in `alreadyGranted` on
+ * POST, keys the role doesn't hold land there on DELETE. Refresh UI from
+ * `permissions` (or `role`) — `added`/`removed` only describe the delta.
+ */
+export interface ModifyResult {
+  added: string[];
+  alreadyGranted: string[];
+  removed: string[];
+  /** Resulting full set — use this to refresh UI. */
+  permissions: string[];
+  /** Resulting role — use this to refresh UI. */
+  role: Role;
 }
 
-export interface UpdatePermissionRequest {
-  label?: string;
-  description?: string;
-}
-
-export interface PermissionStatusRequest {
-  status: PermissionStatus;
-  reason: string;
-}
-
-/** `details` shapes surfaced by RBAC 403/409 errors. */
-export interface UnheldDetails {
+/**
+ * `details` shapes surfaced by RBAC 400/403 errors. The machine code lives in
+ * `details.code` (e.g. `CANNOT_GRANT_UNHELD_PERMISSION`, `PERMISSION_INACTIVE`);
+ * the envelope `error.code` only carries the HTTP enum (`FORBIDDEN`, …).
+ */
+export interface RbacErrorDetails {
+  code?: string;
   unheld?: string[];
 }

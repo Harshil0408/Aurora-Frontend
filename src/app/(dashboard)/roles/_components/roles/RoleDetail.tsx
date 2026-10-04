@@ -8,16 +8,17 @@ import { DetailRow } from '@/components/ui/Guide';
 import { ConfirmDialog } from '@/components/ui/controls';
 import { AccessDenied, usePermissions, useViewerIsSuperAdmin } from '@/components/auth/RbacGuard';
 import { PermissionMatrix } from './PermissionMatrix';
+import { api } from '@/services/api';
 import {
   usePermissionGroupsQuery,
   useReplaceRolePermissionsMutation,
   useRoleDetailQuery,
 } from '@/services/rbacApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { openRoleDialog } from '@/store/rbacSlice';
+import { openRoleDialog, selectRole } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
-import type { UnheldDetails } from '@/types/rbac';
-import { formatDay, machineCode, useResetKey } from '@/lib/utils';
+import type { RbacErrorDetails } from '@/types/rbac';
+import { detailsCode, formatDay, useResetKey } from '@/lib/utils';
 import { mercatoTokens } from '@/lib/theme';
 
 /**
@@ -47,6 +48,7 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
 
   const [draft, setDraft] = useState<string[]>([]);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveRequestId, setSaveRequestId] = useState<string | null>(null);
   const [unheld, setUnheld] = useState<string[]>([]);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [triggerSave, { isLoading: saving }] = useReplaceRolePermissionsMutation();
@@ -55,6 +57,7 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
   useResetKey(role ? `${role.key}:${role.updatedAt}` : null, () => {
     setDraft([...(role?.permissions ?? [])]);
     setSaveError(null);
+    setSaveRequestId(null);
     setUnheld([]);
   });
 
@@ -75,16 +78,20 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
   const submit = async (keys: string[]) => {
     if (!role) return;
     setSaveError(null);
+    setSaveRequestId(null);
     setUnheld([]);
     try {
       await triggerSave({ key: role.key, permissionKeys: keys }).unwrap();
       notify(`Permissions saved for ${role.name}. Logged to Activity log.`);
     } catch (err) {
-      if (machineCode(err) === 'CANNOT_GRANT_UNHELD_PERMISSION') {
-        const held = (normaliseApiError(err).details as UnheldDetails | null | undefined)?.unheld ?? [];
+      const norm = normaliseApiError(err);
+      // Machine codes live in `details.code`, not the envelope `error.code`.
+      if (detailsCode(err) === 'CANNOT_GRANT_UNHELD_PERMISSION') {
+        const held = (norm.details as RbacErrorDetails | null | undefined)?.unheld ?? [];
         setUnheld(Array.isArray(held) ? held.map(String) : []);
       }
-      setSaveError(normaliseApiError(err).message);
+      setSaveError(norm.message);
+      setSaveRequestId(norm.requestId ?? null);
     }
   };
 
@@ -104,6 +111,23 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
   }
   if (roleError || !role) {
     if (normaliseApiError(roleErrorBody).status === 403) return <AccessDenied />;
+    // The key was removed or renamed — drop the selection and refresh the list.
+    if (normaliseApiError(roleErrorBody).status === 404) {
+      return (
+        <Paper id="role-detail" component="section" aria-label="Role detail" sx={{ p: 2 }}>
+          <FallbackUI
+            tone="error"
+            title="Role no longer exists"
+            description="That role key was removed or renamed. Refresh the list to continue."
+            actionLabel="Refresh list"
+            onAction={() => {
+              dispatch(api.util.invalidateTags(['Roles']));
+              dispatch(selectRole(null));
+            }}
+          />
+        </Paper>
+      );
+    }
     return (
       <Paper id="role-detail" component="section" aria-label="Role detail" sx={{ p: 2 }}>
         <FallbackUI
@@ -204,6 +228,11 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
         <Alert severity="error" role="alert" sx={{ mt: 1.5 }}>
           {saveError}
           {unheld.length > 0 ? ' Ask a Super Admin to grant them first.' : ''}
+          {saveRequestId ? (
+            <Typography variant="caption" sx={{ display: 'block', mt: 0.5 }}>
+              Reference: {saveRequestId} — include it in bug reports.
+            </Typography>
+          ) : null}
         </Alert>
       ) : null}
 
@@ -239,6 +268,7 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
             setDraft([...(role?.permissions ?? [])]);
             setUnheld([]);
             setSaveError(null);
+            setSaveRequestId(null);
           }}
           sx={dirty && !saveLocked ? { color: '#fff', borderColor: 'rgba(255,255,255,0.4)' } : undefined}
         >

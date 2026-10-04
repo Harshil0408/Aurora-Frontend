@@ -8,7 +8,7 @@ import { SegmentedFilter } from '@/components/ui/controls';
 import { RolesSection } from './roles/RolesSection';
 import { PermissionsSection } from './permissions/PermissionsSection';
 import { useAppDispatch } from '@/store/hooks';
-import { openPermissionDialog, openRoleDialog } from '@/store/rbacSlice';
+import { openRoleDialog } from '@/store/rbacSlice';
 
 type Section = 'roles' | 'permissions';
 
@@ -22,7 +22,6 @@ export function RolesView() {
   const dispatch = useAppDispatch();
   const { can } = usePermissions();
   const canCreate = can('role.create');
-  const canDefine = can('role.update');
 
   return (
     <RbacGuard perm="role.read">
@@ -54,23 +53,13 @@ export function RolesView() {
             ]}
           />
           <Box sx={{ flex: 1 }} />
-          {section === 'roles' ? (
-            canCreate ? (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => dispatch(openRoleDialog({ kind: 'create' }))}
-              >
-                Create Role
-              </Button>
-            ) : null
-          ) : canDefine ? (
+          {section === 'roles' && canCreate ? (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => dispatch(openPermissionDialog({ kind: 'define' }))}
+              onClick={() => dispatch(openRoleDialog({ kind: 'create' }))}
             >
-              Define Permission
+              Create Role
             </Button>
           ) : null}
         </Box>

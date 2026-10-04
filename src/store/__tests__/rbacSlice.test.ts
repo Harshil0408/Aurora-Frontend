@@ -1,11 +1,5 @@
 import { makeStore } from '@/store';
-import {
-  closePermissionDialog,
-  closeRoleDialog,
-  openPermissionDialog,
-  openRoleDialog,
-  selectRole,
-} from '@/store/rbacSlice';
+import { closeRoleDialog, openRoleDialog, selectRole } from '@/store/rbacSlice';
 
 describe('rbacSlice (shared RBAC UI state)', () => {
   it('selects and clears the role shared by table, detail, and dialogs', () => {
@@ -30,15 +24,5 @@ describe('rbacSlice (shared RBAC UI state)', () => {
     expect(store.getState().rbac.dialogRoleKey).toBeNull();
     // Selection survives dialog close.
     expect(store.getState().rbac.selectedRoleKey).toBe('support');
-  });
-
-  it('opens and closes permission dialogs with a key snapshot', () => {
-    const store = makeStore();
-    store.dispatch(openPermissionDialog({ kind: 'delete', permissionKey: 'users.ban' }));
-    expect(store.getState().rbac.activePermissionDialog).toBe('delete');
-    expect(store.getState().rbac.dialogPermissionKey).toBe('users.ban');
-    store.dispatch(closePermissionDialog());
-    expect(store.getState().rbac.activePermissionDialog).toBeNull();
-    expect(store.getState().rbac.dialogPermissionKey).toBeNull();
   });
 });

@@ -12,7 +12,11 @@ const mockTriggerStatus = jest.fn();
 const mockTriggerRoles = jest.fn();
 const mockTriggerRevoke = jest.fn();
 const mockMeQuery = jest.fn();
+const mockMyPermsQuery = jest.fn();
 const mockReplace = jest.fn();
+const mockNotFound = jest.fn((): never => {
+  throw new Error('NEXT_NOT_FOUND');
+});
 
 jest.mock('@/services/adminsApi', () => ({
   useListAdminsQuery: (...args: unknown[]) => mockListQuery(...args),
@@ -32,10 +36,12 @@ jest.mock('@/services/authApi', () => ({
 
 jest.mock('@/services/rbacApi', () => ({
   useListRolesQuery: (...args: unknown[]) => mockRolesQuery(...args),
+  useMyPermissionsQuery: (...args: unknown[]) => mockMyPermsQuery(...args),
 }));
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace }),
+  notFound: () => mockNotFound(),
 }));
 
 const ROLES = [
@@ -103,6 +109,25 @@ describe('AdminsView (live API wiring)', () => {
       },
     });
     mockRolesQuery.mockReturnValue({ data: { success: true, data: ROLES } });
+    mockMyPermsQuery.mockReturnValue({
+      data: {
+        success: true,
+        data: {
+          permissions: [
+            'admin.read',
+            'admin.create',
+            'admin.suspend',
+            'admin.update',
+            'role.assign',
+            'session.revoke',
+            'session.read',
+          ],
+        },
+      },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    });
     mockDetailQuery.mockReturnValue({ data: undefined, isLoading: false });
     mockMeQuery.mockReturnValue({ data: { success: true, data: { roles: ['super_admin'] } } });
     mockTriggerCheck.mockReturnValue({ unwrap: () => Promise.resolve({ data: { available: true } }) });
@@ -245,5 +270,45 @@ describe('AdminsView (live API wiring)', () => {
     expect(mockTriggerRevoke).toHaveBeenCalledWith('1');
     expect(await screen.findByText('Revoked 3 sessions for aisha@mercato.com.')).toBeInTheDocument();
     expect(mockReplace).toHaveBeenCalledWith('/login');
+  });
+
+  it('hides Create Admin without admin.create (no leaked action)', async () => {
+    mockMyPermsQuery.mockReturnValue({
+      data: { success: true, data: { permissions: ['admin.read'] } },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    });
+    renderWithProviders(<AdminsView />);
+    await screen.findByText('ines@mercato.com');
+    expect(screen.queryByRole('button', { name: 'Create Admin' })).not.toBeInTheDocument();
+  });
+
+  it('hides status/roles/revoke row actions without their permissions', async () => {
+    const user = userEvent.setup();
+    mockMyPermsQuery.mockReturnValue({
+      data: { success: true, data: { permissions: ['admin.read'] } },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    });
+    renderWithProviders(<AdminsView />);
+    await screen.findByText('ines@mercato.com');
+    await user.click(screen.getByRole('button', { name: 'Actions for ines@mercato.com' }));
+    expect(await screen.findByRole('menuitem', { name: 'View details' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /Change status/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Manage roles' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Revoke sessions' })).not.toBeInTheDocument();
+  });
+
+  it('renders 404 without admin.read even via direct route', async () => {
+    mockMyPermsQuery.mockReturnValue({
+      data: { success: true, data: { permissions: [] } },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    });
+    expect(() => renderWithProviders(<AdminsView />)).toThrow('NEXT_NOT_FOUND');
+    expect(mockNotFound).toHaveBeenCalled();
   });
 });

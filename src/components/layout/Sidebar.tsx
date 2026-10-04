@@ -100,6 +100,7 @@ const sections: { title: string; items: NavItem[] }[] = [
         label: "Sessions",
         href: "/sessions",
         icon: <DevicesIcon fontSize="small" />,
+        perm: "session.read",
       },
       {
         label: "Security",
@@ -329,12 +330,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const meEmail = meData?.data.email ?? pendingEmail ?? null;
   const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
-  const { can, isLoading: permsLoading } = usePermissions();
-  // While permissions load, show everything (avoids a nav flicker on boot).
+  const { can } = usePermissions();
+  // Gated items stay hidden until permissions resolve — never flash a link
+  // the viewer cannot open (page guards would 404 it anyway).
   const visibleSections = sections
     .map((section) => ({
       ...section,
-      items: section.items.filter((item) => permsLoading || !item.perm || can(item.perm)),
+      items: section.items.filter((item) => !item.perm || can(item.perm)),
     }))
     .filter((section) => section.items.length > 0);
 

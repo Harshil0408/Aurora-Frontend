@@ -19,6 +19,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HistoryIcon from '@mui/icons-material/History';
 import { FallbackUI } from '@/components/ui/FallbackUI';
+import { RbacGuard } from '@/components/auth/RbacGuard';
 import {
   DateTimeField,
   SearchField,
@@ -45,6 +46,7 @@ export function ActivityView() {
   const typeCount = (t: string) => LOGS.filter((l) => l.actionType === t).length;
 
   return (
+    <RbacGuard perm="audit.read">
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {/* Compact header */}
       <Box sx={{ mt: 0.5 }}>
@@ -208,5 +210,6 @@ export function ActivityView() {
           </TableCard>
         )}
     </Box>
+    </RbacGuard>
   );
 }

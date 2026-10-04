@@ -3,20 +3,20 @@ import type { ApiSuccess } from '@/types/api';
 import type {
   CloneRoleRequest,
   CreateRoleRequest,
-  DefinePermissionRequest,
+  ModifyResult,
   MyPermissions,
   PermGroup,
   Permission,
   PermissionStatus,
-  PermissionStatusRequest,
   Role,
   RoleStatusRequest,
-  UpdatePermissionRequest,
   UpdateRoleMetaRequest,
 } from '@/types/rbac';
 
 /**
  * Roles + permissions endpoints (backend: /api/v1/admin/{roles,permissions}).
+ * Permission keys are code-defined + seeded — there is no API to
+ * create/edit/delete them, so this file exposes catalog reads only.
  * Every RBAC mutation invalidates `Me` — the viewer's own rights may have
  * changed, so `useMyPermissionsQuery` refetches automatically.
  */
@@ -73,6 +73,38 @@ export const rbacApi = api.injectEndpoints({
         'Me',
       ],
     }),
+    grantRolePermissions: build.mutation<
+      ApiSuccess<ModifyResult>,
+      { key: string; permissionKeys: string[] }
+    >({
+      // Idempotent check: already-granted keys are skipped, the rest untouched.
+      query: ({ key, permissionKeys }) => ({
+        url: `/admin/roles/${key}/permissions`,
+        method: 'POST',
+        data: { permissionKeys },
+      }),
+      invalidatesTags: (_res, _err, arg) => [
+        'Roles',
+        { type: 'RoleDetail', id: arg.key },
+        'Me',
+      ],
+    }),
+    revokeRolePermissions: build.mutation<
+      ApiSuccess<ModifyResult>,
+      { key: string; permissionKeys: string[] }
+    >({
+      // Idempotent uncheck: non-held keys are reported, the rest untouched.
+      query: ({ key, permissionKeys }) => ({
+        url: `/admin/roles/${key}/permissions`,
+        method: 'DELETE',
+        data: { permissionKeys },
+      }),
+      invalidatesTags: (_res, _err, arg) => [
+        'Roles',
+        { type: 'RoleDetail', id: arg.key },
+        'Me',
+      ],
+    }),
     updateRoleStatus: build.mutation<ApiSuccess<Role>, { key: string; body: RoleStatusRequest }>({
       query: ({ key, body }) => ({ url: `/admin/roles/${key}/status`, method: 'PATCH', data: body }),
       invalidatesTags: (_res, _err, arg) => [
@@ -97,32 +129,6 @@ export const rbacApi = api.injectEndpoints({
       }),
       providesTags: ['Permissions'],
     }),
-    definePermission: build.mutation<ApiSuccess<Permission>, DefinePermissionRequest>({
-      query: (body) => ({ url: '/admin/permissions', method: 'POST', data: body }),
-      invalidatesTags: ['Permissions', 'Me'],
-    }),
-    updatePermission: build.mutation<
-      ApiSuccess<Permission>,
-      { key: string; body: UpdatePermissionRequest }
-    >({
-      query: ({ key, body }) => ({ url: `/admin/permissions/${key}`, method: 'PATCH', data: body }),
-      invalidatesTags: ['Permissions', 'Me'],
-    }),
-    updatePermissionStatus: build.mutation<
-      ApiSuccess<Permission>,
-      { key: string; body: PermissionStatusRequest }
-    >({
-      query: ({ key, body }) => ({
-        url: `/admin/permissions/${key}/status`,
-        method: 'PATCH',
-        data: body,
-      }),
-      invalidatesTags: ['Permissions', 'Me'],
-    }),
-    deletePermission: build.mutation<ApiSuccess<{ deleted: boolean }>, string>({
-      query: (key) => ({ url: `/admin/permissions/${key}`, method: 'DELETE' }),
-      invalidatesTags: ['Permissions', 'Me'],
-    }),
   }),
 });
 
@@ -134,12 +140,10 @@ export const {
   useCloneRoleMutation,
   useUpdateRoleMetaMutation,
   useReplaceRolePermissionsMutation,
+  useGrantRolePermissionsMutation,
+  useRevokeRolePermissionsMutation,
   useUpdateRoleStatusMutation,
   useDeleteRoleMutation,
   usePermissionGroupsQuery,
   useListPermissionsQuery,
-  useDefinePermissionMutation,
-  useUpdatePermissionMutation,
-  useUpdatePermissionStatusMutation,
-  useDeletePermissionMutation,
 } = rbacApi;

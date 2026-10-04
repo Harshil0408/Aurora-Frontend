@@ -36,6 +36,7 @@ import { format, parseISO } from 'date-fns';
 import { DataLoader } from '@/components/ui/DataLoader';
 import { FallbackUI } from '@/components/ui/FallbackUI';
 import { DetailRow } from '@/components/ui/Guide';
+import { RbacGuard } from '@/components/auth/RbacGuard';
 import {
   ConfirmDialog,
   FormField,
@@ -48,6 +49,7 @@ import {
 import { mercatoTokens } from '@/lib/theme';
 import { statusTone } from '@/lib/variables';
 import { useMeQuery } from '@/services/authApi';
+import { useMyPermissionsQuery } from '@/services/rbacApi';
 import {
   useAdminDetailQuery,
   useAdminSummaryQuery,
@@ -130,6 +132,12 @@ export function AdminsView() {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
+  const { data: myPerms } = useMyPermissionsQuery(undefined, { skip: !isAuthenticated });
+  const held = useMemo(() => new Set(myPerms?.data.permissions ?? []), [myPerms]);
+  const canStatus = held.has('admin.suspend') || held.has('admin.update');
+  const canRoles = held.has('role.assign');
+  const canRevoke = held.has('session.revoke');
+  const canCreate = held.has('admin.create');
   const viewerIsSuperAdmin = useMemo(
     () => (meData?.data.roles ?? []).some((r) => isSuperAdminKey(r)),
     [meData],
@@ -409,6 +417,7 @@ export function AdminsView() {
   const removedKeys = selected ? selected.roles.map((r) => r.key).filter((k) => !roleSelection.includes(k)) : [];
 
   return (
+    <RbacGuard perm="admin.read">
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {/* Compact header */}
       <Box
@@ -427,9 +436,11 @@ export function AdminsView() {
             People who can sign in to this console — statuses, roles, and sessions per account.
           </Typography>
         </Box>
+        {canCreate ? (
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => openDialog('create')}>
           Create Admin
         </Button>
+        ) : null}
       </Box>
 
       {/* Team summary strip */}
@@ -605,6 +616,7 @@ export function AdminsView() {
 
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeMenu} aria-label="Row actions">
         <MenuItem onClick={() => openDialog('details')}><VisibilityIcon fontSize="small" style={{ marginRight: 8 }} />View details</MenuItem>
+        {canStatus ? (
         <MenuItem
           onClick={() => openDialog('status')}
           disabled={selected?.isSelf === true}
@@ -612,8 +624,13 @@ export function AdminsView() {
         >
           Change status{selected?.isSelf ? ' (disabled — your own row)' : ''}
         </MenuItem>
+        ) : null}
+        {canRoles ? (
         <MenuItem onClick={() => openDialog('roles')}>Manage roles</MenuItem>
+        ) : null}
+        {canRevoke ? (
         <MenuItem onClick={() => openDialog('revoke')} sx={{ color: 'error.main' }}>Revoke sessions</MenuItem>
+        ) : null}
       </Menu>
 
       {/* 1. Create Admin — stepped: account, then roles */}
@@ -940,5 +957,6 @@ export function AdminsView() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>
+    </RbacGuard>
   );
 }

@@ -27,6 +27,7 @@ import { normaliseApiError } from '@/types/api';
 import type { AuthSession } from '@/types/auth';
 import { DataLoader } from '@/components/ui/DataLoader';
 import { FallbackUI } from '@/components/ui/FallbackUI';
+import { RbacGuard, usePermissions } from '@/components/auth/RbacGuard';
 import { ConfirmDialog, TableCard } from '@/components/ui/controls';
 import { mercatoTokens } from '@/lib/theme';
 
@@ -72,6 +73,8 @@ export function SessionsView() {
   const { data, isLoading, isError, refetch } = useSessionsQuery({ page: 1, limit: 20 });
   const [revokeOne, { isLoading: revoking }] = useRevokeSessionMutation();
   const [logoutAll, { isLoading: loggingOut }] = useLogoutAllMutation();
+  const { can } = usePermissions();
+  const canRevoke = can('session.revoke');
 
   const [dialog, setDialog] = useState<DialogKind>(null);
   const [target, setTarget] = useState<AuthSession | null>(null);
@@ -132,6 +135,7 @@ export function SessionsView() {
   };
 
   return (
+    <RbacGuard perm="session.read">
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {/* Compact header */}
       <Box
@@ -150,9 +154,11 @@ export function SessionsView() {
             Every browser and device signed in as you — revoke one, or all at once.
           </Typography>
         </Box>
+        {canRevoke ? (
         <Button variant="outlined" color="error" startIcon={<LogoutIcon />} onClick={askAll}>
           Log out everywhere
         </Button>
+        ) : null}
       </Box>
 
       {/* Sessions summary strip */}
@@ -204,9 +210,11 @@ export function SessionsView() {
         title="My sessions"
         subtitle={`${sessions.length} active · ${others} on other devices — newest activity first`}
         actions={
+          canRevoke ? (
           <Button size="small" variant="outlined" color="error" onClick={askAll}>
             Revoke all others
           </Button>
+          ) : undefined
         }
         empty={{
           when: sessions.length === 0,
@@ -260,9 +268,11 @@ export function SessionsView() {
                     <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.84rem' }}>{fullDate(s.createdAt)}</TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>{timeAgo(s.lastUsedAt)}</TableCell>
                     <TableCell align="right">
+                      {canRevoke ? (
                       <Button size="small" variant="outlined" color="error" onClick={() => askOne(s)}>
                         Revoke
                       </Button>
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 );
@@ -321,5 +331,6 @@ export function SessionsView() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>
+    </RbacGuard>
   );
 }
