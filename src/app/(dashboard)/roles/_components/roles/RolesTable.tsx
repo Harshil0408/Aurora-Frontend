@@ -17,6 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useRouter } from 'next/navigation';
 import { DataLoader } from '@/components/ui/DataLoader';
 import { FallbackUI } from '@/components/ui/FallbackUI';
 import { AccessDenied, usePermissions, useViewerIsSuperAdmin } from '@/components/auth/RbacGuard';
@@ -39,6 +40,7 @@ function permTooltip(role: Role): string {
 /** Screen 1 — roles list: search + status filter + table + guarded row menu. */
 export function RolesTable() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { can } = usePermissions();
   const viewerIsSuperAdmin = useViewerIsSuperAdmin();
   const selectedKey = useAppSelector((s) => s.rbac.selectedRoleKey);
@@ -95,7 +97,7 @@ export function RolesTable() {
       title="Roles"
       subtitle={
         roles.length > 0
-          ? `${roles.length} role${roles.length === 1 ? '' : 's'} · ${counts.inactive} inactive — select a row to edit its permissions below`
+          ? `${roles.length} role${roles.length === 1 ? '' : 's'} · ${counts.inactive} inactive — open a row to manage its permissions on its own page`
           : 'Roles live here once the first one is created.'
       }
       toolbar={
@@ -221,9 +223,9 @@ export function RolesTable() {
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeMenu} aria-label="Role actions">
         <MenuItem
           onClick={() => {
-            if (menuRole) dispatch(selectRole(menuRole.key));
+            const key = menuRole?.key;
             closeMenu();
-            document.getElementById('role-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (key) router.push(`/roles/${key}`);
           }}
         >
           View / edit permissions

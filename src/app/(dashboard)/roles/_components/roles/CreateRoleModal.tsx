@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { Alert, Box, Button, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { useRouter } from 'next/navigation';
 import { FormField, Modal } from '@/components/ui/controls';
 import { useCreateRoleMutation, usePermissionGroupsQuery } from '@/services/rbacApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { closeRoleDialog, selectRole } from '@/store/rbacSlice';
+import { closeRoleDialog } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
 import type { RbacErrorDetails } from '@/types/rbac';
 import { detailsCode, useResetKey } from '@/lib/utils';
@@ -20,8 +21,9 @@ const KEY_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
  * omitting it would make the backend grant every ACTIVE permission, so an
  * unchecked picker means an empty role, never a surprise full grant.
  */
-export function CreateRoleModal({ notify }: { notify: (msg: string) => void }) {
+export function CreateRoleModal() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const open = useAppSelector((s) => s.rbac.activeRoleDialog) === 'create';
   const [step, setStep] = useState(0);
   const [key, setKey] = useState('');
@@ -78,12 +80,8 @@ export function CreateRoleModal({ notify }: { notify: (msg: string) => void }) {
         permissionKeys: picked,
       }).unwrap();
       close();
-      dispatch(selectRole(res.data.key));
-      const n = res.data.permissionCount;
-      notify(
-        `Role ${res.data.name} created with ${n} permission${n === 1 ? '' : 's'} — trim or extend them below. Logged to Activity log.`,
-      );
-      document.getElementById('role-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Land on the new role's page, where the matrix is ready to trim or extend.
+      router.push(`/roles/${res.data.key}`);
     } catch (err) {
       const norm = normaliseApiError(err);
       setRequestId(norm.requestId ?? null);

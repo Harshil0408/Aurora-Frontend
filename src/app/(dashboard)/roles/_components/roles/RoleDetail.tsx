@@ -14,7 +14,7 @@ import {
   useReplaceRolePermissionsMutation,
   useRoleDetailQuery,
 } from '@/services/rbacApi';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { openRoleDialog, selectRole } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
 import type { RbacErrorDetails } from '@/types/rbac';
@@ -22,12 +22,12 @@ import { detailsCode, formatDay, useResetKey } from '@/lib/utils';
 import { mercatoTokens } from '@/lib/theme';
 
 /**
- * Screen 3 — role header + permission matrix + save bar.
- * Selection comes from the Redux slice (set by the table, create/clone flows).
+ * Role header + permission matrix + save bar, driven by an explicit role key
+ * (the detail route passes the URL key). Rendered on the role detail page —
+ * the roles list links here instead of expanding inline.
  */
-export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
+export function RoleDetail({ roleKey, notify }: { roleKey: string; notify: (msg: string) => void }) {
   const dispatch = useAppDispatch();
-  const selectedKey = useAppSelector((s) => s.rbac.selectedRoleKey);
   const { can } = usePermissions();
   const viewerIsSuperAdmin = useViewerIsSuperAdmin();
 
@@ -38,9 +38,9 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
     isError: roleError,
     error: roleErrorBody,
     refetch: refetchRole,
-  } = useRoleDetailQuery(selectedKey ?? '', { skip: !selectedKey });
+  } = useRoleDetailQuery(roleKey, { skip: !roleKey });
   const { data: groupsRes, isLoading: groupsLoading } = usePermissionGroupsQuery(undefined, {
-    skip: !selectedKey,
+    skip: !roleKey,
   });
 
   const role = roleRes?.data ?? null;
@@ -65,8 +65,6 @@ export function RoleDetail({ notify }: { notify: (msg: string) => void }) {
     const base = [...(role?.permissions ?? [])].sort().join(',');
     return [...draft].sort().join(',') !== base;
   }, [draft, role]);
-
-  if (!selectedKey) return null;
 
   const toggle = (key: string) =>
     setDraft((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));

@@ -4,12 +4,7 @@ import { useMemo, useState } from 'react';
 import { Box, Paper, Snackbar, Typography } from '@mui/material';
 import GroupIcon from '@mui/icons-material/Group';
 import { RolesTable } from './RolesTable';
-import { RoleDetail } from './RoleDetail';
-import { CreateRoleModal } from './CreateRoleModal';
-import { CloneRoleModal } from './CloneRoleModal';
-import { RoleStatusModal } from './RoleStatusModal';
-import { DeleteRoleDialog } from './DeleteRoleDialog';
-import { EditRoleMetaModal } from './EditRoleMetaModal';
+import { RoleDialogs } from './RoleDialogs';
 import { useListRolesQuery } from '@/services/rbacApi';
 import { mercatoTokens } from '@/lib/theme';
 
@@ -26,7 +21,11 @@ function MiniStat({ value, label }: { value: string; label: string }) {
   );
 }
 
-/** Roles screen — summary strip, list table, detail matrix, and all role dialogs. */
+/**
+ * Roles screen — summary strip, list table, and all role dialogs. Row actions
+ * navigate to the role detail page (`/roles/[key]`), where the permission
+ * matrix and save bar live.
+ */
 export function RolesSection() {
   const [toast, setToast] = useState<string | null>(null);
   const notify = (msg: string) => setToast(msg);
@@ -64,13 +63,8 @@ export function RolesSection() {
       </Paper>
 
       <RolesTable />
-      <RoleDetail notify={notify} />
 
-      <CreateRoleModal notify={notify} />
-      <CloneRoleModal notify={notify} />
-      <RoleStatusModal notify={notify} />
-      <DeleteRoleDialog notify={notify} />
-      <EditRoleMetaModal notify={notify} />
+      <RoleDialogs notify={notify} />
 
       <Snackbar
         open={toast != null}

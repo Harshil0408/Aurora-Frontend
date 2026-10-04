@@ -3,18 +3,20 @@
 import { useState } from 'react';
 import { Alert, Box, Button, Typography } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useRouter } from 'next/navigation';
 import { FormField, Modal } from '@/components/ui/controls';
 import { useCloneRoleMutation, useRoleDetailQuery } from '@/services/rbacApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { closeRoleDialog, selectRole } from '@/store/rbacSlice';
+import { closeRoleDialog } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
 import { useResetKey } from '@/lib/utils';
 
 const KEY_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** Screen 4 — clone a role: new slug, copied grants, starts Active, never system. */
-export function CloneRoleModal({ notify }: { notify: (msg: string) => void }) {
+export function CloneRoleModal() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const open = useAppSelector((s) => s.rbac.activeRoleDialog) === 'clone';
   const sourceKey = useAppSelector((s) => s.rbac.dialogRoleKey);
   const { data: sourceRes } = useRoleDetailQuery(sourceKey ?? '', { skip: !open || !sourceKey });
@@ -55,9 +57,8 @@ export function CloneRoleModal({ notify }: { notify: (msg: string) => void }) {
         body: { key: key.trim(), name: name.trim(), description: desc.trim() || undefined },
       }).unwrap();
       close();
-      dispatch(selectRole(res.data.key));
-      notify(`Role ${res.data.name} cloned from ${source.name}. Logged to Activity log.`);
-      document.getElementById('role-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Land on the clone's page, where the matrix is ready to diverge.
+      router.push(`/roles/${res.data.key}`);
     } catch (err) {
       const norm = normaliseApiError(err);
       if (norm.status === 409) setKeyError(`Key "${key.trim()}" is already taken.`);

@@ -40,9 +40,11 @@ jest.mock('@/services/authApi', () => ({
 const mockNotFound = jest.fn((): never => {
   throw new Error('NEXT_NOT_FOUND');
 });
+const mockRouter = { push: jest.fn(), back: jest.fn(), replace: jest.fn() };
 
 jest.mock('next/navigation', () => ({
   notFound: () => mockNotFound(),
+  useRouter: () => mockRouter,
 }));
 
 jest.mock('next/link', () => ({
@@ -187,55 +189,13 @@ describe('RolesView (live RBAC wiring)', () => {
     expect(screen.getByText('Support')).toBeInTheDocument();
   });
 
-  it('row menu opens the detail matrix; toggling + save sends the full list', async () => {
+  it('row menu navigates to the role detail page', async () => {
     const user = userEvent.setup();
-    mockSave.mockReturnValue({ unwrap: () => Promise.resolve({ data: { updated: true } }) });
     renderWithProviders(<RolesView />);
     await screen.findByText('Support');
     await openRowMenu(user, 'Support');
     await user.click(screen.getByRole('menuitem', { name: 'View / edit permissions' }));
-    // Matrix pre-checks the role grants; INACTIVE rows render locked.
-    const readBox = await screen.findByRole('checkbox', { name: /Read admins/ });
-    expect(readBox).toBeChecked();
-    expect(screen.getByRole('checkbox', { name: /Suspend admins/ })).toBeDisabled();
-    expect(screen.getByText('Disabled')).toBeInTheDocument();
-    await user.click(screen.getByRole('checkbox', { name: /Read admins/ }));
-    await user.click(screen.getByRole('button', { name: 'Confirm + save' }));
-    // Clearing the last grant needs an explicit confirm (full-replace semantics).
-    await user.click(await screen.findByRole('button', { name: 'Clear everything' }));
-    await waitFor(() =>
-      expect(mockSave).toHaveBeenCalledWith({ key: 'support', permissionKeys: [] }),
-    );
-    expect(await screen.findByText(/Logged to Activity log/)).toBeInTheDocument();
-  });
-
-  it('save surfaces unheld keys with highlight + guidance', async () => {
-    const user = userEvent.setup();
-    mockSave.mockReturnValue({
-      unwrap: () =>
-        Promise.reject({
-          status: 403,
-          data: {
-            success: false,
-            error: {
-              code: 'FORBIDDEN',
-              message: "You don't hold these",
-              details: { code: 'CANNOT_GRANT_UNHELD_PERMISSION', unheld: ['admin.read'] },
-              requestId: 'req-unheld-1',
-            },
-          },
-        }),
-    });
-    renderWithProviders(<RolesView />);
-    await screen.findByText('Support');
-    await openRowMenu(user, 'Support');
-    await user.click(screen.getByRole('menuitem', { name: 'View / edit permissions' }));
-    await screen.findByRole('checkbox', { name: /Read admins/ });
-    // Unchecking the only grant routes through the clear-all confirm.
-    await user.click(screen.getByRole('checkbox', { name: /Read admins/ }));
-    await user.click(screen.getByRole('button', { name: 'Confirm + save' }));
-    await user.click(await screen.findByRole('button', { name: 'Clear everything' }));
-    expect(await screen.findByText(/Ask a Super Admin/)).toBeInTheDocument();
+    expect(mockRouter.push).toHaveBeenCalledWith('/roles/support');
   });
 
   it('create modal validates the slug live and sends an explicit empty list', async () => {
@@ -266,7 +226,8 @@ describe('RolesView (live RBAC wiring)', () => {
         permissionKeys: [],
       }),
     );
-    expect(await screen.findByText(/Logged to Activity log/)).toBeInTheDocument();
+    // Lands on the new role's detail page, where the matrix is ready.
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles/catalog-manager'));
   });
 
   it('create modal sends the picked starting permissions explicitly', async () => {
@@ -293,6 +254,7 @@ describe('RolesView (live RBAC wiring)', () => {
         permissionKeys: ['admin.read'],
       }),
     );
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles/billing-analyst'));
   });
 
   it('clone pre-fills from source and status change requires a logged reason', async () => {
@@ -316,6 +278,8 @@ describe('RolesView (live RBAC wiring)', () => {
         body: { key: 'support-eu', name: 'Support (copy)', description: 'Help desk' },
       }),
     );
+    // Lands on the clone's detail page.
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles/support-eu'));
     // Let the dialog exit before touching the background again.
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
@@ -371,17 +335,6 @@ describe('RolesView (live RBAC wiring)', () => {
     const saMenu = screen.getByRole('menu');
     expect(within(saMenu).queryByRole('menuitem', { name: /Activate|Deactivate/ })).not.toBeInTheDocument();
     expect(within(saMenu).queryByRole('menuitem', { name: 'Delete' })).not.toBeInTheDocument();
-  });
-
-  it('super_admin detail locks saving for non–Super Admin viewers', async () => {
-    const user = userEvent.setup();
-    mockMeQuery.mockReturnValue({ data: { success: true, data: { roles: ['support'] } } });
-    renderWithProviders(<RolesView />);
-    await screen.findByText('Super Admin');
-    await openRowMenu(user, 'Super Admin');
-    await user.click(screen.getByRole('menuitem', { name: 'View / edit permissions' }));
-    expect(await screen.findByText(/implies all permissions/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Confirm + save' })).toBeDisabled();
   });
 
   it('permissions screen is a read-only catalog reference', async () => {

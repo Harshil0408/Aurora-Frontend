@@ -10,7 +10,13 @@ import { normaliseApiError } from '@/types/api';
 import { machineCode } from '@/lib/utils';
 
 /** Delete role — type-to-confirm proof; 409 names the blocking admin count. */
-export function DeleteRoleDialog({ notify }: { notify: (msg: string) => void }) {
+export function DeleteRoleDialog({
+  notify,
+  onDeleted,
+}: {
+  notify: (msg: string) => void;
+  onDeleted?: () => void;
+}) {
   const dispatch = useAppDispatch();
   const open = useAppSelector((s) => s.rbac.activeRoleDialog) === 'delete';
   const roleKey = useAppSelector((s) => s.rbac.dialogRoleKey);
@@ -34,6 +40,7 @@ export function DeleteRoleDialog({ notify }: { notify: (msg: string) => void }) 
       if (selectedKey === role.key) dispatch(selectRole(null));
       close();
       notify(`Role ${role.name} deleted. Logged to Activity log.`);
+      onDeleted?.();
     } catch (err) {
       if (machineCode(err) === 'ROLE_HAS_ASSIGNMENTS') {
         setError(
