@@ -6,7 +6,9 @@ export interface AxiosBaseQueryArgs {
   url: string;
   method?: AxiosRequestConfig['method'];
   data?: unknown;
-  params?: Record<string, string | number | boolean | undefined>;
+  // `action` on GET /admin/activity is repeatable (&action=a&action=b) —
+  // axios serializes arrays; undefined values are dropped.
+  params?: Record<string, string | number | boolean | string[] | undefined>;
 }
 
 export const axiosBaseQuery =

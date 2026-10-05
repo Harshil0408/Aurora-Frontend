@@ -59,45 +59,6 @@ export type DialogKind = null | 'create' | 'details' | 'status' | 'roles' | 'rev
    src/types/rbac.ts. No preview constants.) */
 
 /* ------------------------------ /activity ----------------------------- */
-
-export interface LogEntry {
-  id: number;
-  timestamp: string;
-  action: string;
-  actionType: string;
-  resource: string;
-  actor: string;
-  ip: string;
-  changes: Array<{ field: string; before: string; after: string }>;
-}
-
-/** Static preview rows — replace with the activity API later. */
-export const LOGS: LogEntry[] = [
-  {
-    id: 1, timestamp: 'Sep 21, 2026 · 14:02', action: 'Roles assigned', actionType: 'Roles assigned',
-    resource: 'ines@mercato.com', actor: 'aisha@mercato.com', ip: '84.121.9.40',
-    changes: [{ field: 'roles', before: 'Sub-Admin', after: 'Sub-Admin, Support' }],
-  },
-  {
-    id: 2, timestamp: 'Sep 20, 2026 · 18:44', action: 'Status changed', actionType: 'Status changed',
-    resource: 'tomas@mercato.com', actor: 'marcus@mercato.com', ip: '84.121.9.41',
-    changes: [{ field: 'status', before: 'Active', after: 'Suspended' }, { field: 'reason', before: '—', after: 'Failed KYC re-check' }],
-  },
-  {
-    id: 3, timestamp: 'Sep 19, 2026 · 09:15', action: 'Role created', actionType: 'Role created',
-    resource: 'finance', actor: 'aisha@mercato.com', ip: '84.121.9.40',
-    changes: [{ field: 'permissions', before: '—', after: '0 (assign now)' }],
-  },
-  {
-    id: 4, timestamp: 'Sep 18, 2026 · 11:30', action: 'Admin created', actionType: 'Admin created',
-    resource: 'priya@mercato.com', actor: 'aisha@mercato.com', ip: '84.121.9.40',
-    changes: [{ field: 'permissions', before: '—', after: 'Finance' }],
-  },
-  {
-    id: 5, timestamp: 'Sep 17, 2026 · 16:05', action: 'Role updated', actionType: 'Role updated',
-    resource: 'support', actor: 'marcus@mercato.com', ip: '84.121.9.41',
-    changes: [{ field: 'sessions.revoke', before: 'denied', after: 'allowed' }],
-  },
-];
-
-export const ACTION_TYPES = ['All actions', 'Admin created', 'Status changed', 'Roles assigned', 'Role created', 'Role updated'];
+/* (Activity-log data is live from GET /admin/activity{,/actions,/:id} — see
+   src/types/activity.ts and src/services/activityApi.ts. The log is
+   append-only; no preview constants.) */
