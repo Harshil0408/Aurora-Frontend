@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { closeRoleDialog, selectRole } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
 import { machineCode } from '@/lib/utils';
+import { ADMIN_PREFIX } from '@/lib/panels';
 
 /** Delete role — type-to-confirm proof; 409 names the blocking admin count. */
 export function DeleteRoleDialog({
@@ -72,7 +73,7 @@ export function DeleteRoleDialog({
       description={
         <>
           Only roles with <b>zero assigned admins</b> can go. Type the role key to prove it, then
-          confirm. Still assigned? <Link href="/admins">Open Admins</Link> to unassign first.
+          confirm. Still assigned? <Link href={`${ADMIN_PREFIX}/admins`}>Open Admins</Link> to unassign first.
         </>
       }
     />

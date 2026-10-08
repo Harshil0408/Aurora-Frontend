@@ -23,7 +23,7 @@ function MiniStat({ value, label }: { value: string; label: string }) {
 
 /**
  * Roles screen — summary strip, list table, and all role dialogs. Row actions
- * navigate to the role detail page (`/roles/[key]`), where the permission
+ * navigate to the role detail page (`/admin/roles/[key]`), where the permission
  * matrix and save bar live.
  */
 export function RolesSection() {

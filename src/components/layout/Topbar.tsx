@@ -23,18 +23,19 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShieldIcon from "@mui/icons-material/Shield";
 import { mercatoTokens } from "@/lib/theme";
+import { ADMIN_HOME_PATH, ADMIN_LOGIN_PATH, ADMIN_PREFIX } from "@/lib/panels";
 import { useMeQuery } from "@/services/authApi";
 import { logoutAllThunk, logoutThunk } from "@/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 const PAGE_META: Record<string, { title: string; blurb: string }> = {
-  "/dashboard": { title: "Dashboard", blurb: "Live overview" },
-  "/admins": { title: "Admins", blurb: "Team access & roles" },
-  "/roles": { title: "Roles & Permissions", blurb: "What each role can do" },
-  "/activity": { title: "Activity Log", blurb: "Audit trail" },
-  "/sessions": { title: "Sessions", blurb: "Active sign-ins" },
-  "/security": { title: "Security", blurb: "Password & 2FA" },
-  "/themes": { title: "Themes", blurb: "Brand appearance" },
+  [ADMIN_HOME_PATH]: { title: "Dashboard", blurb: "Live overview" },
+  [`${ADMIN_PREFIX}/admins`]: { title: "Admins", blurb: "Team access & roles" },
+  [`${ADMIN_PREFIX}/roles`]: { title: "Roles & Permissions", blurb: "What each role can do" },
+  [`${ADMIN_PREFIX}/activity`]: { title: "Activity Log", blurb: "Audit trail" },
+  [`${ADMIN_PREFIX}/sessions`]: { title: "Sessions", blurb: "Active sign-ins" },
+  [`${ADMIN_PREFIX}/security`]: { title: "Security", blurb: "Password & 2FA" },
+  [`${ADMIN_PREFIX}/themes`]: { title: "Themes", blurb: "Brand appearance" },
 };
 
 function pageMeta(pathname: string | null): { title: string; blurb: string } {
@@ -95,7 +96,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const signOut = async (global: boolean) => {
     setProfileAnchor(null);
     await dispatch(global ? logoutAllThunk() : logoutThunk());
-    router.replace("/login");
+    router.replace(ADMIN_LOGIN_PATH);
   };
 
   return (
@@ -497,7 +498,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Divider />
           <MenuItem
             component={Link}
-            href="/security"
+            href={`${ADMIN_PREFIX}/security`}
             onClick={() => setProfileAnchor(null)}
           >
             <ShieldIcon fontSize="small" style={{ marginRight: 10 }} />

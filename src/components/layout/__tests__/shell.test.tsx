@@ -3,7 +3,7 @@ import { AppShell } from '../AppShell';
 import { SIDEBAR_WIDTH } from '../Sidebar';
 
 jest.mock('next/navigation', () => ({
-  usePathname: () => '/admins',
+  usePathname: () => '/admin/admins',
   useRouter: () => ({ replace: jest.fn(), push: jest.fn() }),
 }));
 
@@ -69,7 +69,7 @@ describe('AppShell layout', () => {
     renderShell();
     await user.click(screen.getByRole('button', { name: /Account menu for/ }));
     // MUI keeps role="menuitem" even when the item renders as a link.
-    expect(await screen.findByRole('menuitem', { name: 'Security settings' })).toHaveAttribute('href', '/security');
+    expect(await screen.findByRole('menuitem', { name: 'Security settings' })).toHaveAttribute('href', '/admin/security');
     expect(screen.getByRole('menuitem', { name: 'Sign out this session' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Sign out everywhere' })).toBeInTheDocument();
   });

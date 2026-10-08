@@ -24,13 +24,20 @@ export const PAGE_PERMS = {
   SESSION_REVOKE: 'session.revoke',
 } as const;
 
+import {
+  ADMIN_FORGOT_PASSWORD_PATH,
+  ADMIN_LOGIN_PATH,
+  ADMIN_RESET_PASSWORD_PATH,
+} from '@/lib/panels';
+
 /** Route prefix → permissions that unlock it. First match wins. */
 export const ROUTE_PERMISSIONS: Array<{ prefix: string; anyOf: string[] }> = [
-  { prefix: '/admins', anyOf: [PAGE_PERMS.ADMIN_READ] },
-  { prefix: '/roles', anyOf: [PAGE_PERMS.ROLE_READ] },
-  { prefix: '/activity', anyOf: [PAGE_PERMS.AUDIT_READ] },
-  { prefix: '/sessions', anyOf: [PAGE_PERMS.SESSION_READ] },
-  // /dashboard, /security, /themes: any authenticated admin (own data / prefs).
+  { prefix: '/admin/admins', anyOf: [PAGE_PERMS.ADMIN_READ] },
+  { prefix: '/admin/roles', anyOf: [PAGE_PERMS.ROLE_READ] },
+  { prefix: '/admin/activity', anyOf: [PAGE_PERMS.AUDIT_READ] },
+  { prefix: '/admin/sessions', anyOf: [PAGE_PERMS.SESSION_READ] },
+  // /admin/dashboard, /admin/security, /admin/themes: any authenticated
+  // admin (own data / prefs).
 ];
 
 /** Permissions required to visit `pathname` (empty = authenticated only). */
@@ -66,7 +73,7 @@ export function hasSessionCookie(cookieHeader: string | null | undefined): boole
 }
 
 /** Public (unauthenticated) route prefixes — mirrored in middleware + AuthGuard. */
-export const PUBLIC_PREFIXES = ['/login', '/forgot-password', '/reset-password', '/admin/reset-password'];
+export const PUBLIC_PREFIXES = [ADMIN_LOGIN_PATH, ADMIN_FORGOT_PASSWORD_PATH, ADMIN_RESET_PASSWORD_PATH];
 
 export function isPublicRoute(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

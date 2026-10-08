@@ -30,6 +30,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
 import TourIcon from "@mui/icons-material/Explore";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { ADMIN_LOGIN_PATH } from "@/lib/panels";
 import {
   useChangePasswordMutation,
   useConfirmEmailOtpMutation,
@@ -324,7 +325,7 @@ function SecurityContent() {
 
   const loggedOut = () => {
     dispatch(clearAuth());
-    router.replace("/login?disabled=1");
+    router.replace(`${ADMIN_LOGIN_PATH}?disabled=1`);
   };
   const apiMsg = (err: unknown, fallback: string) => {
     const n = normaliseApiError({
@@ -461,7 +462,7 @@ function SecurityContent() {
         newPassword: next,
       }).unwrap();
       dispatch(clearAuth());
-      router.replace("/login?changed=1");
+      router.replace(`${ADMIN_LOGIN_PATH}?changed=1`);
     } catch (err) {
       setError(apiMsg(err, "Could not change the password."));
     }

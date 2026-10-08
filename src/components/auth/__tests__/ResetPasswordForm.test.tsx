@@ -53,7 +53,7 @@ describe('ResetPasswordForm', () => {
     });
     // wait for router
     await screen.findByRole('button', { name: /Reset password/i });
-    expect(mockReplace).toHaveBeenCalledWith('/login?reset=1');
+    expect(mockReplace).toHaveBeenCalledWith('/admin/login?reset=1');
   });
 
   it('maps 400 to expired-link copy (good UX)', async () => {

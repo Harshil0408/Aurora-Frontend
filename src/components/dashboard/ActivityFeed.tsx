@@ -11,6 +11,7 @@ import FlagIcon from '@mui/icons-material/Flag';
 import GroupIcon from '@mui/icons-material/Group';
 import { feedEvents, type FeedTone, type FeedType } from '@/lib/sampleData';
 import { mercatoTokens } from '@/lib/theme';
+import { ADMIN_HOME_PATH } from '@/lib/panels';
 
 /** Resolved per render — module-scope would snapshot the default palette. */
 function getTone(): Record<FeedTone, { bg: string; color: string }> {
@@ -59,7 +60,7 @@ export function ActivityFeed() {
         </Box>
         <Typography
           component={Link}
-          href="/dashboard"
+          href={ADMIN_HOME_PATH}
           aria-disabled="true"
           title="Full audit log — coming soon"
           onClick={(e) => e.preventDefault()}

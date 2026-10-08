@@ -269,7 +269,7 @@ describe('AdminsView (live API wiring)', () => {
     await user.click(screen.getByRole('button', { name: 'Revoke sessions' }));
     expect(mockTriggerRevoke).toHaveBeenCalledWith('1');
     expect(await screen.findByText('Revoked 3 sessions for aisha@mercato.com.')).toBeInTheDocument();
-    expect(mockReplace).toHaveBeenCalledWith('/login');
+    expect(mockReplace).toHaveBeenCalledWith('/admin/login');
   });
 
   it('hides Create Admin without admin.create (no leaked action)', async () => {

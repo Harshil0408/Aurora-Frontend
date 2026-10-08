@@ -9,6 +9,7 @@ import { useCloneRoleMutation, useRoleDetailQuery } from '@/services/rbacApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { closeRoleDialog } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
+import { ADMIN_PREFIX } from '@/lib/panels';
 import { useResetKey } from '@/lib/utils';
 
 const KEY_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -58,7 +59,7 @@ export function CloneRoleModal() {
       }).unwrap();
       close();
       // Land on the clone's page, where the matrix is ready to diverge.
-      router.push(`/roles/${res.data.key}`);
+      router.push(`${ADMIN_PREFIX}/roles/${res.data.key}`);
     } catch (err) {
       const norm = normaliseApiError(err);
       if (norm.status === 409) setKeyError(`Key "${key.trim()}" is already taken.`);

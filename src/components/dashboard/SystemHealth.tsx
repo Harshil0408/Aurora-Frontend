@@ -5,6 +5,7 @@ import { Box, Paper, Typography } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import { healthMeters, healthServices, type HealthService } from '@/lib/sampleData';
 import { mercatoTokens } from '@/lib/theme';
+import { ADMIN_HOME_PATH } from '@/lib/panels';
 
 const dot: Record<HealthService['state'], string> = {
   operational: mercatoTokens.good,
@@ -44,7 +45,7 @@ export function SystemHealth() {
         </Box>
         <Typography
           component={Link}
-          href="/dashboard"
+          href={ADMIN_HOME_PATH}
           aria-disabled="true"
           title="Status page — coming soon"
           onClick={(e) => e.preventDefault()}

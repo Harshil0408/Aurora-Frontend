@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Box, Button, Snackbar } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { RbacGuard } from '@/components/auth/RbacGuard';
+import { ADMIN_PREFIX } from '@/lib/panels';
 import { RoleDetail } from '../../_components/roles/RoleDetail';
 import { RoleDialogs } from '../../_components/roles/RoleDialogs';
 
@@ -25,7 +26,7 @@ export function RoleDetailPageView({ roleKey }: { roleKey: string }) {
         <Box sx={{ mt: 0.5 }}>
           <Button
             component={Link}
-            href="/roles"
+            href={`${ADMIN_PREFIX}/roles`}
             size="small"
             startIcon={<ArrowBackIcon fontSize="small" />}
             sx={{ ml: -1 }}
@@ -36,7 +37,7 @@ export function RoleDetailPageView({ roleKey }: { roleKey: string }) {
 
         <RoleDetail roleKey={roleKey} notify={notify} />
 
-        <RoleDialogs notify={notify} onRoleDeleted={() => router.push('/roles')} />
+        <RoleDialogs notify={notify} onRoleDeleted={() => router.push(`${ADMIN_PREFIX}/roles`)} />
 
         <Snackbar
           open={toast != null}

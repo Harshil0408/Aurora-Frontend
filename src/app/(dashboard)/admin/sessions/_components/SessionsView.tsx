@@ -30,6 +30,7 @@ import { FallbackUI } from '@/components/ui/FallbackUI';
 import { RbacGuard, usePermissions } from '@/components/auth/RbacGuard';
 import { ConfirmDialog, TableCard } from '@/components/ui/controls';
 import { mercatoTokens } from '@/lib/theme';
+import { ADMIN_LOGIN_PATH } from '@/lib/panels';
 
 type DialogKind = null | 'revoke-one' | 'revoke-all';
 
@@ -112,7 +113,7 @@ export function SessionsView() {
       await revokeOne({ id: target.id }).unwrap();
       if (target.current) {
         dispatch(clearAuth());
-        router.replace('/login');
+        router.replace(ADMIN_LOGIN_PATH);
         return;
       }
       done(`Session revoked${target.ipAddress ? `: ${target.ipAddress}` : ''}.`);

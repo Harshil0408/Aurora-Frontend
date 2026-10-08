@@ -8,6 +8,7 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import StoreIcon from '@mui/icons-material/Store';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { money, topProducts, type ProductRow } from '@/lib/sampleData';
+import { ADMIN_HOME_PATH } from '@/lib/panels';
 
 const icons: Record<ProductRow['icon'], React.ReactNode> = {
   bag: <ShoppingBagIcon />,
@@ -32,7 +33,7 @@ export function TopProducts() {
         </Box>
         <Typography
           component={Link}
-          href="/dashboard"
+          href={ADMIN_HOME_PATH}
           aria-disabled="true"
           title="Catalogue management — coming soon"
           onClick={(e) => e.preventDefault()}

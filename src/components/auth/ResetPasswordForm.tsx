@@ -7,6 +7,7 @@ import { useResetPasswordMutation } from '@/services/authApi';
 import { resetPasswordSchema } from '@/lib/validations';
 import { normaliseApiError } from '@/types/api';
 import { ButtonLoader } from '@/components/ui/Loaders';
+import { ADMIN_LOGIN_PATH } from '@/lib/panels';
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
@@ -27,7 +28,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     setFieldError(undefined);
     try {
       await reset({ token, newPassword: parsed.data.newPassword }).unwrap();
-      router.replace('/login?reset=1');
+      router.replace(`${ADMIN_LOGIN_PATH}?reset=1`);
     } catch (err) {
       const n = normaliseApiError({ status: (err as { status?: number })?.status, data: (err as { data?: unknown })?.data });
       if (n.status === 400 && /password/i.test(n.message)) {

@@ -195,7 +195,7 @@ describe('RolesView (live RBAC wiring)', () => {
     await screen.findByText('Support');
     await openRowMenu(user, 'Support');
     await user.click(screen.getByRole('menuitem', { name: 'View / edit permissions' }));
-    expect(mockRouter.push).toHaveBeenCalledWith('/roles/support');
+    expect(mockRouter.push).toHaveBeenCalledWith('/admin/roles/support');
   });
 
   it('create modal validates the slug live and sends an explicit empty list', async () => {
@@ -227,7 +227,7 @@ describe('RolesView (live RBAC wiring)', () => {
       }),
     );
     // Lands on the new role's detail page, where the matrix is ready.
-    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles/catalog-manager'));
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/admin/roles/catalog-manager'));
   });
 
   it('create modal sends the picked starting permissions explicitly', async () => {
@@ -254,7 +254,7 @@ describe('RolesView (live RBAC wiring)', () => {
         permissionKeys: ['admin.read'],
       }),
     );
-    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles/billing-analyst'));
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/admin/roles/billing-analyst'));
   });
 
   it('clone pre-fills from source and status change requires a logged reason', async () => {
@@ -279,7 +279,7 @@ describe('RolesView (live RBAC wiring)', () => {
       }),
     );
     // Lands on the clone's detail page.
-    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles/support-eu'));
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/admin/roles/support-eu'));
     // Let the dialog exit before touching the background again.
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ADMIN_HOME_PATH } from '@/lib/panels';
 
 /**
  * 404 — also rendered for pages the viewer has no permission to see.
@@ -37,7 +38,7 @@ export default function NotFound() {
           this is a mistake, contact an administrator.
         </p>
         <Link
-          href="/dashboard"
+          href={ADMIN_HOME_PATH}
           style={{
             display: 'inline-block',
             padding: '0.6rem 1.25rem',

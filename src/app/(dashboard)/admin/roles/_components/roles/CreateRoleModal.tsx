@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { closeRoleDialog } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
 import type { RbacErrorDetails } from '@/types/rbac';
+import { ADMIN_PREFIX } from '@/lib/panels';
 import { detailsCode, useResetKey } from '@/lib/utils';
 import { PermissionMatrix } from './PermissionMatrix';
 
@@ -81,7 +82,7 @@ export function CreateRoleModal() {
       }).unwrap();
       close();
       // Land on the new role's page, where the matrix is ready to trim or extend.
-      router.push(`/roles/${res.data.key}`);
+      router.push(`${ADMIN_PREFIX}/roles/${res.data.key}`);
     } catch (err) {
       const norm = normaliseApiError(err);
       setRequestId(norm.requestId ?? null);

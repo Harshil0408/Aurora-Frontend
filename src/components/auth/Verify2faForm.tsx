@@ -10,6 +10,7 @@ import { resetLoginFlow, setSession, setStage } from '@/store/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { normaliseApiError } from '@/types/api';
 import { ButtonLoader } from '@/components/ui/Loaders';
+import { ADMIN_HOME_PATH, ADMIN_LOGIN_PATH, ADMIN_PREFIX } from '@/lib/panels';
 
 /**
  * Step 2: second factor → session.
@@ -60,10 +61,10 @@ export function Verify2faForm() {
       const res = await verify({ pendingToken, code: trimmed }).unwrap();
       dispatch(setSession({ accessToken: res.data.accessToken, expiresInSeconds: res.data.expiresInSeconds }));
       if (res.data.method === 'recovery') {
-        router.replace('/security?recovery=1');
+        router.replace(`${ADMIN_PREFIX}/security?recovery=1`);
         return;
       }
-      const next = new URLSearchParams(window.location.search).get('next') || '/dashboard';
+      const next = new URLSearchParams(window.location.search).get('next') || ADMIN_HOME_PATH;
       router.replace(next);
     } catch (err) {
       const raw = (err as { status?: number; data?: unknown })?.data ?? err;
@@ -71,7 +72,7 @@ export function Verify2faForm() {
       const msg = typeof n.message === 'string' ? n.message : '';
       if ((err as { status?: number })?.status === 400 && /not set up|log in directly/i.test(msg)) {
         dispatch(resetLoginFlow());
-        router.replace('/login');
+        router.replace(ADMIN_LOGIN_PATH);
         return;
       }
       setError(

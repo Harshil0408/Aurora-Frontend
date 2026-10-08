@@ -28,6 +28,7 @@ import { openRoleDialog, selectRole } from '@/store/rbacSlice';
 import { normaliseApiError } from '@/types/api';
 import type { Role, RoleStatus } from '@/types/rbac';
 import { formatMonth } from '@/lib/utils';
+import { ADMIN_PREFIX } from '@/lib/panels';
 import { mercatoTokens } from '@/lib/theme';
 
 type StatusFilter = 'ALL' | RoleStatus;
@@ -225,7 +226,7 @@ export function RolesTable() {
           onClick={() => {
             const key = menuRole?.key;
             closeMenu();
-            if (key) router.push(`/roles/${key}`);
+            if (key) router.push(`${ADMIN_PREFIX}/roles/${key}`);
           }}
         >
           View / edit permissions

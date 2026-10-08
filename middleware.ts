@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hasSessionCookie, isPublicRoute } from '@/lib/permissions';
+import {
+  ADMIN_HOME_PATH,
+  ADMIN_LOGIN_PATH,
+  toAdminPath,
+} from '@/lib/panels';
 
 /**
  * Edge auth gate (UX-only — the backend re-authorizes every API call).
  *
- * - Public routes (`/login`, `/forgot-password`, `/reset-password`, …)
- *   always pass through.
+ * - Admin auth pages (`/admin/login`, `/admin/forgot-password`,
+ *   `/admin/reset-password`, …) always pass through.
  * - `/api/*`, `/_next/*` and static assets always pass through.
- * - No session cookie → protected page redirects to `/login?next=<path>`.
- * - Session cookie + visiting `/login` → redirect to `?next=` or `/dashboard`.
+ * - `/` resolves to the admin home.
+ * - Legacy pre-panel page paths (`/login`, `/dashboard`, `/roles`, …)
+ *   redirect to their `/admin/*` replacements, preserving the query string
+ *   (including a `?next=` value, which is translated the same way).
+ * - No session cookie → protected page redirects to
+ *   `/admin/login?next=<path>`.
+ * - Session cookie + visiting `/admin/login` → redirect to `?next=` or
+ *   `/admin/dashboard`.
  *
  * Permission checks (admin.read, role.read, …) cannot run here — the access
  * token lives in browser memory, invisible to the edge. Those run
@@ -17,11 +28,26 @@ import { hasSessionCookie, isPublicRoute } from '@/lib/permissions';
 export function middleware(req: NextRequest): NextResponse {
   const { pathname, search } = req.nextUrl;
 
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(ADMIN_HOME_PATH, req.url));
+  }
+
+  const adminPath = toAdminPath(pathname);
+  if (adminPath !== pathname) {
+    const dest = new URL(adminPath, req.url);
+    // The constructor carries the query string over; translate a legacy
+    // `next` target as well so post-login redirects land on a live route.
+    const next = req.nextUrl.searchParams.get('next');
+    if (next != null) dest.searchParams.set('next', toAdminPath(next));
+    return NextResponse.redirect(dest);
+  }
+
   if (isPublicRoute(pathname)) {
-    // Signed-in admins hitting /login get bounced to their destination.
-    if (pathname === '/login' && hasSessionCookie(req.headers.get('cookie'))) {
-      const next = req.nextUrl.searchParams.get('next') || '/dashboard';
-      const dest = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
+    // Signed-in admins hitting /admin/login get bounced to their destination.
+    if (pathname === ADMIN_LOGIN_PATH && hasSessionCookie(req.headers.get('cookie'))) {
+      const rawNext = req.nextUrl.searchParams.get('next') || ADMIN_HOME_PATH;
+      const next = toAdminPath(rawNext);
+      const dest = next.startsWith('/') && !next.startsWith('//') ? next : ADMIN_HOME_PATH;
       return NextResponse.redirect(new URL(dest, req.url));
     }
     return NextResponse.next();
@@ -29,7 +55,7 @@ export function middleware(req: NextRequest): NextResponse {
 
   if (hasSessionCookie(req.headers.get('cookie'))) return NextResponse.next();
 
-  const login = new URL('/login', req.url);
+  const login = new URL(ADMIN_LOGIN_PATH, req.url);
   login.searchParams.set('next', `${pathname}${search}`);
   return NextResponse.redirect(login);
 }

@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 /**
  * Mail-link target: the reset email points here
- * (/admin/reset-password?token=…). Same form as /reset-password —
- * token comes from the query string and is never stored.
+ * (/admin/reset-password?token=…). Token comes from the query string and is
+ * never stored.
  */
 function AdminResetContent({ token }: { token: string }) {
   if (!token) {

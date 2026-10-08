@@ -47,6 +47,7 @@ import {
   TableCard,
 } from '@/components/ui/controls';
 import { mercatoTokens } from '@/lib/theme';
+import { ADMIN_LOGIN_PATH } from '@/lib/panels';
 import { statusTone } from '@/lib/variables';
 import { useMeQuery } from '@/services/authApi';
 import { useMyPermissionsQuery } from '@/services/rbacApi';
@@ -397,7 +398,7 @@ export function AdminsView() {
       if (wasSelf) {
         // Revoking your own sessions ends your session too — same as sign-out everywhere.
         dispatch(clearAuth());
-        router.replace('/login');
+        router.replace(ADMIN_LOGIN_PATH);
       }
     } catch (err) {
       setRevokeError(withRequestId(normaliseApiError(err).message, err));

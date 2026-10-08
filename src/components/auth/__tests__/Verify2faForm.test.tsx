@@ -67,7 +67,7 @@ describe('Verify2faForm', () => {
       pendingToken: 'pt-1',
       code: '123456',
     });
-    expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+    expect(mockReplace).toHaveBeenCalledWith('/admin/dashboard');
     expect(store.getState().auth.isAuthenticated).toBe(true);
   });
 

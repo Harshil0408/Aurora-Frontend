@@ -3,7 +3,7 @@ import { makeStore } from '@/store';
 import { openRoleDialog, selectRole } from '@/store/rbacSlice';
 import { RoleDetailPageView } from '../RoleDetailPageView';
 
-// Detail-page suite (matrix + save bar live on /roles/[key], not the list).
+// Detail-page suite (matrix + save bar live on /admin/roles/[key], not the list).
 jest.setTimeout(30000);
 
 const mockMyPermissions = jest.fn();
@@ -135,7 +135,7 @@ function baseMocks() {
   mockGroups.mockReturnValue({ data: { success: true, data: GROUPS }, isLoading: false });
 }
 
-describe('RoleDetailPageView (/roles/[key])', () => {
+describe('RoleDetailPageView (/admin/roles/[key])', () => {
   beforeEach(baseMocks);
 
   it('renders the header, back link, and pre-checked matrix', async () => {

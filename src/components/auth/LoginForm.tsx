@@ -17,6 +17,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { loginSchema } from "@/lib/validations";
 import { normaliseApiError } from "@/types/api";
 import { ButtonLoader } from "@/components/ui/Loaders";
+import { ADMIN_FORGOT_PASSWORD_PATH, ADMIN_HOME_PATH } from "@/lib/panels";
 
 /**
  * Step 1: email + password.
@@ -60,7 +61,7 @@ export function LoginForm() {
         );
         const next =
           new URLSearchParams(window.location.search).get("next") ||
-          "/dashboard";
+          ADMIN_HOME_PATH;
         router.replace(next);
         return;
       }
@@ -140,7 +141,7 @@ export function LoginForm() {
       >
         <MuiLink
           component={Link}
-          href="/forgot-password"
+          href={ADMIN_FORGOT_PASSWORD_PATH}
           underline="hover"
           color="primary"
         >

@@ -16,6 +16,7 @@ import {
 import { Delta } from '@/components/dashboard/Delta';
 import { int, money, topSellers } from '@/lib/sampleData';
 import { mercatoTokens } from '@/lib/theme';
+import { ADMIN_HOME_PATH } from '@/lib/panels';
 
 /** Resolved per render — module-scope would snapshot the default palette. */
 function getPlanTone(): Record<string, { bg: string; color: string; border: string }> {
@@ -45,7 +46,7 @@ export function TopSellers() {
         </Box>
         <Typography
           component={Link}
-          href="/dashboard"
+          href={ADMIN_HOME_PATH}
           aria-disabled="true"
           title="Seller management — coming soon"
           onClick={(e) => e.preventDefault()}

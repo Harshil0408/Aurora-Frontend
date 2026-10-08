@@ -10,8 +10,8 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { PageLoader } from "@/components/ui/Loaders";
 import { RootState } from "@/store";
-
-const PUBLIC_PREFIXES = ["/login", "/forgot-password", "/reset-password", "/admin/reset-password"];
+import { PUBLIC_PREFIXES } from "@/lib/permissions";
+import { ADMIN_HOME_PATH, ADMIN_LOGIN_PATH } from "@/lib/panels";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
@@ -35,10 +35,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       (p) => pathname === p || pathname.startsWith(`${p}/`),
     );
     if (!isAuthenticated && !isPublic) {
-      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-    } else if (isAuthenticated && pathname === "/login") {
+      router.replace(`${ADMIN_LOGIN_PATH}?next=${encodeURIComponent(pathname)}`);
+    } else if (isAuthenticated && pathname === ADMIN_LOGIN_PATH) {
       const next =
-        new URLSearchParams(window.location.search).get("next") || "/dashboard";
+        new URLSearchParams(window.location.search).get("next") || ADMIN_HOME_PATH;
       router.replace(next);
     }
   }, [isAuthenticated, isInitialised, pathname, router]);

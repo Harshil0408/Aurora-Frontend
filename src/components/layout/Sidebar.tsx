@@ -31,6 +31,7 @@ import ShieldIcon from "@mui/icons-material/Shield";
 import PaletteIcon from "@mui/icons-material/Palette";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { hexToRgba, mercatoTokens } from "@/lib/theme";
+import { ADMIN_HOME_PATH, ADMIN_PREFIX } from "@/lib/panels";
 import { Logo } from "@/components/ui/Logo";
 import { useMeQuery } from "@/services/authApi";
 import { useAppSelector } from "@/store/hooks";
@@ -55,7 +56,7 @@ const sections: { title: string; items: NavItem[] }[] = [
     items: [
       {
         label: "Dashboard",
-        href: "/dashboard",
+        href: ADMIN_HOME_PATH,
         icon: <GridViewIcon fontSize="small" />,
       },
       { label: "Analytics", icon: <BarChartIcon fontSize="small" /> },
@@ -80,31 +81,31 @@ const sections: { title: string; items: NavItem[] }[] = [
     items: [
       {
         label: "Admins",
-        href: "/admins",
+        href: `${ADMIN_PREFIX}/admins`,
         icon: <AdminPanelSettingsIcon fontSize="small" />,
         perm: "admin.read",
       },
       {
         label: "Roles & Permissions",
-        href: "/roles",
+        href: `${ADMIN_PREFIX}/roles`,
         icon: <VpnKeyIcon fontSize="small" />,
         perm: "role.read",
       },
       {
         label: "Activity Log",
-        href: "/activity",
+        href: `${ADMIN_PREFIX}/activity`,
         icon: <HistoryIcon fontSize="small" />,
         perm: "audit.read",
       },
       {
         label: "Sessions",
-        href: "/sessions",
+        href: `${ADMIN_PREFIX}/sessions`,
         icon: <DevicesIcon fontSize="small" />,
         perm: "session.read",
       },
       {
         label: "Security",
-        href: "/security",
+        href: `${ADMIN_PREFIX}/security`,
         icon: <ShieldIcon fontSize="small" />,
       },
     ],
@@ -123,7 +124,7 @@ const sections: { title: string; items: NavItem[] }[] = [
       { label: "Health", icon: <MonitorHeartIcon fontSize="small" /> },
       {
         label: "Themes",
-        href: "/themes",
+        href: `${ADMIN_PREFIX}/themes`,
         icon: <PaletteIcon fontSize="small" />,
       },
       { label: "Settings", icon: <SettingsIcon fontSize="small" /> },
@@ -135,7 +136,7 @@ function BrandMark() {
   return (
     <Box
       component={Link}
-      href="/dashboard"
+      href={ADMIN_HOME_PATH}
       aria-label="Aurora admin home"
       sx={{
         display: "flex",
