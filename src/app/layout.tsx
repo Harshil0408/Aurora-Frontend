@@ -51,8 +51,12 @@ function themeBootScript(): string {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+    // suppressHydrationWarning: the blocking theme script above sets CSS vars
+    // on <html> before paint, and browser extensions may add <body> attrs
+    // (e.g. cz-shortcut-listen) — neither is known to React's SSR snapshot.
+    // Mismatches deeper in the tree still warn as usual.
+    <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript() }} />
         <Providers>
           <AuthGuard>{children}</AuthGuard>

@@ -10,7 +10,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { PageLoader } from "@/components/ui/Loaders";
 import { RootState } from "@/store";
-import { PUBLIC_PREFIXES } from "@/lib/permissions";
+import { PUBLIC_PREFIXES, isSellerRoute } from "@/lib/permissions";
 import { ADMIN_HOME_PATH, ADMIN_LOGIN_PATH } from "@/lib/panels";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -31,6 +31,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isInitialised) return;
+    // Seller routes are gated by `SellerSessionGuard` (own refresh cookie
+    // `seller_rt`) — the admin gate must not redirect them to /admin/login.
+    if (isSellerRoute(pathname)) return;
     const isPublic = PUBLIC_PREFIXES.some(
       (p) => pathname === p || pathname.startsWith(`${p}/`),
     );
@@ -44,6 +47,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, isInitialised, pathname, router]);
 
   if (!isInitialised) return <PageLoader />;
+  // Seller panel renders its own loaders/guards client-side.
+  if (isSellerRoute(pathname)) return <>{children}</>;
   const isPublic = PUBLIC_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );

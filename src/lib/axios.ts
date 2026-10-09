@@ -22,14 +22,14 @@ apiClient.interceptors.request.use((req) => {
   return req;
 });
 
-let refreshPromise: Promise<string | null> | null = null;
+const refreshPromises: Partial<Record<'admin' | 'seller', Promise<string | null> | null>> = {};
 
-async function performRefresh(): Promise<string | null> {
+async function performRefresh(namespace: 'admin' | 'seller'): Promise<string | null> {
   const res = await axios.post<{
     success: true;
     data: { accessToken: string; expiresInSeconds: number };
   }>(
-    `${config.apiProxyBase}/admin/auth/refresh`,
+    `${config.apiProxyBase}/${namespace}/auth/refresh`,
     {},
     { withCredentials: true, timeout: 15_000 },
   );
@@ -50,21 +50,28 @@ apiClient.interceptors.response.use(
     const url = original.url ?? "";
 
     const isPublicAuthCall =
-      url.includes("/admin/auth/login") ||
-      url.includes("/admin/auth/2fa/") ||
-      url.includes("/admin/auth/forgot-password") ||
-      url.includes("/admin/auth/reset-password") ||
-      url.includes("/admin/auth/refresh");
+      url.includes('/admin/auth/login') ||
+      url.includes('/admin/auth/2fa/') ||
+      url.includes('/admin/auth/forgot-password') ||
+      url.includes('/admin/auth/reset-password') ||
+      url.includes('/admin/auth/refresh') ||
+      url.includes('/seller/auth/login') ||
+      url.includes('/seller/auth/register') ||
+      url.includes('/seller/auth/refresh');
 
     if (status === 401 && !original._retried && !isPublicAuthCall) {
       original._retried = true;
+      // The seller refresh cookie (`seller_rt`) only rotates via the seller
+      // namespace — refreshing through `/admin/auth/refresh` would revoke
+      // nothing and loop. Route the rotation by request namespace.
+      const namespace = url.includes('/seller/') ? 'seller' : 'admin';
       try {
-        if (!refreshPromise) {
-          refreshPromise = performRefresh().finally(() => {
-            refreshPromise = null;
+        if (!refreshPromises[namespace]) {
+          refreshPromises[namespace] = performRefresh(namespace).finally(() => {
+            refreshPromises[namespace] = null;
           });
         }
-        const fresh = await refreshPromise;
+        const fresh = await refreshPromises[namespace];
         if (fresh) {
           original.headers = {
             ...(original.headers ?? {}),

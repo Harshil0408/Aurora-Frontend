@@ -28,6 +28,9 @@ import {
   ADMIN_FORGOT_PASSWORD_PATH,
   ADMIN_LOGIN_PATH,
   ADMIN_RESET_PASSWORD_PATH,
+  SELLER_INVITE_ACCEPT_PATH,
+  SELLER_LOGIN_PATH,
+  SELLER_REGISTER_PATH,
 } from '@/lib/panels';
 
 /** Route prefix → permissions that unlock it. First match wins. */
@@ -60,7 +63,13 @@ export function canVisitRoute(held: Set<string> | string[], pathname: string): b
 export const SESSION_HINT_COOKIE = 'ecomm-admin-has-session';
 
 /** Cookie names that prove a backend session exists (refresh / session). */
-const SESSION_COOKIE_HINTS = ['refresh', 'session', SESSION_HINT_COOKIE];
+const SESSION_COOKIE_HINTS = [
+  'refresh',
+  'session',
+  'seller_rt',
+  'ecomm-seller-has-session',
+  SESSION_HINT_COOKIE,
+];
 
 /** True when the request cookies contain any session evidence. */
 export function hasSessionCookie(cookieHeader: string | null | undefined): boolean {
@@ -73,7 +82,22 @@ export function hasSessionCookie(cookieHeader: string | null | undefined): boole
 }
 
 /** Public (unauthenticated) route prefixes — mirrored in middleware + AuthGuard. */
-export const PUBLIC_PREFIXES = [ADMIN_LOGIN_PATH, ADMIN_FORGOT_PASSWORD_PATH, ADMIN_RESET_PASSWORD_PATH];
+export const PUBLIC_PREFIXES = [
+  ADMIN_LOGIN_PATH,
+  ADMIN_FORGOT_PASSWORD_PATH,
+  ADMIN_RESET_PASSWORD_PATH,
+  SELLER_LOGIN_PATH,
+  SELLER_REGISTER_PATH,
+  SELLER_INVITE_ACCEPT_PATH,
+];
+
+/** Seller auth pages (login/register/invite) — used for panel-aware redirects. */
+export const SELLER_PUBLIC_PREFIXES = [SELLER_LOGIN_PATH, SELLER_REGISTER_PATH, SELLER_INVITE_ACCEPT_PATH];
+
+/** True when `pathname` belongs to the seller console. */
+export function isSellerRoute(pathname: string): boolean {
+  return pathname === '/seller' || pathname.startsWith('/seller/');
+}
 
 export function isPublicRoute(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

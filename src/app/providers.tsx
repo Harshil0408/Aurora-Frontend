@@ -1,11 +1,12 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { buildAppTheme, type ThemeColors } from '@/lib/theme';
 import {
+  DEFAULT_PRESET_ID,
   activatePreset,
   effectiveColors,
   getPreset,
@@ -37,11 +38,42 @@ export function useThemeManager(): ThemeManager {
 }
 
 export function ThemeManagerProvider({ children }: { children: React.ReactNode }) {
+  // SSR-safe first paint: the server has no localStorage, so it always renders
+  // the default preset. The initial client render uses the same defaults so
+  // Emotion generates identical classes during hydration — a saved custom theme
+  // would otherwise mismatch every MUI-generated className. The saved theme
+  // applies in the effect below, right after hydration. The blocking boot
+  // script in layout.tsx already painted the matching CSS vars pre-paint, so
+  // var()-based surfaces never flash; only Emotion-computed values settle once.
   const [state, setState] = useState(() => {
-    const saved = loadSavedTheme();
-    const preset = activatePreset(saved.presetId, saved.custom);
-    return { presetId: preset.id, custom: saved.custom };
+    const preset = getPreset(DEFAULT_PRESET_ID);
+    return { presetId: preset.id, custom: null as ThemeCustom | null };
   });
+
+  useEffect(() => {
+    // Subscribe to the saved theme (external system): cross-tab updates arrive
+    // via `storage` events, and the one-time post-hydration sync below lets the
+    // first client render match SSR (defaults) so Emotion classes hydrate
+    // cleanly — a saved custom theme would otherwise mismatch every
+    // MUI-generated className. The blocking boot script already painted the
+    // matching CSS vars pre-paint, so var()-based surfaces never flash.
+    const sync = () => {
+      const saved = loadSavedTheme();
+      const preset = activatePreset(saved.presetId, saved.custom);
+      setState((prev) => {
+        if (
+          prev.presetId === preset.id &&
+          JSON.stringify(prev.custom ?? null) === JSON.stringify(saved.custom ?? null)
+        ) {
+          return prev;
+        }
+        return { presetId: preset.id, custom: saved.custom };
+      });
+    };
+    sync();
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
 
   const muiTheme = useMemo(
     () => buildAppTheme(resolveTokens(state.presetId, state.custom)),

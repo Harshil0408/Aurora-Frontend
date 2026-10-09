@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hasSessionCookie, isPublicRoute } from '@/lib/permissions';
+import { hasSessionCookie, isPublicRoute, isSellerRoute } from '@/lib/permissions';
 import {
   ADMIN_HOME_PATH,
   ADMIN_LOGIN_PATH,
+  SELLER_HOME_PATH,
+  SELLER_LOGIN_PATH,
   toAdminPath,
 } from '@/lib/panels';
 
@@ -50,10 +52,23 @@ export function middleware(req: NextRequest): NextResponse {
       const dest = next.startsWith('/') && !next.startsWith('//') ? next : ADMIN_HOME_PATH;
       return NextResponse.redirect(new URL(dest, req.url));
     }
+    // Signed-in sellers hitting /seller/login continue to their destination.
+    if (pathname === SELLER_LOGIN_PATH && hasSessionCookie(req.headers.get('cookie'))) {
+      const rawNext = req.nextUrl.searchParams.get('next') || SELLER_HOME_PATH;
+      const dest = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : SELLER_HOME_PATH;
+      return NextResponse.redirect(new URL(dest, req.url));
+    }
     return NextResponse.next();
   }
 
   if (hasSessionCookie(req.headers.get('cookie'))) return NextResponse.next();
+
+  // Panel-aware login redirect (UX-only — the backend re-authorizes every API call).
+  if (isSellerRoute(pathname)) {
+    const login = new URL(SELLER_LOGIN_PATH, req.url);
+    login.searchParams.set('next', `${pathname}${search}`);
+    return NextResponse.redirect(login);
+  }
 
   const login = new URL(ADMIN_LOGIN_PATH, req.url);
   login.searchParams.set('next', `${pathname}${search}`);

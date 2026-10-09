@@ -4,6 +4,6 @@ import { axiosBaseQuery } from '@/services/baseQuery';
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['Sessions', 'Me', 'Admins', 'AdminSummary', 'AdminDetail', 'Roles', 'RoleDetail', 'Permissions', 'Activity'],
+  tagTypes: ['Sessions', 'Me', 'Admins', 'AdminSummary', 'AdminDetail', 'Roles', 'RoleDetail', 'Permissions', 'Activity', 'SellerMe', 'SellerStores', 'SellerStore', 'SellerMembers', 'SellerInvitations', 'SellerRoles', 'SellerPermissions', 'SellerPlans', 'SellerSubscription', 'SellerActivity', 'SellerSessions'],
   endpoints: () => ({}),
 });
