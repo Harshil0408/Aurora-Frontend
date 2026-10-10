@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert, Box, Button, Grid, Paper, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { FormField, SelectField } from '@/components/ui/controls';
+import { LookupSelect } from '@/components/seller/LookupSelect';
 import { ButtonLoader } from '@/components/ui/Loaders';
 import { DataLoader } from '@/components/ui/DataLoader';
 import { DetailRow, GuideAccordion, HowRow } from '@/components/ui/Guide';
@@ -41,6 +42,9 @@ export function CreateStoreView() {
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const setValue = (key: keyof typeof form) => (v: string) =>
+    setForm((f) => ({ ...f, [key]: v }));
 
   function validateStep(s: number): boolean {
     const parsed = createStoreSchema.safeParse(form);
@@ -147,10 +151,10 @@ export function CreateStoreView() {
               <FormField label="URL slug (optional)" value={form.slug} onChange={set('slug')} error={Boolean(errors.slug)} helperText={errors.slug} hint="Lowercase letters, numbers, hyphens. Empty = auto-generated." />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormField label="Category" value={form.category} onChange={set('category')} hint="e.g. Fashion, Electronics, Grocery." />
+              <LookupSelect field="category" label="Category" value={form.category} onChange={setValue('category')} placeholder="Select a category" hint="Live platform list — admins can add more anytime." />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormField label="Country" value={form.country} onChange={set('country')} hint="Needed to finish the onboarding checklist." />
+              <LookupSelect field="country" label="Country" value={form.country} onChange={setValue('country')} placeholder="Select a country" hint="Needed to finish the onboarding checklist." />
             </Grid>
             <Grid size={{ xs: 12 }}>
               <FormField label="Description" value={form.description} onChange={set('description')} multiline minRows={2} hint="A line or two about what you sell." />
@@ -167,10 +171,10 @@ export function CreateStoreView() {
               <FormField label="Contact phone" value={form.contactPhone} onChange={set('contactPhone')} hint="Optional — shown alongside the email." />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <FormField label="Currency" value={form.currency} onChange={set('currency')} error={Boolean(errors.currency)} helperText={errors.currency} hint="e.g. INR, USD." />
+              <LookupSelect field="currency" label="Currency" value={form.currency} onChange={setValue('currency')} error={Boolean(errors.currency)} errorText={errors.currency} hint="Live platform list." />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <FormField label="Timezone" value={form.timezone} onChange={set('timezone')} hint="e.g. Asia/Kolkata." />
+              <LookupSelect field="timezone" label="Timezone" value={form.timezone} onChange={setValue('timezone')} hint="Live platform list." />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <FormField label="Logo URL" value={form.logo} onChange={set('logo')} error={Boolean(errors.logo)} helperText={errors.logo} hint="Optional image link for your storefront." />

@@ -132,3 +132,44 @@ export const sellerRoleSchema = z.object({
   description: z.string().max(500).optional().or(z.literal("")),
 });
 export type SellerRoleFormData = z.infer<typeof sellerRoleSchema>;
+
+/* ------------------------------ attributes ------------------------------ */
+/* Global lookup catalog — mirrors backend rules for instant feedback. */
+
+const attributeTypeField = z
+  .string()
+  .trim()
+  .min(2, 'Use at least 2 characters')
+  .max(64, 'Keep the type under 64 characters')
+  .regex(/^[a-z][a-z0-9_]*$/, 'Lowercase snake_case, e.g. payment_type');
+
+const attributeKeyField = z
+  .string()
+  .trim()
+  .min(2, 'Use at least 2 characters')
+  .max(128, 'Keep the key under 128 characters')
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Lowercase hyphen slug, e.g. fashion-apparel');
+
+export const createAttributeSchema = z.object({
+  type: attributeTypeField,
+  key: attributeKeyField,
+  label: z.string().trim().min(1, 'Give the entry a display name').max(255),
+  value: z.string().max(255, 'Keep the code under 255 characters').optional().or(z.literal('')),
+  description: z.string().max(500, 'Keep the description under 500 characters').optional().or(z.literal('')),
+  sortOrder: z.number().int().min(0).max(1_000_000).default(0),
+});
+export type CreateAttributeFormData = z.infer<typeof createAttributeSchema>;
+
+export const editAttributeSchema = z.object({
+  label: z.string().trim().min(1, 'Give the entry a display name').max(255),
+  value: z.string().max(255, 'Keep the code under 255 characters').optional().or(z.literal('')),
+  description: z.string().max(500, 'Keep the description under 500 characters').optional().or(z.literal('')),
+  sortOrder: z.number().int().min(0).max(1_000_000),
+});
+export type EditAttributeFormData = z.infer<typeof editAttributeSchema>;
+
+export const attributeStatusSchema = z.object({
+  status: z.enum(['ACTIVE', 'INACTIVE']),
+  reason: z.string().trim().min(3, 'Tell the audit trail why (min 3 characters)').max(500),
+});
+export type AttributeStatusFormData = z.infer<typeof attributeStatusSchema>;

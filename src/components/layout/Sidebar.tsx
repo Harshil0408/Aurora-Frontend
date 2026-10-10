@@ -3,6 +3,7 @@
 import {
   Avatar,
   Box,
+  Collapse,
   Drawer,
   List,
   ListItemButton,
@@ -12,7 +13,8 @@ import {
   useTheme,
 } from "@mui/material";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import GridViewIcon from "@mui/icons-material/GridView";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import StoreIcon from "@mui/icons-material/Store";
@@ -29,6 +31,8 @@ import HistoryIcon from "@mui/icons-material/History";
 import DevicesIcon from "@mui/icons-material/Devices";
 import ShieldIcon from "@mui/icons-material/Shield";
 import PaletteIcon from "@mui/icons-material/Palette";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DatasetIcon from "@mui/icons-material/Dataset";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { mercatoTokens } from "@/lib/theme";
 import { ADMIN_HOME_PATH, ADMIN_PREFIX } from "@/lib/panels";
@@ -40,6 +44,13 @@ import { usePermissions } from "@/components/auth/RbacGuard";
 /** Compact premium rail — flush to the viewport edge, Linear-style density. */
 export const SIDEBAR_WIDTH = 264;
 
+interface NavChild {
+  label: string;
+  href: string;
+  /** Matches `?scope=` on the overview page; omitted for plain paths. */
+  scope?: string;
+}
+
 interface NavItem {
   label: string;
   href?: string;
@@ -48,6 +59,8 @@ interface NavItem {
   quietBadge?: boolean;
   /** Permission key required to see this item (hidden otherwise). */
   perm?: string;
+  /** Nested links rendered as an expandable accordion group. */
+  children?: NavChild[];
 }
 
 const sections: { title: string; items: NavItem[] }[] = [
@@ -122,6 +135,19 @@ const sections: { title: string; items: NavItem[] }[] = [
     title: "System",
     items: [
       { label: "Health", icon: <MonitorHeartIcon fontSize="small" /> },
+      {
+        label: "Attributes",
+        href: `${ADMIN_PREFIX}/attributes`,
+        icon: <DatasetIcon fontSize="small" />,
+        perm: "attribute.read",
+        children: [
+          { label: "All types", href: `${ADMIN_PREFIX}/attributes` },
+          { label: "Admin", href: `${ADMIN_PREFIX}/attributes?scope=admin`, scope: "admin" },
+          { label: "Seller", href: `${ADMIN_PREFIX}/attributes?scope=seller`, scope: "seller" },
+          { label: "Users", href: `${ADMIN_PREFIX}/attributes?scope=user`, scope: "user" },
+          { label: "General", href: `${ADMIN_PREFIX}/attributes/general` },
+        ],
+      },
       {
         label: "Themes",
         href: `${ADMIN_PREFIX}/themes`,
@@ -305,8 +331,169 @@ function NavRow({
   );
 }
 
+function NavParent({
+  item,
+  pathname,
+  scope,
+  onNavigate,
+}: {
+  item: NavItem;
+  pathname: string | null;
+  scope: string | null;
+  onNavigate?: () => void;
+}) {
+  const base = item.href ?? "";
+  const active =
+    base !== "" &&
+    pathname != null &&
+    (pathname === base || pathname.startsWith(`${base}/`));
+  const [open, setOpen] = useState(active);
+  const children = item.children ?? [];
+  const isChildActive = (c: NavChild) => {
+    const childPath = c.href.split("?")[0];
+    if (pathname == null) return false;
+    if (c.scope != null) {
+      // Scoped overview links share one path — the ?scope= picks the winner.
+      return pathname === childPath && scope === c.scope;
+    }
+    if (childPath.endsWith("/general")) {
+      return pathname === childPath || pathname.startsWith(`${childPath}/`);
+    }
+    // "All types": active only when no scope is selected.
+    return pathname === childPath && scope == null;
+  };
+  return (
+    <Box>
+      <ListItemButton
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        sx={{
+          borderRadius: 2,
+          px: 1,
+          py: 0.75,
+          gap: 1.25,
+          cursor: "pointer",
+          color: active ? "text.primary" : "text.secondary",
+          bgcolor: active ? "action.selected" : "transparent",
+          fontWeight: active ? 700 : 600,
+          transition:
+            "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+          "&:hover": {
+            bgcolor: active ? "action.selected" : "action.hover",
+            color: "text.primary",
+          },
+          "&:active": { transform: "scale(0.98)" },
+          "&:focus-visible": {
+            outline: `2px solid ${mercatoTokens.brand}`,
+            outlineOffset: 2,
+          },
+        }}
+      >
+        <Box
+          aria-hidden
+          sx={{
+            display: "grid",
+            placeItems: "center",
+            flex: "none",
+            width: 28,
+            height: 28,
+            borderRadius: 2,
+            bgcolor: active ? "primary.main" : "transparent",
+            color: active ? "#fff" : "text.secondary",
+            border: 1,
+            borderColor: active ? "transparent" : "divider",
+            boxShadow: active ? "0 1px 2px rgba(16, 24, 40, 0.2)" : "none",
+            "& svg": { fontSize: "1rem" },
+          }}
+        >
+          {item.icon}
+        </Box>
+        <ListItemText
+          primary={item.label}
+          slotProps={{
+            primary: {
+              sx: {
+                fontSize: "0.84rem",
+                fontWeight: active ? 700 : 600,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
+            },
+          }}
+        />
+        <ExpandMoreIcon
+          fontSize="small"
+          sx={{
+            ml: "auto",
+            flex: "none",
+            color: "text.disabled",
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 200ms cubic-bezier(0.16,1,0.3,1)",
+          }}
+        />
+      </ListItemButton>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List
+          disablePadding
+          aria-label={`${item.label} subsections`}
+          sx={{ display: "flex", flexDirection: "column", gap: "2px", mt: 0.5, ml: 2.5, pl: 1.25, borderLeft: 1, borderColor: "divider" }}
+        >
+          {children.map((c) => {
+            const childActive = isChildActive(c);
+            return (
+              <ListItemButton
+                key={c.label}
+                component={Link}
+                href={c.href}
+                onClick={onNavigate}
+                aria-current={childActive ? "page" : undefined}
+                sx={{
+                  borderRadius: 2,
+                  px: 1.25,
+                  py: 0.625,
+                  cursor: "pointer",
+                  color: childActive ? "text.primary" : "text.secondary",
+                  bgcolor: childActive ? "action.selected" : "transparent",
+                  transition:
+                    "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
+                  "&:hover": {
+                    bgcolor: childActive ? "action.selected" : "action.hover",
+                    color: "text.primary",
+                  },
+                  "&:focus-visible": {
+                    outline: `2px solid ${mercatoTokens.brand}`,
+                    outlineOffset: 2,
+                  },
+                }}
+              >
+                <ListItemText
+                  primary={c.label}
+                  slotProps={{
+                    primary: {
+                      sx: {
+                        fontSize: "0.8rem",
+                        fontWeight: childActive ? 700 : 600,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      },
+                    },
+                  }}
+                />
+              </ListItemButton>
+            );
+          })}
+        </List>
+      </Collapse>
+    </Box>
+  );
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const scope = searchParams?.get("scope");
   const pendingEmail = useAppSelector((s) => s.auth.pendingEmail);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
@@ -385,6 +572,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               sx={{ display: "flex", flexDirection: "column", gap: "2px" }}
             >
               {section.items.map((item) => {
+                if (item.children != null && item.children.length > 0) {
+                  return (
+                    <NavParent
+                      key={item.label}
+                      item={item}
+                      pathname={pathname}
+                      scope={scope}
+                      onNavigate={onNavigate}
+                    />
+                  );
+                }
                 const active =
                   item.href != null &&
                   (pathname === item.href ||
@@ -488,7 +686,9 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           display: { xs: "none", lg: "block" },
         }}
       >
-        <SidebarContent />
+        <Suspense fallback={null}>
+          <SidebarContent />
+        </Suspense>
       </Box>
     );
   }
@@ -506,7 +706,9 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         },
       }}
     >
-      <SidebarContent onNavigate={onClose} />
+      <Suspense fallback={null}>
+        <SidebarContent onNavigate={onClose} />
+      </Suspense>
     </Drawer>
   );
 }

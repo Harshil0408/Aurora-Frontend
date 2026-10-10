@@ -35,6 +35,7 @@ const PAGE_META: Record<string, { title: string; blurb: string }> = {
   [`${ADMIN_PREFIX}/activity`]: { title: "Activity Log", blurb: "Audit trail" },
   [`${ADMIN_PREFIX}/sessions`]: { title: "Sessions", blurb: "Active sign-ins" },
   [`${ADMIN_PREFIX}/security`]: { title: "Security", blurb: "Password & 2FA" },
+  [`${ADMIN_PREFIX}/attributes`]: { title: "Attributes", blurb: "Global lookup catalog" },
   [`${ADMIN_PREFIX}/themes`]: { title: "Themes", blurb: "Brand appearance" },
 };
 

@@ -22,6 +22,10 @@ export const PAGE_PERMS = {
   AUDIT_READ: 'audit.read',
   SESSION_READ: 'session.read',
   SESSION_REVOKE: 'session.revoke',
+  ATTRIBUTE_READ: 'attribute.read',
+  ATTRIBUTE_CREATE: 'attribute.create',
+  ATTRIBUTE_UPDATE: 'attribute.update',
+  ATTRIBUTE_DELETE: 'attribute.delete',
 } as const;
 
 import {
@@ -39,6 +43,7 @@ export const ROUTE_PERMISSIONS: Array<{ prefix: string; anyOf: string[] }> = [
   { prefix: '/admin/roles', anyOf: [PAGE_PERMS.ROLE_READ] },
   { prefix: '/admin/activity', anyOf: [PAGE_PERMS.AUDIT_READ] },
   { prefix: '/admin/sessions', anyOf: [PAGE_PERMS.SESSION_READ] },
+  { prefix: '/admin/attributes', anyOf: [PAGE_PERMS.ATTRIBUTE_READ] },
   // /admin/dashboard, /admin/security, /admin/themes: any authenticated
   // admin (own data / prefs).
 ];

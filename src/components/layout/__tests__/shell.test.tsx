@@ -5,6 +5,7 @@ import { SIDEBAR_WIDTH } from '../Sidebar';
 jest.mock('next/navigation', () => ({
   usePathname: () => '/admin/admins',
   useRouter: () => ({ replace: jest.fn(), push: jest.fn() }),
+  useSearchParams: () => null,
 }));
 
 // Render the desktop (flush) sidebar instead of the closed mobile drawer.
@@ -16,7 +17,7 @@ jest.mock('@mui/material/useMediaQuery', () => ({
 // Sidebar gates Administration items on permissions — simulate a Super Admin.
 jest.mock('@/services/rbacApi', () => ({
   useMyPermissionsQuery: () => ({
-    data: { success: true, data: { permissions: ['admin.read', 'role.read', 'audit.read'] } },
+    data: { success: true, data: { permissions: ['admin.read', 'role.read', 'audit.read', 'attribute.read'] } },
     isLoading: false,
     isError: false,
     refetch: jest.fn(),
@@ -72,5 +73,21 @@ describe('AppShell layout', () => {
     expect(await screen.findByRole('menuitem', { name: 'Security settings' })).toHaveAttribute('href', '/admin/security');
     expect(screen.getByRole('menuitem', { name: 'Sign out this session' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Sign out everywhere' })).toBeInTheDocument();
+  });
+
+  it('attributes accordion nests admin, seller, users, and general lookups', async () => {
+    const user = userEvent.setup();
+    renderShell();
+    const toggle = screen.getByRole('button', { name: 'Attributes' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const group = screen.getByRole('list', { name: 'Attributes subsections' });
+    expect(group).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'All types' })).toHaveAttribute('href', '/admin/attributes');
+    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin/attributes?scope=admin');
+    expect(screen.getByRole('link', { name: 'Seller' })).toHaveAttribute('href', '/admin/attributes?scope=seller');
+    expect(screen.getByRole('link', { name: 'Users' })).toHaveAttribute('href', '/admin/attributes?scope=user');
+    expect(screen.getByRole('link', { name: 'General' })).toHaveAttribute('href', '/admin/attributes/general');
   });
 });

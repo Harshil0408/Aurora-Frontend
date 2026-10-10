@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Alert, Box, Button, Grid, Paper, Typography } from "@mui/material";
 import { FormField } from "@/components/ui/controls";
+import { LookupSelect } from "@/components/seller/LookupSelect";
 import { ButtonLoader } from "@/components/ui/Loaders";
 import { DataLoader } from "@/components/ui/DataLoader";
 import { DetailRow, GuideAccordion, HowRow } from "@/components/ui/Guide";
@@ -94,6 +95,9 @@ function SettingsFormView({
   const set =
     (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const setValue = (key: keyof typeof form) => (v: string) =>
+    setForm((f) => ({ ...f, [key]: v }));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -207,11 +211,13 @@ function SettingsFormView({
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <FormField
+                <LookupSelect
+                  field="category"
                   label="Category"
                   value={form.category}
-                  onChange={set("category")}
-                  hint="e.g. Fashion."
+                  onChange={setValue("category")}
+                  placeholder="Select a category"
+                  hint="Live platform list — admins can add more anytime."
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>
@@ -224,26 +230,30 @@ function SettingsFormView({
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <FormField
+                <LookupSelect
+                  field="country"
                   label="Country"
                   value={form.country}
-                  onChange={set("country")}
+                  onChange={setValue("country")}
+                  placeholder="Select a country"
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 3 }}>
-                <FormField
+                <LookupSelect
+                  field="currency"
                   label="Currency"
                   value={form.currency}
-                  onChange={set("currency")}
+                  onChange={setValue("currency")}
                   error={Boolean(errors.currency)}
-                  helperText={errors.currency}
+                  errorText={errors.currency}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 3 }}>
-                <FormField
+                <LookupSelect
+                  field="timezone"
                   label="Timezone"
                   value={form.timezone}
-                  onChange={set("timezone")}
+                  onChange={setValue("timezone")}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>

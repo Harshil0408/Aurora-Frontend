@@ -27,6 +27,7 @@ export interface SelectFieldProps {
   errorText?: string;
   minWidth?: number;
   ariaLabel?: string;
+  disabled?: boolean;
 }
 
 /** Premium labeled dropdown — filters and form picks share one look. */
@@ -41,6 +42,7 @@ export function SelectField({
   errorText,
   minWidth = 150,
   ariaLabel,
+  disabled = false,
 }: SelectFieldProps) {
   const labelId = useId();
   const items: SelectOption[] = options.map((o) =>
@@ -56,6 +58,7 @@ export function SelectField({
         value={value}
         onChange={handle}
         aria-label={ariaLabel ?? label}
+        disabled={disabled}
       >
         {placeholder ? (
           <MenuItem value="">
