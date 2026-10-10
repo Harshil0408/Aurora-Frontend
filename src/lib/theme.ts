@@ -38,18 +38,18 @@ export interface StatusColors {
 }
 
 const SEMANTICS: StatusColors = {
-  good: '#0d7d5a',
-  goodSoft: '#dcf5ea',
-  accent: '#ff8a5b',
-  accentStrong: '#b8471a',
-  accentSoft: '#ffe8dd',
-  bad: '#d6336c',
-  badSoft: '#fde2ec',
-  info: '#1f8fe0',
-  infoSoft: '#dff0fd',
+  good: '#047857',
+  goodSoft: '#e9f7ef',
+  accent: '#b45309',
+  accentStrong: '#92400e',
+  accentSoft: '#fef3c7',
+  bad: '#be123c',
+  badSoft: '#ffe4e6',
+  info: '#0369a1',
+  infoSoft: '#e0f2fe',
 } as const;
 
-const RADIUS = { lg: 4, md: 3, sm: 2 } as const;
+const RADIUS = { lg: 16, md: 12, sm: 8 } as const;
 
 export const DEFAULT_RADIUS_LG = RADIUS.lg;
 
@@ -71,15 +71,16 @@ export function hexToRgba(hex: string, alpha: number): string {
 
 function shadowsFor(brand: string, scale = 1): { shadow1: string; shadow2: string } {
   if (scale <= 0) return { shadow1: 'none', shadow2: 'none' };
+  void brand;
   return {
-    shadow1: `0 1px 2px ${rgba(brand, 0.05 * scale)}, 0 12px 30px -24px ${rgba(brand, 0.35 * scale)}`,
-    shadow2: `0 24px 50px -24px ${rgba(brand, 0.35 * scale)}`,
+    shadow1: `0 1px 2px rgba(16, 24, 40, ${0.05 * scale}), 0 12px 32px -16px rgba(16, 24, 40, ${0.18 * scale})`,
+    shadow2: `0 24px 48px -20px rgba(16, 24, 40, ${0.25 * scale})`,
   };
 }
 
 export function radiusForLg(lg: number): { lg: number; md: number; sm: number } {
-  const v = Math.min(28, Math.max(0, Math.round(lg)));
-  return { lg: v, md: Math.round(v * 0.66), sm: Math.round(v * 0.5) };
+  const v = Math.min(24, Math.max(0, Math.round(lg)));
+  return { lg: v, md: Math.max(6, v - 4), sm: Math.max(6, v - 8) };
 }
 
 export interface TokenOptions {
@@ -115,6 +116,7 @@ export function applyThemeTokens(
 }
 
 export function buildAppTheme(t: ThemeTokens = mercatoTokens) {
+  const motion = 'cubic-bezier(0.16, 1, 0.3, 1)';
   return createTheme({
     palette: {
       mode: 'light',
@@ -130,30 +132,46 @@ export function buildAppTheme(t: ThemeTokens = mercatoTokens) {
       warning: { main: t.accentStrong, light: t.accentSoft },
       error: { main: t.bad, light: t.badSoft },
       info: { main: t.info, light: t.infoSoft },
+      action: {
+        hover: t.surface2,
+        selected: t.brandSoft,
+      },
     },
     shape: { borderRadius: t.radius.sm },
     typography: {
       fontFamily: 'var(--font-body), "Manrope", "Segoe UI", system-ui, sans-serif',
       h1: {
         fontFamily: 'var(--font-display), "Sora", "Segoe UI", system-ui, sans-serif',
-        fontWeight: 600,
-        fontSize: '2rem',
-        letterSpacing: '-0.035em',
-        lineHeight: 1.1,
+        fontWeight: 700,
+        fontSize: '1.5rem',
+        letterSpacing: '-0.02em',
+        lineHeight: 1.2,
       },
       h2: {
         fontFamily: 'var(--font-display), "Sora", "Segoe UI", system-ui, sans-serif',
-        fontWeight: 600,
-        fontSize: '1.2rem',
-        letterSpacing: '-0.015em',
+        fontWeight: 700,
+        fontSize: '1.05rem',
+        letterSpacing: '-0.01em',
+        lineHeight: 1.3,
       },
-      body1: { fontSize: '0.9375rem', lineHeight: 1.5 },
-      caption: { fontSize: '0.8rem' },
+      h3: {
+        fontFamily: 'var(--font-display), "Sora", "Segoe UI", system-ui, sans-serif',
+        fontWeight: 600,
+        fontSize: '0.95rem',
+        letterSpacing: '-0.005em',
+        lineHeight: 1.4,
+      },
+      body1: { fontSize: '0.875rem', lineHeight: 1.6 },
+      body2: { fontSize: '0.8125rem', lineHeight: 1.6 },
+      caption: { fontSize: '0.75rem', lineHeight: 1.5 },
+      button: { fontWeight: 600, textTransform: 'none' as const },
     },
     components: {
       MuiCssBaseline: {
         styleOverrides: {
           body: { fontVariantNumeric: 'tabular-nums', WebkitFontSmoothing: 'antialiased' },
+          'h1, h2, h3': { textWrap: 'balance' },
+          p: { textWrap: 'pretty' },
         },
       },
       MuiPaper: {
@@ -163,8 +181,9 @@ export function buildAppTheme(t: ThemeTokens = mercatoTokens) {
             border: `1px solid ${t.line}`,
             borderRadius: t.radius.lg,
             boxShadow: t.shadow1,
-            padding: 24,
-            '@media (max-width: 720px)': { padding: '20px 18px', borderRadius: t.radius.lg },
+            padding: 20,
+            transition: `border-color 200ms ${motion}, box-shadow 200ms ${motion}`,
+            '@media (max-width: 720px)': { padding: '16px 14px', borderRadius: t.radius.lg },
           },
         },
       },
@@ -190,14 +209,36 @@ export function buildAppTheme(t: ThemeTokens = mercatoTokens) {
             borderRadius: t.radius.sm,
             textTransform: 'none',
             fontWeight: 600,
-            minHeight: 44,
+            minHeight: 40,
+            cursor: 'pointer',
+            transition: `background-color 200ms ${motion}, border-color 200ms ${motion}, box-shadow 200ms ${motion}, transform 150ms ${motion}`,
+            '&:active': { transform: 'scale(0.98)' },
             [`&.MuiButton-containedPrimary`]: {
-              boxShadow: `0 12px 22px -12px ${rgba(t.brand, 0.8)}`,
+              boxShadow:
+                '0 1px 2px rgba(16, 24, 40, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
             },
             [`&.MuiButton-containedPrimary:hover`]: {
               backgroundColor: theme.palette.primary.dark,
+              transform: 'translateY(-1px)',
+              boxShadow:
+                '0 4px 12px -4px rgba(16, 24, 40, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
             },
           }),
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            transition: `background-color 200ms ${motion}, transform 150ms ${motion}`,
+            '&:active': { transform: 'scale(0.96)' },
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            transition: `background-color 200ms ${motion}, color 200ms ${motion}`,
+          },
         },
       },
       MuiChip: {
@@ -209,9 +250,11 @@ export function buildAppTheme(t: ThemeTokens = mercatoTokens) {
             '& .MuiOutlinedInput-root': {
               borderRadius: t.radius.sm,
               backgroundColor: theme.palette.background.paper,
+              transition: `box-shadow 200ms ${motion}, border-color 200ms ${motion}`,
               '& fieldset': { borderColor: theme.palette.divider },
-              '&.Mui-focused fieldset': { borderColor: t.brand },
-              '&.Mui-focused': { boxShadow: `0 0 0 4px ${t.brandSoft}` },
+              '&:hover fieldset': { borderColor: t.lineStrong },
+              '&.Mui-focused fieldset': { borderColor: t.brand, borderWidth: 1 },
+              '&.Mui-focused': { boxShadow: `0 0 0 3px ${t.brandSoft}` },
             },
           }),
         },

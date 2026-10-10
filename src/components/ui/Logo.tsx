@@ -27,7 +27,7 @@ export function Logo({
           <stop offset="1" stopColor={mercatoTokens.brandStrong} />
         </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="10" fill={`url(#${gradId})`} />
+      <rect width="32" height="32" rx="9" fill={`url(#${gradId})`} />
       <path
         d="M9.5 23 L16 9.5 L22.5 23"
         stroke="#ffffff"
@@ -38,11 +38,12 @@ export function Logo({
       />
       <path
         d="M12.4 18.6 H19.6"
-        stroke={mercatoTokens.accent}
+        stroke="#ffffff"
+        strokeOpacity="0.85"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
-      <circle cx="23.5" cy="8" r="1.6" fill={mercatoTokens.accentSoft} />
+      <circle cx="23.5" cy="8" r="1.6" fill="#ffffff" fillOpacity="0.9" />
     </Box>
   );
 }

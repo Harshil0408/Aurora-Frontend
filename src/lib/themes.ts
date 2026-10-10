@@ -218,7 +218,7 @@ export function sanitizeCustom(value: unknown): ThemeCustom | null {
     }
   }
   if (typeof raw.radiusLg === 'number' && Number.isFinite(raw.radiusLg)) {
-    out.radiusLg = Math.min(28, Math.max(0, Math.round(raw.radiusLg)));
+    out.radiusLg = Math.min(24, Math.max(0, Math.round(raw.radiusLg)));
   }
   if (typeof raw.shadowScale === 'number' && [0, 1, 1.6].includes(raw.shadowScale)) {
     out.shadowScale = raw.shadowScale;

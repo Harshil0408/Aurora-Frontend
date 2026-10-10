@@ -106,7 +106,9 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         position: "sticky",
         top: 0,
         zIndex: (t) => t.zIndex.appBar,
-        bgcolor: "background.paper",
+        bgcolor: "rgba(255, 255, 255, 0.82)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
         borderBottom: 1,
         borderColor: "divider",
       }}
@@ -116,9 +118,12 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           display: "flex",
           alignItems: "center",
           gap: { xs: 1, sm: 1.5 },
-          height: 60,
+          height: 64,
           px: { xs: 1.5, sm: 2.5 },
           minWidth: 0,
+          maxWidth: 1360,
+          mx: "auto",
+          width: "100%",
         }}
       >
         {/* Left — nav trigger + current section */}
@@ -151,11 +156,11 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               aria-hidden
               sx={{
                 display: "block",
-                fontSize: "0.64rem",
-                fontWeight: 800,
-                letterSpacing: "0.1em",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "text.disabled",
+                color: "text.secondary",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -168,7 +173,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               data-testid="topbar-title"
               sx={{
                 fontSize: "1rem",
-                fontWeight: 800,
+                fontWeight: 700,
                 letterSpacing: "-0.01em",
                 lineHeight: 1.25,
                 overflow: "hidden",
@@ -209,8 +214,12 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                   ),
                   sx: {
                     fontSize: "0.84rem",
-                    bgcolor: "action.hover",
-                    "& fieldset": { borderColor: "transparent" },
+                    bgcolor: "background.default",
+                    borderRadius: 2,
+                    transition:
+                      "box-shadow 200ms cubic-bezier(0.16,1,0.3,1), border-color 200ms cubic-bezier(0.16,1,0.3,1)",
+                    "& fieldset": { borderColor: "divider" },
+                    "&:hover fieldset": { borderColor: "primary.light" },
                   },
                 },
                 htmlInput: {
@@ -265,7 +274,9 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               bgcolor: mercatoTokens.goodSoft,
               color: mercatoTokens.good,
               fontSize: "0.74rem",
-              fontWeight: 800,
+              fontWeight: 700,
+              border: 1,
+              borderColor: "transparent",
             }}
             aria-label="All systems live"
           >
@@ -289,7 +300,16 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
             }
             aria-haspopup="menu"
             onClick={(e) => setBellAnchor(e.currentTarget)}
-            sx={{ width: 36, height: 36, borderRadius: 2, flex: "none" }}
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: 2,
+              flex: "none",
+              cursor: "pointer",
+              transition:
+                "background-color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+              "&:active": { transform: "scale(0.96)" },
+            }}
           >
             <NotificationsIcon fontSize="small" />
             {unread > 0 ? (

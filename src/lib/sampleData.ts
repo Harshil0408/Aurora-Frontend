@@ -252,7 +252,7 @@ export interface RevenueSegment {
 }
 
 export const revenueSegments: RevenueSegment[] = [
-  { label: 'Commission', sub: '5% average take rate', amount: 280500, pct: 67.9, color: '#5b3df5' },
-  { label: 'Subscriptions', sub: 'Seller plans (MRR)', amount: 98400, pct: 23.8, color: '#ff8a5b' },
-  { label: 'Featured listings', sub: 'Paid promotions', amount: 33960, pct: 8.2, color: '#1f8fe0' },
+  { label: 'Commission', sub: '5% average take rate', amount: 280500, pct: 67.9, color: '#4f46e5' },
+  { label: 'Subscriptions', sub: 'Seller plans (MRR)', amount: 98400, pct: 23.8, color: '#b45309' },
+  { label: 'Featured listings', sub: 'Paid promotions', amount: 33960, pct: 8.2, color: '#0369a1' },
 ];

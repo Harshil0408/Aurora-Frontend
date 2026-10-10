@@ -18,10 +18,14 @@ describe('ThemesView', () => {
   it('renders all presets with the active one marked', () => {
     renderView();
     expect(screen.getByRole('heading', { name: 'Appearance' })).toBeInTheDocument();
-    for (const name of ['Aurora Violet', 'Indigo', 'Emerald', 'Deep Teal', 'Midnight Navy']) {
-      expect(screen.getByLabelText(`${name} theme`)).toBeInTheDocument();
+    for (const name of ['Studio Indigo', 'Minimal Slate', 'Emerald', 'Midnight Navy']) {
+      if (name === 'Studio Indigo') {
+        expect(screen.getByLabelText(`Active theme: ${name}`)).toBeInTheDocument();
+      } else {
+        expect(screen.getByLabelText(`${name} theme`)).toBeInTheDocument();
+      }
     }
-    expect(screen.getByText(/Active: Aurora Violet/)).toBeInTheDocument();
+    expect(screen.getByText(/Active: Studio Indigo/)).toBeInTheDocument();
   });
 
   it('applies a preset instantly and persists it', async () => {

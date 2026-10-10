@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f2f0fb;
-  --foreground: #1d1a3b;
+  --background: #fafaf9;
+  --foreground: #1c1917;
   --surface: #ffffff;
-  --surface-2: #f8f7fd;
-  --line: #e6e3f3;
-  --muted: #68648a;
-  --brand: #5b3df5;
-  --brand-strong: #4327d6;
-  --brand-soft: #ece8ff;
+  --surface-2: #f4f4f5;
+  --line: #e7e5e4;
+  --muted: #57534e;
+  --brand: #4f46e5;
+  --brand-strong: #4338ca;
+  --brand-soft: #eeedfe;
   color-scheme: light;
 }
 
@@ -21,20 +21,52 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(1100px 520px at 18% -8%, rgba(79, 70, 229, 0.055), transparent 62%),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-body), "Manrope", "Segoe UI", system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.6;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Visible keyboard focus everywhere (reference uses accent outline). */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+
+/* Visible keyboard focus everywhere — single brand ring, no accent clash. */
 :focus-visible {
-  outline: 2px solid #ff8a5b;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
   border-radius: 8px;
+}
+
+/* Premium card entry: one gentle fade-up, transform + opacity only. */
+@keyframes aurora-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.aurora-rise {
+  animation: aurora-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Chart draw-in: the one deliberate motion moment per view. */
@@ -57,14 +89,14 @@ body {
   animation: mercato-pulse 2.2s ease-out infinite;
 }
 @keyframes mercato-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(13, 125, 90, 0.55); }
+  0% { box-shadow: 0 0 0 0 rgba(4, 120, 87, 0.45); }
   70%, 100% { box-shadow: 0 0 0 9px transparent; }
 }
 .mercato-bump {
   animation: mercato-bump 0.7s ease-out;
 }
 @keyframes mercato-bump {
-  0% { color: #0d7d5a; }
+  0% { color: #047857; }
   100% { color: inherit; }
 }
 

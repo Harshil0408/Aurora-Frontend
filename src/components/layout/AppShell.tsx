@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           background: mercatoTokens.brand,
           color: "#fff",
           padding: "10px 16px",
-          borderRadius: 10,
+          borderRadius: 8,
           fontWeight: 600,
         }}
         onFocus={(e) => {
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           component="main"
           id="main-content"
           maxWidth={false}
-          sx={{ maxWidth: 1560, px: { xs: 2.5, md: 4 }, pt: 1, pb: 7, flex: 1 }}
+          sx={{ maxWidth: 1360, mx: "auto", px: { xs: 2, md: 3 }, pt: 3, pb: 8, flex: 1 }}
         >
           {children}
         </Container>

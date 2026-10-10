@@ -35,8 +35,8 @@ describe('themes (preset engine)', () => {
     activatePreset(DEFAULT_PRESET_ID, null);
   });
 
-  it('ships the default + 14 palettes, all valid hex, unique ids', () => {
-    expect(THEME_PRESETS).toHaveLength(15);
+  it('ships the default + 5 curated palettes, all valid hex, unique ids', () => {
+    expect(THEME_PRESETS).toHaveLength(6);
     const ids = THEME_PRESETS.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain(DEFAULT_PRESET_ID);
@@ -58,7 +58,7 @@ describe('themes (preset engine)', () => {
   it('activatePreset applies live tokens and persists the choice', () => {
     activatePreset('emerald', null);
     expect(mercatoTokens.brand).toBe('#059669');
-    expect(mercatoTokens.bg).toBe('#F8FAFC');
+    expect(mercatoTokens.bg).toBe('#FAFAF9');
     expect(window.localStorage.getItem('aurora-theme-preset')).toBe('emerald');
     expect(loadSavedTheme()).toEqual({ presetId: 'emerald', custom: null });
   });
@@ -98,12 +98,12 @@ describe('themes (preset engine)', () => {
 
   it('radius and shadow scales flow into resolved tokens', () => {
     const round = resolveTokens('aurora', { radiusLg: 8 });
-    expect(round.radius).toEqual({ lg: 8, md: 5, sm: 4 });
+    expect(round.radius).toEqual({ lg: 8, md: 6, sm: 6 });
     const flat = resolveTokens('aurora', { shadowScale: 0 });
     expect(flat.shadow1).toBe('none');
     expect(flat.shadow2).toBe('none');
     expect(effectiveRadiusLg({ radiusLg: 8 })).toBe(8);
-    expect(effectiveRadiusLg(null)).toBe(4);
+    expect(effectiveRadiusLg(null)).toBe(16);
     expect(effectiveShadowScale(null)).toBe(1);
   });
 
@@ -127,10 +127,10 @@ describe('themes (preset engine)', () => {
   it('status overrides recolor alerts, loadSavedTheme sanitizes storage', () => {
     activatePreset('aurora', { bad: '#123456' });
     expect(mercatoTokens.bad).toBe('#123456');
-    expect(mercatoTokens.good).toBe('#0d7d5a');
+    expect(mercatoTokens.good).toBe('#047857');
     window.localStorage.setItem('aurora-theme-custom', '{"brand":"oops","radiusLg":99}');
     // invalid hex dropped, radius clamped
-    expect(loadSavedTheme().custom).toEqual({ radiusLg: 28 });
+    expect(loadSavedTheme().custom).toEqual({ radiusLg: 24 });
   });
 
   it('validateImport rejects junk, accepts real exports', () => {

@@ -30,15 +30,15 @@ import DevicesIcon from "@mui/icons-material/Devices";
 import ShieldIcon from "@mui/icons-material/Shield";
 import PaletteIcon from "@mui/icons-material/Palette";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { hexToRgba, mercatoTokens } from "@/lib/theme";
+import { mercatoTokens } from "@/lib/theme";
 import { ADMIN_HOME_PATH, ADMIN_PREFIX } from "@/lib/panels";
 import { Logo } from "@/components/ui/Logo";
 import { useMeQuery } from "@/services/authApi";
 import { useAppSelector } from "@/store/hooks";
 import { usePermissions } from "@/components/auth/RbacGuard";
 
-/** Roomy rail width — flush to the viewport edge, no floating margins. */
-export const SIDEBAR_WIDTH = 272;
+/** Compact premium rail — flush to the viewport edge, Linear-style density. */
+export const SIDEBAR_WIDTH = 264;
 
 interface NavItem {
   label: string;
@@ -202,58 +202,45 @@ function NavRow({
       aria-current={active ? "page" : undefined}
       title={disabled ? `${item.label} — coming soon` : undefined}
       sx={{
-        position: "relative",
-        borderRadius: 2.5,
+        borderRadius: 2,
         px: 1,
-        py: 0.625,
-        gap: 1,
-        color: active ? "primary.dark" : "text.secondary",
-        bgcolor: active ? mercatoTokens.brandSoft : "transparent",
-        transition: "background-color 200ms ease, color 200ms ease",
+        py: 0.75,
+        gap: 1.25,
+        cursor: "pointer",
+        color: active ? "text.primary" : "text.secondary",
+        bgcolor: active ? "action.selected" : "transparent",
+        fontWeight: active ? 700 : 600,
+        transition:
+          "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
         "&:hover": {
-          bgcolor: active ? mercatoTokens.brandSoft : mercatoTokens.surface2,
-          color: active ? "primary.dark" : "text.primary",
+          bgcolor: active ? "action.selected" : "action.hover",
+          color: "text.primary",
         },
+        "&:active": { transform: "scale(0.98)" },
         "&.Mui-disabled": { opacity: 1 },
         "&:focus-visible": {
-          outline: `2px solid ${mercatoTokens.accent}`,
+          outline: `2px solid ${mercatoTokens.brand}`,
           outlineOffset: 2,
         },
       }}
     >
-      {active ? (
-        <Box
-          aria-hidden
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 8,
-            bottom: 8,
-            width: 3,
-            borderRadius: 9999,
-            bgcolor: "primary.main",
-            boxShadow: `0 4px 12px -2px ${hexToRgba(mercatoTokens.brand, 0.7)}`,
-          }}
-        />
-      ) : null}
       <Box
         aria-hidden
         sx={{
           display: "grid",
           placeItems: "center",
           flex: "none",
-          width: 30,
-          height: 30,
-          borderRadius: "10px",
-          bgcolor: active ? "primary.main" : mercatoTokens.surface2,
-          color: active ? "#fff" : "primary.main",
+          width: 28,
+          height: 28,
+          borderRadius: 2,
+          bgcolor: active ? "primary.main" : "transparent",
+          color: active ? "#fff" : "text.secondary",
           border: 1,
           borderColor: active ? "transparent" : "divider",
-          boxShadow: active
-            ? `0 8px 16px -8px ${hexToRgba(mercatoTokens.brand, 0.8)}`
-            : "none",
-          transition: "background-color 200ms ease, color 200ms ease",
-          "& svg": { fontSize: "1.05rem" },
+          boxShadow: active ? "0 1px 2px rgba(16, 24, 40, 0.2)" : "none",
+          transition:
+            "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
+          "& svg": { fontSize: "1rem" },
         }}
       >
         {item.icon}
@@ -283,12 +270,8 @@ function NavRow({
             borderRadius: 9999,
             fontSize: "0.66rem",
             fontWeight: 800,
-            bgcolor: item.quietBadge
-              ? mercatoTokens.surface2
-              : mercatoTokens.accentSoft,
-            color: item.quietBadge
-              ? "text.secondary"
-              : mercatoTokens.accentStrong,
+            bgcolor: item.quietBadge ? mercatoTokens.surface2 : "primary.light",
+            color: item.quietBadge ? "text.secondary" : "primary.dark",
             border: 1,
             borderColor: item.quietBadge ? "divider" : "transparent",
           }}
@@ -388,18 +371,18 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               sx={{
                 px: 1.25,
                 pb: 0.5,
-                fontSize: "0.62rem",
-                fontWeight: 800,
-                letterSpacing: "0.12em",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "text.disabled",
+                color: "text.secondary",
               }}
             >
               {section.title}
             </Typography>
             <List
               disablePadding
-              sx={{ display: "flex", flexDirection: "column", gap: 1 / 8 }}
+              sx={{ display: "flex", flexDirection: "column", gap: "2px" }}
             >
               {section.items.map((item) => {
                 const active =
@@ -438,8 +421,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           sx={{
             width: 32,
             height: 32,
-            borderRadius: "11px",
-            background: `linear-gradient(135deg, ${mercatoTokens.brand} 0%, ${mercatoTokens.brandStrong} 100%)`,
+            borderRadius: 2,
+            bgcolor: "primary.main",
             fontSize: "0.74rem",
             fontWeight: 800,
             flex: "none",
