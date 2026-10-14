@@ -228,7 +228,64 @@ export interface SellerAuditRow {
   createdAt: string;
 }
 
-/** Permission catalog for the `can()` helper (owner set contains all 27). */
+/* --------------------------------- media ---------------------------------- */
+
+export type SellerMediaKind = 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'OTHER';
+
+export interface SellerMediaAsset {
+  id: string;
+  storeId: string;
+  fileName: string;
+  originalName: string;
+  mime: string;
+  sizeBytes: number;
+  checksum: string;
+  kind: SellerMediaKind;
+  visibility: 'PUBLIC' | 'PRIVATE';
+  status: 'PENDING' | 'READY' | 'FAILED';
+  storageKey: string;
+  /** Same-origin public path (`/uploads/...`) or null for private docs. */
+  url: string | null;
+  width: number | null;
+  height: number | null;
+  altText: string | null;
+  caption: string | null;
+  folder: string;
+  tags: string[];
+  usageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SellerMediaQuota {
+  usedBytes: number;
+  limitBytes: number;
+  /** Rounded to 1 decimal. */
+  percent: number;
+  assetCount: number;
+}
+
+export interface SellerMediaListParams {
+  storeId: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  kind?: SellerMediaKind;
+  folder?: string;
+  visibility?: 'PUBLIC' | 'PRIVATE';
+  orphanOnly?: boolean;
+}
+
+export interface UpdateMediaRequest {
+  fileName?: string;
+  altText?: string | null;
+  caption?: string | null;
+  folder?: string;
+  tags?: string[];
+  visibility?: 'PUBLIC' | 'PRIVATE';
+}
+
+/** Permission catalog for the `can()` helper (owner set contains all 30). */
 export const SELLER_PERMISSIONS = [
   'store:read',
   'store:update',
@@ -257,6 +314,9 @@ export const SELLER_PERMISSIONS = [
   'settings:update',
   'billing:read',
   'billing:update',
+  'media:view',
+  'media:upload',
+  'media:delete',
 ] as const;
 
 export type SellerPermission = (typeof SELLER_PERMISSIONS)[number];

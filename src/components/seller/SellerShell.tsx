@@ -7,6 +7,7 @@ import {
   Avatar,
   Box,
   Button,
+  Container,
   Drawer,
   FormControl,
   IconButton,
@@ -17,10 +18,9 @@ import {
   MenuItem,
   Select,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import GridViewIcon from "@mui/icons-material/GridView";
+import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import SettingsIcon from "@mui/icons-material/Settings";
 import GroupIcon from "@mui/icons-material/Group";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
@@ -30,9 +30,11 @@ import StoreIcon from "@mui/icons-material/Store";
 import MailIcon from "@mui/icons-material/Mail";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
-import { hexToRgba, mercatoTokens } from "@/lib/theme";
+import MenuIcon from "@mui/icons-material/Menu";
+import { mercatoTokens } from "@/lib/theme";
 import {
   SELLER_CREATE_STORE_PATH,
+  SELLER_HOME_PATH,
   SELLER_INVITATIONS_PATH,
   sellerStorePath,
 } from "@/lib/panels";
@@ -48,52 +50,238 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import type { RootState } from "@/store";
 import { normaliseApiError } from "@/types/api";
 
-export const SELLER_SIDEBAR_WIDTH = 272;
+/** Mirrors the admin rail — same width, density, and interaction language. */
+export const SELLER_SIDEBAR_WIDTH = 264;
 
 interface SellerNavItem {
   label: string;
   suffix: string;
   icon: React.ReactNode;
   perm?: string;
+  badge?: string;
 }
 
-const NAV: SellerNavItem[] = [
+const SELLER_SECTIONS: { title: string; items: SellerNavItem[] }[] = [
   {
-    label: "Dashboard",
-    suffix: "dashboard",
-    icon: <GridViewIcon fontSize="small" />,
+    title: "Overview",
+    items: [
+      {
+        label: "Dashboard",
+        suffix: "dashboard",
+        icon: <GridViewIcon fontSize="small" />,
+      },
+    ],
   },
   {
-    label: "Settings",
-    suffix: "settings",
-    icon: <SettingsIcon fontSize="small" />,
-    perm: "store:update",
+    title: "Store",
+    items: [
+      {
+        label: "Media",
+        suffix: "media",
+        icon: <PhotoLibraryIcon fontSize="small" />,
+        perm: "media:view",
+      },
+      {
+        label: "Settings",
+        suffix: "settings",
+        icon: <SettingsIcon fontSize="small" />,
+        perm: "store:update",
+      },
+    ],
   },
   {
-    label: "Team",
-    suffix: "team",
-    icon: <GroupIcon fontSize="small" />,
-    perm: "staff:invite",
+    title: "Team & Access",
+    items: [
+      {
+        label: "Team",
+        suffix: "team",
+        icon: <GroupIcon fontSize="small" />,
+        perm: "staff:invite",
+      },
+      {
+        label: "Roles",
+        suffix: "roles",
+        icon: <VpnKeyIcon fontSize="small" />,
+        perm: "role:read",
+      },
+    ],
   },
   {
-    label: "Roles",
-    suffix: "roles",
-    icon: <VpnKeyIcon fontSize="small" />,
-    perm: "role:read",
+    title: "Finance",
+    items: [
+      {
+        label: "Billing",
+        suffix: "billing",
+        icon: <AccountBalanceWalletIcon fontSize="small" />,
+        perm: "billing:read",
+      },
+    ],
   },
   {
-    label: "Billing",
-    suffix: "billing",
-    icon: <AccountBalanceWalletIcon fontSize="small" />,
-    perm: "billing:read",
-  },
-  {
-    label: "Activity",
-    suffix: "activity",
-    icon: <HistoryIcon fontSize="small" />,
-    perm: "store:read",
+    title: "System",
+    items: [
+      {
+        label: "Activity",
+        suffix: "activity",
+        icon: <HistoryIcon fontSize="small" />,
+        perm: "store:read",
+      },
+    ],
   },
 ];
+
+function BrandMark({ href }: { href: string }) {
+  return (
+    <Box
+      component={Link}
+      href={href}
+      aria-label="Aurora seller home"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.25,
+        px: 1,
+        py: 0.5,
+        textDecoration: "none",
+        borderRadius: 2,
+        minWidth: 0,
+      }}
+    >
+      <Logo size={32} />
+      <Box sx={{ minWidth: 0 }}>
+        <Typography
+          variant="h2"
+          component="span"
+          sx={{
+            display: "block",
+            fontSize: "1.05rem",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.1,
+          }}
+        >
+          Aurora
+        </Typography>
+        <Typography
+          variant="caption"
+          component="span"
+          sx={{
+            display: "block",
+            mt: 0.125,
+            fontSize: "0.6rem",
+            fontWeight: 800,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "primary.main",
+          }}
+        >
+          Seller console
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+function SellerNavRow({
+  label,
+  href,
+  icon,
+  active,
+  badge,
+  onNavigate,
+}: {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  active: boolean;
+  badge?: string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <ListItemButton
+      component={Link}
+      href={href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      sx={{
+        borderRadius: 2,
+        px: 1,
+        py: 0.75,
+        gap: 1.25,
+        cursor: "pointer",
+        color: active ? "text.primary" : "text.secondary",
+        bgcolor: active ? "action.selected" : "transparent",
+        fontWeight: active ? 700 : 600,
+        transition:
+          "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+        "&:hover": {
+          bgcolor: active ? "action.selected" : "action.hover",
+          color: "text.primary",
+        },
+        "&:active": { transform: "scale(0.98)" },
+        "&:focus-visible": {
+          outline: `2px solid ${mercatoTokens.brand}`,
+          outlineOffset: 2,
+        },
+      }}
+    >
+      <Box
+        aria-hidden
+        sx={{
+          display: "grid",
+          placeItems: "center",
+          flex: "none",
+          width: 28,
+          height: 28,
+          borderRadius: 2,
+          bgcolor: active ? "primary.main" : "transparent",
+          color: active ? "#fff" : "text.secondary",
+          border: 1,
+          borderColor: active ? "transparent" : "divider",
+          boxShadow: active ? "0 1px 2px rgba(16, 24, 40, 0.2)" : "none",
+          transition:
+            "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
+          "& svg": { fontSize: "1rem" },
+        }}
+      >
+        {icon}
+      </Box>
+      <ListItemText
+        primary={label}
+        slotProps={{
+          primary: {
+            sx: {
+              fontSize: "0.84rem",
+              fontWeight: active ? 700 : 600,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            },
+          },
+        }}
+      />
+      {badge ? (
+        <Box
+          component="span"
+          sx={{
+            ml: "auto",
+            flex: "none",
+            px: 0.875,
+            py: 0.25,
+            borderRadius: 9999,
+            fontSize: "0.66rem",
+            fontWeight: 800,
+            bgcolor: "primary.light",
+            color: "primary.dark",
+            border: 1,
+            borderColor: "transparent",
+          }}
+        >
+          {badge}
+        </Box>
+      ) : null}
+    </ListItemButton>
+  );
+}
 
 function StoreSwitcher({ onNavigate }: { onNavigate?: () => void }) {
   const params = useParams<{ storeId: string }>();
@@ -177,66 +365,6 @@ function StoreSwitcher({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function SellerInvitationsRow({
-  onNavigate,
-  active,
-}: {
-  onNavigate?: () => void;
-  active: boolean;
-}) {
-  const { data } = useSellerPendingInvitationsQuery();
-  const count = data?.data.length ?? 0;
-  return (
-    <ListItemButton
-      component={Link}
-      href={SELLER_INVITATIONS_PATH}
-      onClick={onNavigate}
-      aria-current={active ? "page" : undefined}
-      sx={{ borderRadius: 2.5, cursor: "pointer" }}
-    >
-      <Box
-        aria-hidden
-        sx={{
-          display: "grid",
-          placeItems: "center",
-          width: 30,
-          height: 30,
-          borderRadius: "10px",
-          bgcolor: active ? "primary.main" : mercatoTokens.surface2,
-          color: active ? "#fff" : "primary.main",
-          mr: 1,
-        }}
-      >
-        <MailIcon fontSize="small" />
-      </Box>
-      <ListItemText
-        primary="Invitations"
-        slotProps={{
-          primary: { sx: { fontSize: "0.84rem", fontWeight: active ? 700 : 600 } },
-        }}
-      />
-      {count > 0 ? (
-        <Box
-          component="span"
-          sx={{
-            ml: "auto",
-            flex: "none",
-            px: 0.875,
-            py: 0.25,
-            borderRadius: 9999,
-            fontSize: "0.66rem",
-            fontWeight: 800,
-            bgcolor: mercatoTokens.accentSoft,
-            color: mercatoTokens.accentStrong,
-          }}
-        >
-          {count}
-        </Box>
-      ) : null}
-    </ListItemButton>
-  );
-}
-
 function SellerSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const params = useParams<{ storeId: string }>();
@@ -244,8 +372,18 @@ function SellerSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const { can, roleKey } = useSellerCan();
   const email = useAppSelector((s: RootState) => s.sellerAuth.email);
   const active = useAppSelector((s: RootState) => s.sellerStore.active);
+  const { data: invitationsData } = useSellerPendingInvitationsQuery();
+  const invitationCount = invitationsData?.data.length ?? 0;
   const displayName = email ? (email.split("@")[0] ?? "Seller") : "Seller";
-  const visible = NAV.filter((item) => !item.perm || can(item.perm));
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const homeHref = storeId
+    ? sellerStorePath(storeId, "dashboard")
+    : SELLER_HOME_PATH;
+
+  const visibleSections = SELLER_SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => !item.perm || can(item.perm)),
+  })).filter((section) => section.items.length > 0);
 
   return (
     <Box
@@ -260,193 +398,117 @@ function SellerSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       }}
     >
       <Box sx={{ px: 1.25, display: "flex", flexDirection: "column", gap: 1 }}>
-        <Box
-          component={Link}
-          href={
-            storeId ? sellerStorePath(storeId, "dashboard") : "/seller/stores"
-          }
-          aria-label="Seller home"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.25,
-            px: 1,
-            py: 0.5,
-            textDecoration: "none",
-            borderRadius: 2,
-          }}
-        >
-          <Logo size={32} />
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              variant="h2"
-              component="span"
-              sx={{
-                display: "block",
-                fontSize: "1.05rem",
-                letterSpacing: "-0.02em",
-                lineHeight: 1.1,
-              }}
-            >
-              Aurora
-            </Typography>
-            <Typography
-              variant="caption"
-              component="span"
-              sx={{
-                display: "block",
-                mt: 0.125,
-                fontSize: "0.6rem",
-                fontWeight: 800,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "primary.main",
-              }}
-            >
-              Seller console
-            </Typography>
-          </Box>
-        </Box>
+        <BrandMark href={homeHref} />
         {storeId ? <StoreSwitcher onNavigate={onNavigate} /> : null}
       </Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 1,
+          gap: 2,
           flex: 1,
           minHeight: 0,
           overflowY: "auto",
           mt: 2,
-          px: 1.25,
+          scrollbarWidth: "thin",
+          scrollbarColor: `${mercatoTokens.brand} transparent`,
+          "&::-webkit-scrollbar": { width: 6 },
+          "&::-webkit-scrollbar-track": { background: "transparent" },
+          "&::-webkit-scrollbar-thumb": {
+            bgcolor: mercatoTokens.brand,
+            borderRadius: 9999,
+          },
         }}
       >
         {storeId ? (
-          <List
-            disablePadding
-            sx={{ display: "flex", flexDirection: "column", gap: 1 / 8 }}
-          >
-            {visible.map((item) => {
-              const href = sellerStorePath(storeId, item.suffix);
-              const isActive =
-                pathname === href || pathname.startsWith(`${href}/`);
-              return (
-                <ListItemButton
-                  key={item.suffix}
-                  component={Link}
-                  href={href}
-                  onClick={onNavigate}
-                  aria-current={isActive ? "page" : undefined}
-                  sx={{
-                    position: "relative",
-                    borderRadius: 2.5,
-                    px: 1,
-                    py: 0.625,
-                    gap: 1,
-                    color: isActive ? "primary.dark" : "text.secondary",
-                    bgcolor: isActive ? mercatoTokens.brandSoft : "transparent",
-                    transition: "background-color 200ms ease, color 200ms ease",
-                    cursor: "pointer",
-                    "&:hover": {
-                      bgcolor: isActive
-                        ? mercatoTokens.brandSoft
-                        : mercatoTokens.surface2,
-                      color: isActive ? "primary.dark" : "text.primary",
-                    },
-                    "&:focus-visible": {
-                      outline: `2px solid ${mercatoTokens.accent}`,
-                      outlineOffset: 2,
-                    },
-                  }}
-                >
-                  {isActive ? (
-                    <Box
-                      aria-hidden
-                      sx={{
-                        position: "absolute",
-                        left: 0,
-                        top: 8,
-                        bottom: 8,
-                        width: 3,
-                        borderRadius: 9999,
-                        bgcolor: "primary.main",
-                        boxShadow: `0 4px 12px -2px ${hexToRgba(mercatoTokens.brand, 0.7)}`,
-                      }}
-                    />
-                  ) : null}
-                  <Box
-                    aria-hidden
-                    sx={{
-                      display: "grid",
-                      placeItems: "center",
-                      flex: "none",
-                      width: 30,
-                      height: 30,
-                      borderRadius: "10px",
-                      bgcolor: isActive
-                        ? "primary.main"
-                        : mercatoTokens.surface2,
-                      color: isActive ? "#fff" : "primary.main",
-                      border: 1,
-                      borderColor: isActive ? "transparent" : "divider",
-                      "& svg": { fontSize: "1.05rem" },
-                    }}
-                  >
-                    {item.icon}
-                  </Box>
-                  <ListItemText
-                    slotProps={{
-                      primary: {
-                        sx: {
-                          fontSize: "0.84rem",
-                          fontWeight: isActive ? 700 : 600,
-                        },
-                      },
-                    }}
-                    primary={item.label}
-                  />
-                </ListItemButton>
-              );
-            })}
-          </List>
-        ) : (
-          <List disablePadding>
-            <ListItemButton
-              component={Link}
-              href="/seller/stores"
-              onClick={onNavigate}
-              sx={{ borderRadius: 2.5, cursor: "pointer" }}
+          visibleSections.map((section) => (
+            <Box
+              key={section.title}
+              component="section"
+              aria-label={section.title}
+              sx={{ px: 1.25 }}
             >
-              <Box
-                aria-hidden
+              <Typography
+                variant="caption"
+                component="p"
                 sx={{
-                  display: "grid",
-                  placeItems: "center",
-                  width: 30,
-                  height: 30,
-                  borderRadius: "10px",
-                  bgcolor: mercatoTokens.surface2,
-                  color: "primary.main",
-                  mr: 1,
+                  px: 1.25,
+                  pb: 0.5,
+                  fontSize: "0.65rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "text.secondary",
                 }}
               >
-                <StoreIcon fontSize="small" />
-              </Box>
-              <ListItemText
-                primary="My stores"
-                slotProps={{
-                  primary: { sx: { fontSize: "0.84rem", fontWeight: 600 } },
-                }}
+                {section.title}
+              </Typography>
+              <List
+                disablePadding
+                sx={{ display: "flex", flexDirection: "column", gap: "2px" }}
+              >
+                {section.items.map((item) => {
+                  const href = sellerStorePath(storeId, item.suffix);
+                  const activeRow =
+                    pathname === href || pathname.startsWith(`${href}/`);
+                  return (
+                    <SellerNavRow
+                      key={item.suffix}
+                      label={item.label}
+                      href={href}
+                      icon={item.icon}
+                      active={activeRow}
+                      onNavigate={onNavigate}
+                    />
+                  );
+                })}
+              </List>
+            </Box>
+          ))
+        ) : (
+          <Box component="section" aria-label="Workspace" sx={{ px: 1.25 }}>
+            <Typography
+              variant="caption"
+              component="p"
+              sx={{
+                px: 1.25,
+                pb: 0.5,
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "text.secondary",
+              }}
+            >
+              Workspace
+            </Typography>
+            <List
+              disablePadding
+              sx={{ display: "flex", flexDirection: "column", gap: "2px" }}
+            >
+              <SellerNavRow
+                label="My stores"
+                href={SELLER_HOME_PATH}
+                icon={<StoreIcon fontSize="small" />}
+                active={pathname === SELLER_HOME_PATH}
+                onNavigate={onNavigate}
               />
-            </ListItemButton>
-            <SellerInvitationsRow
-              onNavigate={onNavigate}
-              active={pathname === SELLER_INVITATIONS_PATH}
-            />
-          </List>
+              <SellerNavRow
+                label="Invitations"
+                href={SELLER_INVITATIONS_PATH}
+                icon={<MailIcon fontSize="small" />}
+                active={pathname === SELLER_INVITATIONS_PATH}
+                badge={
+                  invitationCount > 0 ? String(invitationCount) : undefined
+                }
+                onNavigate={onNavigate}
+              />
+            </List>
+          </Box>
         )}
       </Box>
       <Box
+        aria-label={email ? `Signed in as ${email}` : "Signed in as guest"}
         sx={{
           display: "flex",
           alignItems: "center",
@@ -464,20 +526,21 @@ function SellerSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           sx={{
             width: 32,
             height: 32,
-            borderRadius: "11px",
-            background: `linear-gradient(135deg, ${mercatoTokens.brand} 0%, ${mercatoTokens.brandStrong} 100%)`,
+            borderRadius: 2,
+            bgcolor: "primary.main",
             fontSize: "0.74rem",
             fontWeight: 800,
             flex: "none",
           }}
         >
-          {displayName.slice(0, 2).toUpperCase()}
+          {initials}
         </Avatar>
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography
             sx={{
               fontWeight: 700,
               fontSize: "0.8rem",
+              lineHeight: 1.25,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -491,6 +554,7 @@ function SellerSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             sx={{
               display: "block",
               fontSize: "0.68rem",
+              lineHeight: 1.25,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -505,12 +569,143 @@ function SellerSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function SellerShell({ children }: { children: React.ReactNode }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
+function SellerTopbar({ onMenuClick }: { onMenuClick: () => void }) {
   const email = useAppSelector((s: RootState) => s.sellerAuth.email);
   const { signOut, signingOut } = useSellerSignOut();
+
+  return (
+    <Box
+      component="header"
+      sx={{
+        position: "sticky",
+        top: 0,
+        zIndex: (t) => t.zIndex.appBar,
+        bgcolor: "rgba(255, 255, 255, 0.82)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: 1,
+        borderColor: "divider",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: { xs: 1, sm: 1.5 },
+          height: 64,
+          px: { xs: 1.5, sm: 2.5 },
+          minWidth: 0,
+          maxWidth: 1360,
+          mx: "auto",
+          width: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 1, sm: 1.5 },
+          }}
+        >
+          <IconButton
+            aria-label="Open navigation"
+            onClick={onMenuClick}
+            sx={{
+              display: { lg: "none" },
+              width: 36,
+              height: 36,
+              borderRadius: 2,
+              flex: "none",
+            }}
+          >
+            <MenuIcon fontSize="small" />
+          </IconButton>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="caption"
+              aria-hidden
+              sx={{
+                display: "block",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "text.secondary",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                lineHeight: 1.2,
+              }}
+            >
+              Aurora · Seller console
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: "1rem",
+                fontWeight: 700,
+                letterSpacing: "-0.01em",
+                lineHeight: 1.25,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Seller console
+            </Typography>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: { xs: 0.5, sm: 1 },
+          }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: 280,
+              display: { xs: "none", sm: "block" },
+            }}
+          >
+            {email ?? ""}
+          </Typography>
+          <IconButton
+            size="small"
+            aria-label="Sign out of the seller console"
+            title="Sign out"
+            disabled={signingOut}
+            onClick={() => signOut()}
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: 2,
+              flex: "none",
+              cursor: "pointer",
+              transition:
+                "background-color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+              "&:active": { transform: "scale(0.96)" },
+            }}
+          >
+            <LogoutIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+export function SellerShell({ children }: { children: React.ReactNode }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <Box
@@ -534,7 +729,7 @@ export function SellerShell({ children }: { children: React.ReactNode }) {
           background: mercatoTokens.brand,
           color: "#fff",
           padding: "10px 16px",
-          borderRadius: 10,
+          borderRadius: 8,
           fontWeight: 600,
         }}
         onFocus={(e) => {
@@ -546,109 +741,54 @@ export function SellerShell({ children }: { children: React.ReactNode }) {
       >
         Skip to content
       </a>
-      {isDesktop ? (
-        <Box
-          sx={{
-            width: SELLER_SIDEBAR_WIDTH,
-            flexShrink: 0,
-            position: "sticky",
-            top: 0,
-            height: "100dvh",
+      <Box
+        sx={{
+          width: SELLER_SIDEBAR_WIDTH,
+          flexShrink: 0,
+          position: "sticky",
+          top: 0,
+          height: "100dvh",
+          bgcolor: "background.paper",
+          borderRight: 1,
+          borderColor: "divider",
+          overflow: "hidden",
+          display: { xs: "none", lg: "block" },
+        }}
+      >
+        <SellerSidebarContent />
+      </Box>
+      <Drawer
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", lg: "none" },
+          "& .MuiDrawer-paper": {
+            width: 280,
             bgcolor: "background.paper",
-            borderRight: 1,
-            borderColor: "divider",
-            overflow: "hidden",
-            display: { xs: "none", lg: "block" },
-          }}
-        >
-          <SellerSidebarContent />
-        </Box>
-      ) : (
-        <Drawer
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", lg: "none" },
-            "& .MuiDrawer-paper": {
-              width: 280,
-              bgcolor: "background.paper",
-              backgroundImage: "none",
-            },
-          }}
-        >
-          <SellerSidebarContent onNavigate={() => setMobileOpen(false)} />
-        </Drawer>
-      )}
+            backgroundImage: "none",
+          },
+        }}
+      >
+        <SellerSidebarContent onNavigate={() => setMobileOpen(false)} />
+      </Drawer>
       <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <Box
-          component="header"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            px: { xs: 2.5, md: 4 },
-            py: 1.5,
-            borderBottom: 1,
-            borderColor: "divider",
-            bgcolor: "background.paper",
-            position: "sticky",
-            top: 0,
-            zIndex: 1100,
-          }}
-        >
-          {!isDesktop ? (
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open navigation"
-            >
-              Menu
-            </Button>
-          ) : null}
-          <Typography variant="h2" sx={{ fontSize: "1rem" }}>
-            Seller console
-          </Typography>
-          <Box sx={{ flex: 1 }} />
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              maxWidth: 280,
-            }}
-          >
-            {email ?? ""}
-          </Typography>
-          <IconButton
-            size="small"
-            aria-label="Sign out of the seller console"
-            title="Sign out"
-            disabled={signingOut}
-            onClick={() => signOut()}
-            sx={{ cursor: "pointer" }}
-          >
-            <LogoutIcon fontSize="small" />
-          </IconButton>
-        </Box>
-        <Box
+        <SellerTopbar onMenuClick={() => setMobileOpen(true)} />
+        <Container
           component="main"
           id="main-content"
+          maxWidth={false}
           sx={{
-            maxWidth: 1560,
-            width: "100%",
+            maxWidth: 1360,
             mx: "auto",
-            px: { xs: 2.5, md: 4 },
-            pt: 1,
-            pb: 7,
+            px: { xs: 2, md: 3 },
+            pt: 3,
+            pb: 8,
             flex: 1,
           }}
         >
           {children}
-        </Box>
+        </Container>
       </Box>
     </Box>
   );
