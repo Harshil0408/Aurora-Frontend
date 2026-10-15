@@ -285,7 +285,7 @@ export interface UpdateMediaRequest {
   visibility?: 'PUBLIC' | 'PRIVATE';
 }
 
-/** Permission catalog for the `can()` helper (owner set contains all 30). */
+/** Permission catalog for the `can()` helper (owner set contains all 32). */
 export const SELLER_PERMISSIONS = [
   'store:read',
   'store:update',
@@ -317,6 +317,8 @@ export const SELLER_PERMISSIONS = [
   'media:view',
   'media:upload',
   'media:delete',
+  'category:view',
+  'category:request',
 ] as const;
 
 export type SellerPermission = (typeof SELLER_PERMISSIONS)[number];

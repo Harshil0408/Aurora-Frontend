@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import GridViewIcon from "@mui/icons-material/GridView";
+import CategoryIcon from "@mui/icons-material/Category";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import SettingsIcon from "@mui/icons-material/Settings";
 import GroupIcon from "@mui/icons-material/Group";
@@ -75,12 +76,18 @@ const SELLER_SECTIONS: { title: string; items: SellerNavItem[] }[] = [
   {
     title: "Store",
     items: [
-      {
-        label: "Media",
-        suffix: "media",
-        icon: <PhotoLibraryIcon fontSize="small" />,
-        perm: "media:view",
-      },
+  {
+    label: "Media",
+    suffix: "media",
+    icon: <PhotoLibraryIcon fontSize="small" />,
+    perm: "media:view",
+  },
+  {
+    label: "Categories",
+    suffix: "categories",
+    icon: <CategoryIcon fontSize="small" />,
+    perm: "category:view",
+  },
       {
         label: "Settings",
         suffix: "settings",

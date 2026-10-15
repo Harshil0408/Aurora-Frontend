@@ -1,4 +1,4 @@
-import { renderWithProviders, screen } from '@/test-utils';
+import { fireEvent, renderWithProviders, screen } from '@/test-utils';
 import { MediaLibraryView } from '../MediaLibraryView';
 
 const mockMediaQuery = jest.fn();
@@ -106,5 +106,49 @@ describe('MediaLibraryView', () => {
     });
     renderWithProviders(<MediaLibraryView />);
     expect(await screen.findByText(/No assets yet/)).toBeInTheDocument();
+  });
+
+  it('shows an accessible skeleton (without stray text) on first load', async () => {
+    mockMediaQuery.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isFetching: true,
+      isError: false,
+      refetch: mockRefetch,
+    });
+    renderWithProviders(<MediaLibraryView />);
+    expect(
+      screen.getByRole('status', { name: 'Loading media library' }),
+    ).toBeInTheDocument();
+    // The label must live in the accessible name — not as text under skeletons.
+    expect(screen.queryByText(/Loading media library/)).not.toBeInTheDocument();
+  });
+
+  it('keeps stale results with a refreshing indicator while filters refetch', async () => {
+    mockMediaQuery.mockReturnValue({ ...pagePayload([asset()]), isFetching: true });
+    renderWithProviders(<MediaLibraryView />);
+    expect(await screen.findByText('kurta.png')).toBeInTheDocument();
+    expect(
+      screen.getByRole('progressbar', { name: 'Refreshing media' }),
+    ).toBeInTheDocument();
+  });
+
+  it('appends the next page when loading more on scroll', async () => {
+    const a1 = asset({ id: 'a1', fileName: 'one.png', originalName: 'one.png' });
+    const a2 = asset({ id: 'a2', fileName: 'two.png', originalName: 'two.png' });
+    mockMediaQuery.mockImplementation((args: unknown) => {
+      const requestedPage = (args as { page?: number } | undefined)?.page ?? 1;
+      return requestedPage >= 2 ? pagePayload([a2], 2) : pagePayload([a1], 2);
+    });
+    renderWithProviders(<MediaLibraryView />);
+    expect(await screen.findByText('one.png')).toBeInTheDocument();
+    expect(screen.getByText('Showing 1 of 2 asset(s)')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+
+    expect(await screen.findByText('two.png')).toBeInTheDocument();
+    expect(screen.getByText('one.png')).toBeInTheDocument();
+    expect(screen.getByText('Showing 2 of 2 asset(s)')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
   });
 });

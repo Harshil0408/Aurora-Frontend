@@ -32,6 +32,7 @@ import DevicesIcon from "@mui/icons-material/Devices";
 import ShieldIcon from "@mui/icons-material/Shield";
 import PaletteIcon from "@mui/icons-material/Palette";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CategoryIcon from "@mui/icons-material/Category";
 import DatasetIcon from "@mui/icons-material/Dataset";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { mercatoTokens } from "@/lib/theme";
@@ -120,6 +121,17 @@ const sections: { title: string; items: NavItem[] }[] = [
         label: "Security",
         href: `${ADMIN_PREFIX}/security`,
         icon: <ShieldIcon fontSize="small" />,
+      },
+    ],
+  },
+  {
+    title: "Catalog",
+    items: [
+      {
+        label: "Categories",
+        href: `${ADMIN_PREFIX}/categories`,
+        icon: <CategoryIcon fontSize="small" />,
+        perm: "category.manage",
       },
     ],
   },
