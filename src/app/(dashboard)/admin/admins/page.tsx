@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { AdminsView } from './_components/AdminsView';
 
 export const metadata: Metadata = {
-  title: 'Admins — Aurora Admin',
+  title: 'Admins',
   description: 'Create admin accounts, change statuses, and manage role assignments.',
 };
 

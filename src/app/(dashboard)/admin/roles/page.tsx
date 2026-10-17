@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { RolesView } from './_components/RolesView';
 
 export const metadata: Metadata = {
-  title: 'Roles & Permissions — Aurora Admin',
+  title: 'Roles & Permissions',
   description: 'System and custom roles with their permission sets.',
 };
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { MediaLibraryView } from './_components/MediaLibraryView';
 
 export const metadata: Metadata = {
-  title: 'Media library — Aurora Seller',
+  title: 'Media library',
   description: 'Upload, organise, and manage product images, video, and documents.',
 };
 

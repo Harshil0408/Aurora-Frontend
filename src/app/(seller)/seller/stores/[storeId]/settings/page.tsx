@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { StoreSettingsView } from "./_components/StoreSettingsView";
 
 export const metadata: Metadata = {
-  title: "Store settings — Aurora Seller",
+  title: "Store settings",
   description: "Edit the store profile, contact, and locale.",
 };
 

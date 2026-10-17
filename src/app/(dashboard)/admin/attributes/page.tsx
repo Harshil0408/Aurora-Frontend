@@ -3,7 +3,7 @@ import { AttributesView } from './_components/AttributesView';
 import type { AttributeScopeParam } from './_components/AttributesView';
 
 export const metadata: Metadata = {
-  title: 'Attributes — Aurora Admin',
+  title: 'Attributes',
   description: 'Global lookup catalog: every platform dropdown, namespaced by type.',
 };
 

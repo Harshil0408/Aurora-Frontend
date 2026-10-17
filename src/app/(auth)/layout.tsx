@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sign in — Aurora Admin',
-  description: 'Secure admin sign in with two-factor authentication.',
+  // Auth pages are private console surfaces — never indexed.
+  robots: { index: false, follow: false },
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

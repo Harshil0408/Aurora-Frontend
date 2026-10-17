@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SellerCategoriesView } from './_components/SellerCategoriesView';
 
 export const metadata: Metadata = {
-  title: 'Categories — Aurora Seller',
+  title: 'Categories',
   description: 'Browse the marketplace taxonomy, request categories, and manage restricted access.',
 };
 

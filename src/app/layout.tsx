@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Sora } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { RESOLVED_KEY, THEME_PRESETS } from "@/lib/themePresets";
+import { config } from "@/lib/config";
 
 const display = Sora({
   variable: "--font-display",
@@ -20,8 +21,23 @@ const body = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Aurora Admin",
+  // Absolute canonical/OG base — single source in src/lib/config.ts.
+  metadataBase: new URL(config.siteUrl),
+  title: {
+    default: config.appName,
+    // Panel pages pass a short title; the suffix keeps the existing tab text.
+    template: "%s — Aurora Admin",
+  },
   description: "Secure e-commerce administration console",
+};
+
+// API + media are same-origin by design (BFF proxy + /uploads rewrite), so
+// there are no cross-origin origins worth a preconnect hint today. If a
+// dedicated image CDN is introduced, add `<link rel="preconnect">` here.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#ffffff",
 };
 
 /**

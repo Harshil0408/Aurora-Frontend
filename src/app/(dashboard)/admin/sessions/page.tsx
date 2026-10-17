@@ -4,7 +4,7 @@ import { DataLoader } from '@/components/ui/DataLoader';
 import { SessionsView } from './_components/SessionsView';
 
 export const metadata: Metadata = {
-  title: 'Sessions — Aurora Admin',
+  title: 'Sessions',
   description: 'Active admin sign-ins across browsers and devices.',
 };
 

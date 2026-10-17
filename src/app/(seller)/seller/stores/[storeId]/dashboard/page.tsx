@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { StoreDashboardView } from './_components/StoreDashboardView';
 
 export const metadata: Metadata = {
-  title: 'Store dashboard — Aurora Seller',
+  title: 'Store dashboard',
   description: 'Onboarding, subscription, and workspace overview for one store.',
 };
 

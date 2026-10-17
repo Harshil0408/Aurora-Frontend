@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { CategoriesView } from './_components/CategoriesView';
 
 export const metadata: Metadata = {
-  title: 'Categories — Aurora Admin',
+  title: 'Categories',
   description: 'Product taxonomy: tree, seller requests, and restricted access.',
 };
 

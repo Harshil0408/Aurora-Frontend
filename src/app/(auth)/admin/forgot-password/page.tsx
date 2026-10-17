@@ -3,7 +3,7 @@ import { AuthCard } from '@/components/auth/AuthCard';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 
 export const metadata: Metadata = {
-  title: 'Forgot password — Aurora Admin',
+  title: 'Forgot password',
   description: 'Request an admin password reset link.',
 };
 

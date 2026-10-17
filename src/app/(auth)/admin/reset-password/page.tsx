@@ -6,7 +6,7 @@ import { DataLoader } from '@/components/ui/DataLoader';
 import { FallbackUI } from '@/components/ui/FallbackUI';
 
 export const metadata: Metadata = {
-  title: 'Reset password — Aurora Admin',
+  title: 'Reset password',
   description: 'Set a new admin password from your reset email link.',
 };
 

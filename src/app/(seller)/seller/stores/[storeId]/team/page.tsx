@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { TeamView } from './_components/TeamView';
 
 export const metadata: Metadata = {
-  title: 'Team — Aurora Seller',
+  title: 'Team',
   description: 'Invite members, manage roles, and track invitations.',
 };
 

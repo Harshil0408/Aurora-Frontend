@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { AttributeTypeView } from './_components/AttributeTypeView';
 
 export const metadata: Metadata = {
-  title: 'Lookup Entries — Aurora Admin',
+  title: 'Lookup Entries',
   description: 'Search, add, edit, and toggle entries of one attribute type.',
 };
 

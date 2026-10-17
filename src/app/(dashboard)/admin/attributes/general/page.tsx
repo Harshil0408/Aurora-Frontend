@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { GeneralAttributesView } from './_components/GeneralAttributesView';
 
 export const metadata: Metadata = {
-  title: 'General Lookups — Aurora Admin',
+  title: 'General Lookups',
   description: 'Shared platform lists: store categories, languages, payment types, currencies, countries, timezones.',
 };
 

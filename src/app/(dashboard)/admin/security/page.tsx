@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SecurityView } from './_components/SecurityView';
 
 export const metadata: Metadata = {
-  title: 'Security — Aurora Admin',
+  title: 'Security',
   description: 'Two-factor methods, password, and your roles and access.',
 };
 

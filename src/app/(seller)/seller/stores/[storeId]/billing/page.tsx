@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { BillingView } from './_components/BillingView';
 
 export const metadata: Metadata = {
-  title: 'Billing — Aurora Seller',
+  title: 'Billing',
   description: 'Subscription, trial countdown, and plan catalog.',
 };
 

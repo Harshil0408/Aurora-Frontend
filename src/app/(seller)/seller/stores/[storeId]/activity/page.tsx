@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ActivityView } from './_components/ActivityView';
 
 export const metadata: Metadata = {
-  title: 'Activity — Aurora Seller',
+  title: 'Activity',
   description: 'Store audit feed: changes, invitations, and role edits.',
 };
 

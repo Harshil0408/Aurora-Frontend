@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DashboardView } from './_components/DashboardView';
 
 export const metadata: Metadata = {
-  title: 'Dashboard — Aurora Admin',
+  title: 'Dashboard',
   description: 'Marketplace performance across sellers, shoppers, and revenue.',
 };
 

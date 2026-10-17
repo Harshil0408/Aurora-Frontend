@@ -9,7 +9,7 @@ export async function generateMetadata({
   const { key } = await params;
   const roleKey = decodeURIComponent(key);
   return {
-    title: `Role ${roleKey} — Aurora Admin`,
+    title: `Role ${roleKey}`,
     description: `Permission matrix and management for the ${roleKey} role.`,
   };
 }

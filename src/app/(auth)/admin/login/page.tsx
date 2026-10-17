@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { LoginView } from './_components/LoginView';
 
 export const metadata: Metadata = {
-  title: 'Sign in — Aurora Admin',
+  title: 'Sign in',
   description: 'Sign in to the Aurora admin console.',
 };
 

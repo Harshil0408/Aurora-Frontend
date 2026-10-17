@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { InvitationsView } from './_components/InvitationsView';
 
 export const metadata: Metadata = {
-  title: 'Invitations — Aurora Seller',
+  title: 'Invitations',
   description: 'Accept or decline pending store invitations.',
 };
 

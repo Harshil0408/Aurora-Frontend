@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { CreateStoreView } from './_components/CreateStoreView';
 
 export const metadata: Metadata = {
-  title: 'Create store — Aurora Seller',
+  title: 'Create store',
   description: 'Open a new store on a 14-day Starter trial.',
 };
 
