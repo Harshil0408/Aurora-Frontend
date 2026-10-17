@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import Image from "next/image";
+import { QrCodeImage } from "@/components/ui/QrCodeImage";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Alert,
@@ -1216,12 +1216,10 @@ function SecurityContent() {
                     mx: "auto",
                   }}
                 >
-                  <Image
+                  <QrCodeImage
                     src={qr.qrDataUrl}
                     alt="QR code to link your authenticator app"
-                    width={148}
-                    height={148}
-                    priority
+                    size={148}
                   />
                 </Box>
                 <Box

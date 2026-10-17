@@ -44,6 +44,7 @@ import {
   TableCard,
 } from "@/components/ui/controls";
 import { DataLoader } from "@/components/ui/DataLoader";
+import { ThumbImage } from "@/components/ui/ThumbImage";
 import {
   SellerForbidden,
   useSellerCan,
@@ -592,12 +593,12 @@ export function MediaLibraryView() {
 
   const thumb = (a: SellerMediaAsset, height: number) =>
     a.kind === "IMAGE" && a.url ? (
-      <Box
-        component="img"
+      <ThumbImage
         src={a.url}
         alt={a.altText || a.fileName}
-        loading="lazy"
-        sx={{ width: "100%", height, objectFit: "cover", display: "block" }}
+        height={height}
+        sizes="(min-width: 900px) 20vw, (min-width: 600px) 30vw, 45vw"
+        sx={{ display: "block" }}
       />
     ) : (
       <Box
@@ -1993,19 +1994,12 @@ function EditAssetDialog({
     >
       {saveError ? <Alert severity="error">{saveError}</Alert> : null}
       {asset?.kind === "IMAGE" && asset.url ? (
-        <Box
-          component="img"
+        <ThumbImage
           src={asset.url}
           alt={asset.altText || asset.fileName}
-          sx={{
-            width: "100%",
-            height: 160,
-            objectFit: "cover",
-            borderRadius: 2,
-            border: 1,
-            borderColor: "divider",
-            display: "block",
-          }}
+          height={160}
+          sizes="(min-width: 600px) 480px, 90vw"
+          sx={{ borderRadius: 2, border: 1, borderColor: "divider" }}
         />
       ) : null}
       <Typography

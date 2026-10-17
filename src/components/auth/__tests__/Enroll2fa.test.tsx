@@ -5,9 +5,10 @@ import { makeStore } from '@/store';
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @next/next/no-img-element
-  default: ({ alt, src, width, height, ...rest }: any) => (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  default: ({ alt, src, width, height }: any) => (
     // Strip Next-only props (priority, etc.) so jsdom doesn't warn
+    // eslint-disable-next-line @next/next/no-img-element
     <img alt={alt} src={src} width={width} height={height} />
   ),
 }));

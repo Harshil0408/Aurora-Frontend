@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Alert, Box, Button, Chip, TextField, Typography } from "@mui/material";
+import { QrCodeImage } from "@/components/ui/QrCodeImage";
 import {
   useConfirm2faMutation,
   useEnroll2faMutation,
@@ -132,12 +132,10 @@ export function Enroll2fa() {
           p: 2,
         }}
       >
-        <Image
+        <QrCodeImage
           src={data.data.qrDataUrl}
           alt="QR code to link your authenticator app"
-          width={200}
-          height={200}
-          priority
+          size={200}
         />
       </Box>
       <Alert severity="warning" role="alert">

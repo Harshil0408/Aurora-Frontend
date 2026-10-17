@@ -6,6 +6,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { FormHelperText } from '@mui/material';
 import { formatBytes, uploadFilesXHR } from '@/lib/upload';
+import { ThumbImage } from '@/components/ui/ThumbImage';
 
 export interface UploadedAsset {
   url: string;
@@ -55,6 +56,15 @@ export function AssetUploadField({
       setError(`"${f.name}" is empty.`);
       return;
     }
+    // `accept` on the input is advisory only — enforce the MIME allow-list
+    // here so a dragged/dropped file cannot bypass it.
+    if (accept) {
+      const allowed = accept.split(',').map((t) => t.trim().toLowerCase());
+      if (!allowed.includes(f.type.toLowerCase())) {
+        setError(`"${f.name}" is not an accepted image type.`);
+        return;
+      }
+    }
     if (f.size > maxBytes) {
       setError(`"${f.name}" exceeds the ${formatBytes(maxBytes)} limit.`);
       return;
@@ -99,8 +109,7 @@ export function AssetUploadField({
       >
         {value ? (
           // Same-origin /uploads/* resolves through the Next rewrite.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={value} alt="" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 8 }} />
+          <ThumbImage src={value} alt="" width={72} height={72} />
         ) : (
           <Box sx={{ width: 72, height: 72, borderRadius: 2, bgcolor: 'background.paper', display: 'grid', placeItems: 'center', color: 'text.disabled' }}>
             <CloudUploadIcon />
