@@ -46,13 +46,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, isInitialised, pathname, router]);
 
-  if (!isInitialised) return <PageLoader />;
   // Seller panel renders its own loaders/guards client-side.
   if (isSellerRoute(pathname)) return <>{children}</>;
   const isPublic = PUBLIC_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
-  if (!isAuthenticated && !isPublic)
+  // Public pages render immediately — the server HTML already contains the
+  // real content, so the LCP element paints with the first response instead
+  // of waiting for hydration + session bootstrap. An already-authenticated
+  // visitor is still redirected away by the effect above once init resolves.
+  if (isPublic) return <>{children}</>;
+  if (!isInitialised) return <PageLoader />;
+  if (!isAuthenticated)
     return <PageLoader label="Redirecting to sign in" />;
   return <>{children}</>;
 }

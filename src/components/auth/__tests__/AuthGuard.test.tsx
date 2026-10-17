@@ -25,10 +25,10 @@ describe('AuthGuard routing safety', () => {
     expect(screen.queryByText('secret')).toBeNull();
   });
 
-  it('renders children on public route even when logged out', () => {
+  it('renders children on public route even before session init', () => {
     mockPathname = '/admin/login';
     const store = makeStore();
-    store.dispatch({ type: 'auth/markInitialised' });
+    // No markInitialised — public pages must paint without waiting for bootstrap.
     renderWithProviders(<AuthGuard><div>login-page</div></AuthGuard>, { store });
     expect(screen.getByText('login-page')).toBeInTheDocument();
   });

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Alert, Box, Button, TextField } from "@mui/material";
 import { useForgotPasswordMutation } from "@/services/authApi";
-import { forgotPasswordSchema } from "@/lib/validations";
+import { forgotPasswordSchema } from "@/lib/validations/auth";
 import { ButtonLoader } from "@/components/ui/Loaders";
 
 export function ForgotPasswordForm() {

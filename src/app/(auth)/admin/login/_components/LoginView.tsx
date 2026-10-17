@@ -1,14 +1,28 @@
 "use client";
 
 import { Alert } from "@mui/material";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/AuthCard";
-import { Enroll2fa } from "@/components/auth/Enroll2fa";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Verify2faForm } from "@/components/auth/Verify2faForm";
 import { useAppSelector } from "@/store/hooks";
 import { DataLoader } from "@/components/ui/DataLoader";
+
+// 2FA stages only appear after the login mutation sets a pending stage, so
+// their chunks (icons, enrollment UI) stay out of the critical login bundle.
+const Verify2faForm = dynamic(
+  () =>
+    import("@/components/auth/Verify2faForm").then((m) => ({
+      default: m.Verify2faForm,
+    })),
+  { ssr: false },
+);
+const Enroll2fa = dynamic(
+  () =>
+    import("@/components/auth/Enroll2fa").then((m) => ({ default: m.Enroll2fa })),
+  { ssr: false },
+);
 
 function LoginContent() {
   const stage = useAppSelector((s) => s.auth.stage);

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Alert, Box, Button, TextField } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useResetPasswordMutation } from '@/services/authApi';
-import { resetPasswordSchema } from '@/lib/validations';
+import { resetPasswordSchema } from '@/lib/validations/auth';
 import { normaliseApiError } from '@/types/api';
 import { ButtonLoader } from '@/components/ui/Loaders';
 import { ADMIN_LOGIN_PATH } from '@/lib/panels';

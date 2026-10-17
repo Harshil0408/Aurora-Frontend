@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/services/authApi";
 import { setPending, setSession } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
-import { loginSchema } from "@/lib/validations";
+import { loginSchema } from "@/lib/validations/auth";
 import { normaliseApiError } from "@/types/api";
 import { ButtonLoader } from "@/components/ui/Loaders";
 import { ADMIN_FORGOT_PASSWORD_PATH, ADMIN_HOME_PATH } from "@/lib/panels";
