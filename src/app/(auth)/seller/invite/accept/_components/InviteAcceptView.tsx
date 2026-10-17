@@ -12,7 +12,7 @@ import { useSellerMeQuery } from '@/services/sellerAuthApi';
 import { useAppSelector } from '@/store/hooks';
 import { useSellerSignOut } from '@/components/seller/SellerGuards';
 import type { RootState } from '@/store';
-import { clearInviteToken, stashInviteToken } from '@/lib/seller';
+import { clearInviteToken, inviteAcceptLink, stashInviteToken } from '@/lib/seller';
 import { normaliseApiError } from '@/types/api';
 import {
   SELLER_INVITATIONS_PATH,
@@ -84,7 +84,7 @@ function InviteAcceptContent() {
   }
 
   if (!isAuthenticated) {
-    const next = `/seller/invite/accept?token=${encodeURIComponent(token)}`;
+    const next = inviteAcceptLink(token);
     return (
       <AuthCard
         eyebrow="Team invitation"
@@ -109,7 +109,7 @@ function InviteAcceptContent() {
   const signedInAs = meData?.data.email ?? 'your account';
 
   if (state === 'wrong-email') {
-    const acceptUrl = `/seller/invite/accept?token=${encodeURIComponent(token)}`;
+    const acceptUrl = inviteAcceptLink(token);
     return (
       <AuthCard
         eyebrow="Team invitation"

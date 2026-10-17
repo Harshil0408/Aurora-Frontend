@@ -14,6 +14,7 @@ import {
   SELLER_CREATE_STORE_PATH,
   SELLER_HOME_PATH,
   SELLER_INVITATIONS_PATH,
+  SELLER_PREFIX,
   sellerDashboardPath,
 } from '@/lib/panels';
 
@@ -54,7 +55,7 @@ export function usePostAuthRedirect() {
           clearInviteToken();
         }
       }
-      if (next && next.startsWith('/seller/')) {
+      if (next && next.startsWith(`${SELLER_PREFIX}/`)) {
         router.replace(next);
         return;
       }

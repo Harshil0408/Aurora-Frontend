@@ -130,7 +130,7 @@ export function SessionsView() {
     try {
       await logoutAll().unwrap();
       dispatch(clearAuth());
-      router.replace('/login');
+      router.replace(ADMIN_LOGIN_PATH);
     } catch (err) {
       const n = normaliseApiError({ status: (err as { status?: number })?.status, data: (err as { data?: unknown })?.data });
       setError(n.message || 'Could not revoke all sessions.');

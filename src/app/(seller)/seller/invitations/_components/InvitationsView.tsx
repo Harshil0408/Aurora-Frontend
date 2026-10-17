@@ -20,6 +20,7 @@ import { normaliseApiError } from '@/types/api';
 import {
   SELLER_CREATE_STORE_PATH,
   SELLER_HOME_PATH,
+  SELLER_INVITATIONS_PATH,
   SELLER_LOGIN_PATH,
   sellerDashboardPath,
 } from '@/lib/panels';
@@ -105,7 +106,7 @@ function InvitationsContent() {
               size="small"
               color="inherit"
               disabled={signingOut}
-              onClick={() => signOut(`${SELLER_LOGIN_PATH}?next=${encodeURIComponent('/seller/invitations')}`)}
+              onClick={() => signOut(`${SELLER_LOGIN_PATH}?next=${encodeURIComponent(SELLER_INVITATIONS_PATH)}`)}
             >
               {signingOut ? 'Signing out…' : 'Switch account'}
             </Button>

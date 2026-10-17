@@ -14,7 +14,7 @@ import { setActiveStore } from '@/store/sellerStoreSlice';
 import { useAppDispatch } from '@/store/hooks';
 import { createStoreSchema } from '@/lib/validations';
 import { normaliseApiError } from '@/types/api';
-import { sellerDashboardPath } from '@/lib/panels';
+import { SELLER_HOME_PATH, sellerDashboardPath } from '@/lib/panels';
 
 const STEPS = ['Store details', 'Business & contact', 'Review & launch'];
 
@@ -212,7 +212,7 @@ export function CreateStoreView() {
         ) : null}
 
         <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
-          {step > 0 ? <Button size="small" variant="outlined" onClick={() => setStep((s) => s - 1)}>Back</Button> : <Button size="small" variant="outlined" component={Link} href="/seller/stores">Cancel</Button>}
+          {step > 0 ? <Button size="small" variant="outlined" onClick={() => setStep((s) => s - 1)}>Back</Button> : <Button size="small" variant="outlined" component={Link} href={SELLER_HOME_PATH}>Cancel</Button>}
           <Box sx={{ flex: 1 }} />
           {step < 2 ? (
             <Button size="small" variant="contained" onClick={() => { if (validateStep(step)) setStep((s) => s + 1); }}>Next</Button>
