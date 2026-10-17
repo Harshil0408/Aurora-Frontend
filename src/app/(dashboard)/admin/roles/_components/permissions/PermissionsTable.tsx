@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import {
   Box,
   Chip,
@@ -31,6 +31,8 @@ type StatusFilter = 'ALL' | PermissionStatus;
  */
 export function PermissionsTable() {
   const [search, setSearch] = useState('');
+  // Deferred: typing keeps the input snappy while the row filter yields.
+  const deferredSearch = useDeferredValue(search);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 
   const { data, isLoading, isError, error, refetch } = useListPermissionsQuery(undefined);
@@ -46,7 +48,7 @@ export function PermissionsTable() {
   );
 
   const rows = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return permissions.filter((p) => {
       if (statusFilter !== 'ALL' && p.status !== statusFilter) return false;
       if (
@@ -58,7 +60,7 @@ export function PermissionsTable() {
         return false;
       return true;
     });
-  }, [permissions, search, statusFilter]);
+  }, [permissions, deferredSearch, statusFilter]);
 
   if (!isLoading && isError && normaliseApiError(error).status === 403) {
     return <AccessDenied description="You don't hold role.read — contact an administrator." />;

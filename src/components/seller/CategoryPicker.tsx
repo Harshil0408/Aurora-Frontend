@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { Alert, Box, Button, Chip, List, ListItemButton, ListItemText } from '@mui/material';
 import CategoryIcon from '@mui/icons-material/Category';
 import LockIcon from '@mui/icons-material/Lock';
@@ -43,19 +43,21 @@ export function CategoryPicker({
   title?: string;
 }) {
   const [search, setSearch] = useState('');
+  // Deferred: typing keeps the input snappy while the list filter yields.
+  const deferredSearch = useDeferredValue(search);
   const { data, isLoading, isError, error, refetch } = useSellerCategoryTreeQuery(storeId, {
     skip: !open || !storeId,
   });
 
   const flat = useMemo(() => flatten(data?.data ?? []), [data]);
   const leaves = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return flat.filter((n) => {
       if (!n.leaf) return false;
       if (!q) return true;
       return n.name.toLowerCase().includes(q) || n.breadcrumb.toLowerCase().includes(q);
     });
-  }, [flat, search]);
+  }, [flat, deferredSearch]);
 
   return (
     <Modal

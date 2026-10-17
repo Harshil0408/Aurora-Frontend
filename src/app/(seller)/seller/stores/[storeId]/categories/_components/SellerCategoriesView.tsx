@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
   Alert,
@@ -106,6 +106,8 @@ export function SellerCategoriesView() {
 
   const [tab, setTab] = useState<'browse' | 'requests' | 'access'>('browse');
   const [search, setSearch] = useState('');
+  // Deferred: typing keeps the input snappy while the tree filter yields.
+  const deferredSearch = useDeferredValue(search);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [reqOpen, setReqOpen] = useState(false);
   const [reqName, setReqName] = useState('');
@@ -138,12 +140,12 @@ export function SellerCategoriesView() {
     return out;
   }, [nodes]);
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     if (!q) return nodes;
     // Search flattens matches (ancestors implied by breadcrumb).
     const hits = flat.filter((n) => n.name.toLowerCase().includes(q) || n.breadcrumb.toLowerCase().includes(q));
     return hits as SellerCategoryNode[];
-  }, [nodes, flat, search]);
+  }, [nodes, flat, deferredSearch]);
 
   if (!canView) {
     return (

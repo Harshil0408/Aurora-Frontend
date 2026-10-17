@@ -1,5 +1,3 @@
-'use client';
-
 import { Box } from '@mui/material';
 
 /** Tiny area sparkline. Purely decorative (aria-hidden) — value is in text. */

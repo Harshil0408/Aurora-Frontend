@@ -71,7 +71,8 @@ function fullDate(iso: string): string {
 export function SessionsView() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { data, isLoading, isError, refetch } = useSessionsQuery({ page: 1, limit: 20 });
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, refetch } = useSessionsQuery({ page, limit: 20 });
   const [revokeOne, { isLoading: revoking }] = useRevokeSessionMutation();
   const [logoutAll, { isLoading: loggingOut }] = useLogoutAllMutation();
   const { can } = usePermissions();
@@ -90,6 +91,7 @@ export function SessionsView() {
   const sessions = data.data;
   const current = sessions.find((s) => s.current);
   const others = sessions.length - (current ? 1 : 0);
+  const totalPages = data.pagination?.totalPages ?? 1;
 
   const askOne = (s: AuthSession) => {
     setTarget(s);
@@ -219,9 +221,25 @@ export function SessionsView() {
         }
         empty={{
           when: sessions.length === 0,
-          title: 'No other sessions',
-          description: 'Only this device is signed in. If you expected more devices, nothing is wrong — they may simply have expired.',
+          title: page > 1 ? 'No more sessions on this page' : 'No other sessions',
+          description: page > 1 ? 'Go back a page, or only this device is signed in on the first page.' : 'Only this device is signed in. If you expected more devices, nothing is wrong — they may simply have expired.',
         }}
+        footer={
+          totalPages > 1 ? (
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: '100%' }}>
+              <Typography variant="caption" color="text.secondary">
+                Page {page} of {totalPages}
+              </Typography>
+              <Box sx={{ flex: 1 }} />
+              <Button size="small" variant="outlined" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                Previous
+              </Button>
+              <Button size="small" variant="outlined" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                Next
+              </Button>
+            </Box>
+          ) : undefined
+        }
       >
         <TableContainer sx={{ mt: 1.5, overflowX: 'auto', boxShadow: 'none', border: 'none' }}>
           <Table aria-label="My sessions" sx={{ minWidth: 680 }}>

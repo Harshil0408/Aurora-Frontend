@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { InviteAcceptView } from './_components/InviteAcceptView';
 
 export const metadata: Metadata = {
-  title: 'Accept invitation — Aurora Seller',
+  title: { absolute: 'Accept invitation — Aurora Seller' },
   description: 'Accept a team invitation to join a store.',
 };
 

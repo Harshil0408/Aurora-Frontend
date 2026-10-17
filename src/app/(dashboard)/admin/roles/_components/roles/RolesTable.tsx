@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import {
   Box,
   Chip,
@@ -47,6 +47,8 @@ export function RolesTable() {
   const selectedKey = useAppSelector((s) => s.rbac.selectedRoleKey);
 
   const [search, setSearch] = useState('');
+  // Deferred: typing keeps the input snappy while the row filter yields.
+  const deferredSearch = useDeferredValue(search);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuRole, setMenuRole] = useState<Role | null>(null);
@@ -64,13 +66,13 @@ export function RolesTable() {
   );
 
   const rows = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return roles.filter((r) => {
       if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
       if (q && !r.name.toLowerCase().includes(q) && !r.key.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [roles, search, statusFilter]);
+  }, [roles, deferredSearch, statusFilter]);
 
   const canCreate = can('role.create');
   const canUpdate = can('role.update');

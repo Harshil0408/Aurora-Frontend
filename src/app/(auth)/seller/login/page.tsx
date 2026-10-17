@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SellerLoginView } from './_components/SellerLoginView';
 
 export const metadata: Metadata = {
-  title: 'Seller sign in — Aurora',
+  title: { absolute: 'Seller sign in — Aurora' },
   description: 'Sign in to your Aurora seller workspace.',
 };
 

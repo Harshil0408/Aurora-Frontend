@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { QrCodeImage } from "@/components/ui/QrCodeImage";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Alert,
@@ -9,6 +10,7 @@ import {
   Button,
   Checkbox,
   Chip,
+  Dialog,
   Divider,
   FormControlLabel,
   Paper,
@@ -48,14 +50,21 @@ import { DataLoader } from "@/components/ui/DataLoader";
 import { FallbackUI } from "@/components/ui/FallbackUI";
 import { ButtonLoader } from "@/components/ui/Loaders";
 import { FormField, Modal } from "@/components/ui/controls";
-import {
-  DetailRow,
-  GuideAccordion,
-  GuideStep,
-  HowRow,
-  TourDialog,
-} from "@/components/ui/Guide";
+import { DetailRow, GuideAccordion, HowRow } from "@/components/ui/Guide";
+import type { GuideStep } from "@/components/ui/TourDialog";
 import { mercatoTokens } from "@/lib/theme";
+
+// Tour dialog is rare UI (opened only from the help CTA) — keep Stepper/Dialog
+// out of the Security route's first-load JS with a same-size skeleton.
+const TourDialog = dynamic(
+  () => import("@/components/ui/TourDialog").then((m) => ({ default: m.TourDialog })),
+  {
+    loading: () => (
+      <Dialog open maxWidth="sm" fullWidth aria-hidden sx={{ minHeight: 280 }} />
+    ),
+    ssr: false,
+  },
+);
 
 /* ------------------------------------------------------------------ */
 /* Status chip (page-specific)                                       */

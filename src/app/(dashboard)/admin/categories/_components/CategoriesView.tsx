@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -110,6 +110,8 @@ export function CategoriesView() {
   const canManage = can('category.manage');
   const [tab, setTab] = useState<'tree' | 'requests' | 'access'>('tree');
   const [search, setSearch] = useState('');
+  // Deferred: typing keeps the input snappy while the tree filter yields.
+  const deferredSearch = useDeferredValue(search);
   const [status, setStatus] = useState('');
   const [formKey, setFormKey] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
@@ -139,13 +141,13 @@ export function CategoriesView() {
   const nodes = useMemo(() => tree.data?.data ?? [], [tree.data]);
   const flat = useMemo(() => flatten(nodes), [nodes]);
   const visible = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return flat.filter((n) => {
       if (status && n.status !== status) return false;
       if (!q) return true;
       return n.name.toLowerCase().includes(q) || n.slug.includes(q) || n.breadcrumb.toLowerCase().includes(q);
     });
-  }, [flat, search, status]);
+  }, [flat, deferredSearch, status]);
 
   if (!canManage) {
     return (

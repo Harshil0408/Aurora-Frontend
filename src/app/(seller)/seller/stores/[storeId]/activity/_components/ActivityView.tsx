@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Alert, Box, Button, Chip, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
 import { SearchField, SelectField, TableCard } from '@/components/ui/controls';
@@ -32,6 +32,8 @@ export function ActivityView() {
   const { can } = useSellerCan();
   const [action, setAction] = useState('');
   const [query, setQuery] = useState('');
+  // Deferred: typing keeps the input snappy while the row filter yields.
+  const deferredQuery = useDeferredValue(query);
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useSellerAuditQuery(
     { storeId, page, limit: 20, action: action || undefined },
@@ -49,8 +51,8 @@ export function ActivityView() {
   }
 
   const rows = (data?.data ?? []).filter((r) => {
-    if (!query.trim()) return true;
-    const q = query.trim().toLowerCase();
+    if (!deferredQuery.trim()) return true;
+    const q = deferredQuery.trim().toLowerCase();
     return (
       r.action.toLowerCase().includes(q) ||
       (r.actorEmail ?? '').toLowerCase().includes(q) ||
