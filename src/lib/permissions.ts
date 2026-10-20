@@ -27,6 +27,7 @@ export const PAGE_PERMS = {
   ATTRIBUTE_UPDATE: 'attribute.update',
   ATTRIBUTE_DELETE: 'attribute.delete',
   CATEGORY_MANAGE: 'category.manage',
+  BRAND_MANAGE: 'brand.manage',
 } as const;
 
 import {
@@ -46,6 +47,7 @@ export const ROUTE_PERMISSIONS: Array<{ prefix: string; anyOf: string[] }> = [
   { prefix: '/admin/sessions', anyOf: [PAGE_PERMS.SESSION_READ] },
   { prefix: '/admin/attributes', anyOf: [PAGE_PERMS.ATTRIBUTE_READ] },
   { prefix: '/admin/categories', anyOf: [PAGE_PERMS.CATEGORY_MANAGE] },
+  { prefix: '/admin/brands', anyOf: [PAGE_PERMS.BRAND_MANAGE] },
   // /admin/dashboard, /admin/security, /admin/themes: any authenticated
   // admin (own data / prefs).
 ];

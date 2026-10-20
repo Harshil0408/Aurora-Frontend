@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import GridViewIcon from "@mui/icons-material/GridView";
 import CategoryIcon from "@mui/icons-material/Category";
+import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import SettingsIcon from "@mui/icons-material/Settings";
 import GroupIcon from "@mui/icons-material/Group";
@@ -87,6 +88,12 @@ const SELLER_SECTIONS: { title: string; items: SellerNavItem[] }[] = [
     suffix: "categories",
     icon: <CategoryIcon fontSize="small" />,
     perm: "category:view",
+  },
+  {
+    label: "Brands",
+    suffix: "brands",
+    icon: <VerifiedOutlinedIcon fontSize="small" />,
+    perm: "brand:view",
   },
       {
         label: "Settings",
