@@ -29,6 +29,7 @@ export const PAGE_PERMS = {
   CATEGORY_MANAGE: "category.manage",
   BRAND_MANAGE: "brand.manage",
   ATTRIBUTE_MANAGE: "attribute.manage",
+  TAX_MANAGE: "tax.manage",
 } as const;
 
 import {
@@ -51,6 +52,7 @@ export const ROUTE_PERMISSIONS: Array<{ prefix: string; anyOf: string[] }> = [
   { prefix: "/admin/brands", anyOf: [PAGE_PERMS.BRAND_MANAGE] },
   { prefix: "/admin/catalog-attributes", anyOf: [PAGE_PERMS.ATTRIBUTE_MANAGE] },
   { prefix: "/admin/attribute-sets", anyOf: [PAGE_PERMS.ATTRIBUTE_MANAGE] },
+  { prefix: "/admin/tax", anyOf: [PAGE_PERMS.TAX_MANAGE] },
   // /admin/dashboard, /admin/security, /admin/themes: any authenticated
   // admin (own data / prefs).
 ];

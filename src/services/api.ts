@@ -41,6 +41,10 @@ export const api = createApi({
     "SellerCategories",
     "SellerBrands",
     "SellerAttributes",
+    "TaxClasses",
+    "HsnCodes",
+    "Units",
+    "CommerceSettings",
   ],
   endpoints: () => ({}),
 });

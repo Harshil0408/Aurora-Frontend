@@ -19,6 +19,7 @@ import {
   useUpdateCategoryMutation,
 } from "@/services/categoriesApi";
 import { useListAttributeSetsQuery } from "@/services/attributeSetsApi";
+import { useListTaxClassesQuery } from "@/services/commerceApi";
 
 function flatten(
   nodes: CategoryNode[],
@@ -67,11 +68,13 @@ export function CategoryFormDialog({
   const [attributeSetId, setAttributeSetId] = useState(
     editing?.attributeSetId ?? "",
   );
+  const [taxClassId, setTaxClassId] = useState(editing?.taxClassId ?? "");
 
   const attributeSets = useListAttributeSetsQuery({
     limit: 100,
     status: "ACTIVE",
   });
+  const taxClasses = useListTaxClassesQuery({ limit: 100, status: "ACTIVE" });
 
   const saving = createState.isLoading || updateState.isLoading;
   const saveError =
@@ -106,6 +109,12 @@ export function CategoryFormDialog({
         ? { attributeSetId }
         : editing && editing.attributeSetId
           ? { attributeSetId: null }
+          : {}),
+      // Module 5 — default tax-class assignment (explicit null clears an edit).
+      ...(taxClassId
+        ? { taxClassId }
+        : editing && editing.taxClassId
+          ? { taxClassId: null }
           : {}),
     };
     if (editing) await updateCategory({ id: editing.id, ...body }).unwrap();
@@ -309,10 +318,18 @@ export function CategoryFormDialog({
         minWidth={260}
         hint="Attributes sellers fill in on the product form for this category. Sellers inherit the nearest ancestor's set when this is empty."
       />
-      <Alert severity="info">
-        Tax class, commission, and return window unlock with Modules 5–6 — the
-        columns already exist, the UI arrives with those modules.
-      </Alert>
+      <SelectField
+        label="Default tax class"
+        value={taxClassId}
+        onChange={setTaxClassId}
+        options={(taxClasses.data?.data ?? []).map((c) => ({
+          value: c.id,
+          label: c.name,
+        }))}
+        placeholder="No default tax class"
+        minWidth={260}
+        hint="GST slab quoted at checkout for products in this category — products may override it from Module 6."
+      />
     </Modal>
   );
 }

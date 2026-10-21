@@ -167,6 +167,12 @@ const sections: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Health", icon: <MonitorHeartIcon fontSize="small" /> },
       {
+        label: "Tax & Units",
+        href: `${ADMIN_PREFIX}/tax`,
+        icon: <PercentIcon fontSize="small" />,
+        perm: "tax.manage",
+      },
+      {
         label: "Attributes",
         href: `${ADMIN_PREFIX}/attributes`,
         icon: <DatasetIcon fontSize="small" />,
