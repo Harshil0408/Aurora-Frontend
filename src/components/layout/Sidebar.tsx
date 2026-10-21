@@ -140,6 +140,18 @@ const sections: { title: string; items: NavItem[] }[] = [
         icon: <VerifiedOutlinedIcon fontSize="small" />,
         perm: "brand.manage",
       },
+      {
+        label: "Attributes",
+        href: `${ADMIN_PREFIX}/catalog-attributes`,
+        icon: <DatasetIcon fontSize="small" />,
+        perm: "attribute.manage",
+      },
+      {
+        label: "Attribute Sets",
+        href: `${ADMIN_PREFIX}/attribute-sets`,
+        icon: <DatasetIcon fontSize="small" />,
+        perm: "attribute.manage",
+      },
     ],
   },
   {
@@ -161,9 +173,21 @@ const sections: { title: string; items: NavItem[] }[] = [
         perm: "attribute.read",
         children: [
           { label: "All types", href: `${ADMIN_PREFIX}/attributes` },
-          { label: "Admin", href: `${ADMIN_PREFIX}/attributes?scope=admin`, scope: "admin" },
-          { label: "Seller", href: `${ADMIN_PREFIX}/attributes?scope=seller`, scope: "seller" },
-          { label: "Users", href: `${ADMIN_PREFIX}/attributes?scope=user`, scope: "user" },
+          {
+            label: "Admin",
+            href: `${ADMIN_PREFIX}/attributes?scope=admin`,
+            scope: "admin",
+          },
+          {
+            label: "Seller",
+            href: `${ADMIN_PREFIX}/attributes?scope=seller`,
+            scope: "seller",
+          },
+          {
+            label: "Users",
+            href: `${ADMIN_PREFIX}/attributes?scope=user`,
+            scope: "user",
+          },
           { label: "General", href: `${ADMIN_PREFIX}/attributes/general` },
         ],
       },
@@ -456,7 +480,16 @@ function NavParent({
         <List
           disablePadding
           aria-label={`${item.label} subsections`}
-          sx={{ display: "flex", flexDirection: "column", gap: "2px", mt: 0.5, ml: 2.5, pl: 1.25, borderLeft: 1, borderColor: "divider" }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "2px",
+            mt: 0.5,
+            ml: 2.5,
+            pl: 1.25,
+            borderLeft: 1,
+            borderColor: "divider",
+          }}
         >
           {children.map((c) => {
             const childActive = isChildActive(c);

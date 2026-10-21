@@ -11,23 +11,24 @@
 
 /** Permission keys used for page gating (subset of backend catalog). */
 export const PAGE_PERMS = {
-  ADMIN_READ: 'admin.read',
-  ADMIN_CREATE: 'admin.create',
-  ADMIN_UPDATE: 'admin.update',
-  ADMIN_SUSPEND: 'admin.suspend',
-  ROLE_READ: 'role.read',
-  ROLE_CREATE: 'role.create',
-  ROLE_UPDATE: 'role.update',
-  ROLE_ASSIGN: 'role.assign',
-  AUDIT_READ: 'audit.read',
-  SESSION_READ: 'session.read',
-  SESSION_REVOKE: 'session.revoke',
-  ATTRIBUTE_READ: 'attribute.read',
-  ATTRIBUTE_CREATE: 'attribute.create',
-  ATTRIBUTE_UPDATE: 'attribute.update',
-  ATTRIBUTE_DELETE: 'attribute.delete',
-  CATEGORY_MANAGE: 'category.manage',
-  BRAND_MANAGE: 'brand.manage',
+  ADMIN_READ: "admin.read",
+  ADMIN_CREATE: "admin.create",
+  ADMIN_UPDATE: "admin.update",
+  ADMIN_SUSPEND: "admin.suspend",
+  ROLE_READ: "role.read",
+  ROLE_CREATE: "role.create",
+  ROLE_UPDATE: "role.update",
+  ROLE_ASSIGN: "role.assign",
+  AUDIT_READ: "audit.read",
+  SESSION_READ: "session.read",
+  SESSION_REVOKE: "session.revoke",
+  ATTRIBUTE_READ: "attribute.read",
+  ATTRIBUTE_CREATE: "attribute.create",
+  ATTRIBUTE_UPDATE: "attribute.update",
+  ATTRIBUTE_DELETE: "attribute.delete",
+  CATEGORY_MANAGE: "category.manage",
+  BRAND_MANAGE: "brand.manage",
+  ATTRIBUTE_MANAGE: "attribute.manage",
 } as const;
 
 import {
@@ -37,17 +38,19 @@ import {
   SELLER_INVITE_ACCEPT_PATH,
   SELLER_LOGIN_PATH,
   SELLER_REGISTER_PATH,
-} from '@/lib/panels';
+} from "@/lib/panels";
 
 /** Route prefix → permissions that unlock it. First match wins. */
 export const ROUTE_PERMISSIONS: Array<{ prefix: string; anyOf: string[] }> = [
-  { prefix: '/admin/admins', anyOf: [PAGE_PERMS.ADMIN_READ] },
-  { prefix: '/admin/roles', anyOf: [PAGE_PERMS.ROLE_READ] },
-  { prefix: '/admin/activity', anyOf: [PAGE_PERMS.AUDIT_READ] },
-  { prefix: '/admin/sessions', anyOf: [PAGE_PERMS.SESSION_READ] },
-  { prefix: '/admin/attributes', anyOf: [PAGE_PERMS.ATTRIBUTE_READ] },
-  { prefix: '/admin/categories', anyOf: [PAGE_PERMS.CATEGORY_MANAGE] },
-  { prefix: '/admin/brands', anyOf: [PAGE_PERMS.BRAND_MANAGE] },
+  { prefix: "/admin/admins", anyOf: [PAGE_PERMS.ADMIN_READ] },
+  { prefix: "/admin/roles", anyOf: [PAGE_PERMS.ROLE_READ] },
+  { prefix: "/admin/activity", anyOf: [PAGE_PERMS.AUDIT_READ] },
+  { prefix: "/admin/sessions", anyOf: [PAGE_PERMS.SESSION_READ] },
+  { prefix: "/admin/attributes", anyOf: [PAGE_PERMS.ATTRIBUTE_READ] },
+  { prefix: "/admin/categories", anyOf: [PAGE_PERMS.CATEGORY_MANAGE] },
+  { prefix: "/admin/brands", anyOf: [PAGE_PERMS.BRAND_MANAGE] },
+  { prefix: "/admin/catalog-attributes", anyOf: [PAGE_PERMS.ATTRIBUTE_MANAGE] },
+  { prefix: "/admin/attribute-sets", anyOf: [PAGE_PERMS.ATTRIBUTE_MANAGE] },
   // /admin/dashboard, /admin/security, /admin/themes: any authenticated
   // admin (own data / prefs).
 ];
@@ -61,7 +64,10 @@ export function requiredPermsForRoute(pathname: string): string[] {
 }
 
 /** True when `held` satisfies the route rule for `pathname`. */
-export function canVisitRoute(held: Set<string> | string[], pathname: string): boolean {
+export function canVisitRoute(
+  held: Set<string> | string[],
+  pathname: string,
+): boolean {
   const required = requiredPermsForRoute(pathname);
   if (required.length === 0) return true;
   const set = Array.isArray(held) ? new Set(held) : held;
@@ -69,23 +75,25 @@ export function canVisitRoute(held: Set<string> | string[], pathname: string): b
 }
 
 /** Name of the cookie that marks "this browser has a session". */
-export const SESSION_HINT_COOKIE = 'ecomm-admin-has-session';
+export const SESSION_HINT_COOKIE = "ecomm-admin-has-session";
 
 /** Cookie names that prove a backend session exists (refresh / session). */
 const SESSION_COOKIE_HINTS = [
-  'refresh',
-  'session',
-  'seller_rt',
-  'ecomm-seller-has-session',
+  "refresh",
+  "session",
+  "seller_rt",
+  "ecomm-seller-has-session",
   SESSION_HINT_COOKIE,
 ];
 
 /** True when the request cookies contain any session evidence. */
-export function hasSessionCookie(cookieHeader: string | null | undefined): boolean {
+export function hasSessionCookie(
+  cookieHeader: string | null | undefined,
+): boolean {
   if (!cookieHeader) return false;
   const names = cookieHeader
-    .split(';')
-    .map((p) => p.trim().split('=')[0]?.trim().toLowerCase())
+    .split(";")
+    .map((p) => p.trim().split("=")[0]?.trim().toLowerCase())
     .filter(Boolean);
   return names.some((n) => SESSION_COOKIE_HINTS.some((h) => n.includes(h)));
 }
@@ -101,13 +109,19 @@ export const PUBLIC_PREFIXES = [
 ];
 
 /** Seller auth pages (login/register/invite) — used for panel-aware redirects. */
-export const SELLER_PUBLIC_PREFIXES = [SELLER_LOGIN_PATH, SELLER_REGISTER_PATH, SELLER_INVITE_ACCEPT_PATH];
+export const SELLER_PUBLIC_PREFIXES = [
+  SELLER_LOGIN_PATH,
+  SELLER_REGISTER_PATH,
+  SELLER_INVITE_ACCEPT_PATH,
+];
 
 /** True when `pathname` belongs to the seller console. */
 export function isSellerRoute(pathname: string): boolean {
-  return pathname === '/seller' || pathname.startsWith('/seller/');
+  return pathname === "/seller" || pathname.startsWith("/seller/");
 }
 
 export function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  return PUBLIC_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
 }
