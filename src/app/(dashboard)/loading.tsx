@@ -2,11 +2,6 @@
 
 import { Box, Skeleton, Stack } from '@mui/material';
 
-/**
- * Admin content-area stream fallback (AppShell/Sidebar/Topbar stay mounted,
- * so this only fills the children slot — widths match PageCard-heavy pages
- * to keep CLS near zero).
- */
 export default function DashboardLoading() {
   return (
     <Box

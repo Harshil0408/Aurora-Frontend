@@ -2,7 +2,6 @@
 
 import { FallbackUI } from '@/components/ui/FallbackUI';
 
-/** Route-level error boundary for the admin group (inside AppShell). */
 export default function DashboardError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <FallbackUI
