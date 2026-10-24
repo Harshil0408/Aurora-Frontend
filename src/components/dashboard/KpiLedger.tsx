@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Box, Paper, Typography } from '@mui/material';
 import StoreIcon from '@mui/icons-material/Store';
@@ -33,8 +33,8 @@ export interface KpiInput extends Omit<KpiItem, 'icon'> {
 }
 
 /**
- * KPI ledger (§5): joined strip with hairline dividers; each cell is
- * icon chip + label → big tabular number → delta pill + context → sparkline.
+ * KPI ledger (Â§5): joined strip with hairline dividers; each cell is
+ * icon chip + label â†’ big tabular number â†’ delta pill + context â†’ sparkline.
  */
 export function KpiLedger({ items, liveIds }: { items: KpiInput[]; liveIds?: Record<string, string> }) {
   return (
@@ -67,9 +67,14 @@ export function KpiLedger({ items, liveIds }: { items: KpiInput[]; liveIds?: Rec
                 width: 34,
                 height: 34,
                 borderRadius: '10px',
-                bgcolor: '#fff',
-                color: item.ink,
-                boxShadow: `0 6px 14px -8px ${item.ink}`,
+                bgcolor: (t) =>
+                  t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#fff',
+                color: (t) =>
+                  t.palette.mode === 'dark' ? 'text.primary' : item.ink,
+                boxShadow: (t) =>
+                  t.palette.mode === 'dark'
+                    ? 'none'
+                    : `0 6px 14px -8px ${item.ink}`,
               }}
             >
               {iconMap[item.icon]}
@@ -80,7 +85,7 @@ export function KpiLedger({ items, liveIds }: { items: KpiInput[]; liveIds?: Rec
           </Box>
           <Typography
             id={liveIds?.[item.key] ?? item.valueId}
-            sx={{ mt: 2, fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '2rem', lineHeight: 1, letterSpacing: '-0.035em' }}
+            sx={{ mt: 2, fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.5rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}
           >
             {item.value}
           </Typography>

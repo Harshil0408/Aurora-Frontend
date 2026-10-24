@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -49,10 +49,10 @@ import {
   unitDimensionLabel,
   type HsnCode,
   type HsnKind,
+  type CommerceSettings,
   type QuoteRounding,
   type RoundingMode,
   type TaxClass,
-  type TaxClassStatus,
   type TaxComponentQuote,
   type TaxQuoteResult,
   type UnitDimension,
@@ -100,7 +100,7 @@ function rateSummary(k: TaxClass): string {
   const cess = Number(all.cessPercent);
   const states = k.rates.filter((r) => r.region !== "ALL").length;
   const base = `${all.region} ${rate}%${cess > 0 ? ` (+${cess}% cess)` : ""}`;
-  return states > 0 ? `${base} · ${states} state override(s)` : base;
+  return states > 0 ? `${base} Â· ${states} state override(s)` : base;
 }
 
 /* ---------- tax class form dialog ---------- */
@@ -141,11 +141,11 @@ function TaxClassFormDialog({
     <Modal
       open={open}
       onClose={onClose}
-      title={editing ? `Edit tax class — ${editing.name}` : "New tax class"}
+      title={editing ? `Edit tax class â€” ${editing.name}` : "New tax class"}
       subtitle={
         editing
           ? "Rate rows are managed from the Rates drawer."
-          : 'Name the class per slab, e.g. "GST 18%" — add rate rows next.'
+          : 'Name the class per slab, e.g. "GST 18%" â€” add rate rows next.'
       }
       maxWidth="sm"
       icon={<PercentIcon fontSize="small" />}
@@ -154,7 +154,7 @@ function TaxClassFormDialog({
           <Button onClick={onClose}>Cancel</Button>
           <Box sx={{ flex: 1 }} />
           <Button variant="contained" disabled={!valid} onClick={save}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Create class"}
+            {saving ? "Savingâ€¦" : editing ? "Save changes" : "Create class"}
           </Button>
         </>
       }
@@ -164,7 +164,7 @@ function TaxClassFormDialog({
         label="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        hint="2–128 chars, unique."
+        hint="2â€“128 chars, unique."
       />
       <FormField
         label="Description (optional)"
@@ -172,7 +172,7 @@ function TaxClassFormDialog({
         onChange={(e) => setDescription(e.target.value)}
         multiline
         minRows={2}
-        hint="Where this slab applies — max 500 chars."
+        hint="Where this slab applies â€” max 500 chars."
       />
     </Modal>
   );
@@ -235,7 +235,7 @@ function HsnCodeFormDialog({
     <Modal
       open={open}
       onClose={onClose}
-      title={editing ? `Edit HSN/SAC — ${editing.code}` : "New HSN / SAC code"}
+      title={editing ? `Edit HSN/SAC â€” ${editing.code}` : "New HSN / SAC code"}
       subtitle="Codes are unique across kinds; GST rate is an optional prefill for products."
       maxWidth="sm"
       actions={
@@ -243,7 +243,7 @@ function HsnCodeFormDialog({
           <Button onClick={onClose}>Cancel</Button>
           <Box sx={{ flex: 1 }} />
           <Button variant="contained" disabled={!valid} onClick={save}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Create code"}
+            {saving ? "Savingâ€¦" : editing ? "Save changes" : "Create code"}
           </Button>
         </>
       }
@@ -274,7 +274,7 @@ function HsnCodeFormDialog({
         label="Default GST rate % (optional)"
         value={gstRate}
         onChange={(e) => setGstRate(e.target.value)}
-        hint="0–99.99, e.g. 18."
+        hint="0â€“99.99, e.g. 18."
       />
     </Modal>
   );
@@ -343,7 +343,7 @@ function UnitFormDialog({
     <Modal
       open={open}
       onClose={onClose}
-      title={editing ? `Edit unit — ${editing.code}` : "New unit of measure"}
+      title={editing ? `Edit unit â€” ${editing.code}` : "New unit of measure"}
       subtitle="factor = how many base units one of itself is (g = 0.001 kg). Codes are immutable."
       maxWidth="sm"
       actions={
@@ -351,7 +351,7 @@ function UnitFormDialog({
           <Button onClick={onClose}>Cancel</Button>
           <Box sx={{ flex: 1 }} />
           <Button variant="contained" disabled={!valid} onClick={save}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Create unit"}
+            {saving ? "Savingâ€¦" : editing ? "Save changes" : "Create unit"}
           </Button>
         </>
       }
@@ -375,7 +375,7 @@ function UnitFormDialog({
               ? "Lowercase snake_case only"
               : undefined
           }
-          hint="kg, g, cm… immutable once created."
+          hint="kg, g, cmâ€¦ immutable once created."
         />
         <FormField
           label="Name"
@@ -457,7 +457,6 @@ export function TaxAdminView() {
 
   /* settings tab */
   const [priceIncludesTax, setPriceIncludesTax] = useState(false);
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [baseCurrency, setBaseCurrency] = useState("INR");
   const [displayCurrency, setDisplayCurrency] = useState("INR");
   const [roundingMode, setRoundingMode] = useState<RoundingMode>("NONE");
@@ -509,15 +508,20 @@ export function TaxAdminView() {
   const [saveSettingsMut, saveSettingsState] =
     useUpdateCommerceSettingsMutation();
 
-  useEffect(() => {
-    const loaded = settings.data?.data;
-    if (!loaded || settingsLoaded) return;
-    setSettingsLoaded(true);
-    setPriceIncludesTax(loaded.priceIncludesTax);
-    setBaseCurrency(loaded.baseCurrency);
-    setDisplayCurrency(loaded.displayCurrency);
-    setRoundingMode(loaded.roundingMode);
-  }, [settings.data, settingsLoaded]);
+  // Sync form state from the loaded settings without a cascading-effect
+  // render: the "adjust state during render" pattern compares against the
+  // previously synced server object and stops re-running until data changes.
+  const loadedSettings = settings.data?.data as CommerceSettings | undefined;
+  const [lastSynced, setLastSynced] = useState<CommerceSettings | undefined>(
+    undefined,
+  );
+  if (loadedSettings && loadedSettings !== lastSynced) {
+    setLastSynced(loadedSettings);
+    setPriceIncludesTax(loadedSettings.priceIncludesTax);
+    setBaseCurrency(loadedSettings.baseCurrency);
+    setDisplayCurrency(loadedSettings.displayCurrency);
+    setRoundingMode(loadedSettings.roundingMode);
+  }
 
   const classRows = useMemo(() => classList.data?.data ?? [], [classList.data]);
   const visibleClasses = useMemo(() => {
@@ -557,7 +561,7 @@ export function TaxAdminView() {
       <RbacGuard perm="tax.manage">
         <AccessDenied
           title="Tax administration is restricted"
-          description="You don't hold tax.manage — ask an administrator for access."
+          description="You don't hold tax.manage â€” ask an administrator for access."
         />
       </RbacGuard>
     );
@@ -730,7 +734,7 @@ export function TaxAdminView() {
           </HowRow>
           <HowRow n={2}>
             CGST/SGST vs IGST is derived at checkout from seller and buyer
-            states — rate rows are pure data, never the component split.
+            states â€” rate rows are pure data, never the component split.
           </HowRow>
           <HowRow n={3}>
             HSN/SAC codes snapshot onto order lines for invoice immutability;
@@ -756,13 +760,13 @@ export function TaxAdminView() {
         {tab === "classes" ? (
           <TableCard
             title="Tax classes"
-            subtitle={`${visibleClasses.length} shown · a class needs at least an ALL rate row before checkout`}
+            subtitle={`${visibleClasses.length} shown Â· a class needs at least an ALL rate row before checkout`}
             toolbar={
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <SearchField
                   value={classSearch}
                   onChange={setClassSearch}
-                  placeholder="Search name, description…"
+                  placeholder="Search name, descriptionâ€¦"
                   aria-label="Search tax classes"
                 />
                 <SelectField
@@ -781,7 +785,7 @@ export function TaxAdminView() {
                 classRows.length === 0 ? "No tax classes yet" : "No matches",
               description:
                 classRows.length === 0
-                  ? 'Create the first class — e.g. "GST 18%".'
+                  ? 'Create the first class â€” e.g. "GST 18%".'
                   : "Clear the filters.",
             }}
           >
@@ -812,7 +816,7 @@ export function TaxAdminView() {
                         {c.description ? (
                           <Typography variant="caption" color="text.secondary">
                             {c.description.length > 60
-                              ? `${c.description.slice(0, 60)}…`
+                              ? `${c.description.slice(0, 60)}â€¦`
                               : c.description}
                           </Typography>
                         ) : null}
@@ -883,13 +887,13 @@ export function TaxAdminView() {
         {tab === "hsn" ? (
           <TableCard
             title="HSN / SAC master"
-            subtitle={`${visibleHsn.length} shown · codes snapshot onto invoices once sold`}
+            subtitle={`${visibleHsn.length} shown Â· codes snapshot onto invoices once sold`}
             toolbar={
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <SearchField
                   value={hsnSearch}
                   onChange={setHsnSearch}
-                  placeholder="Search code, description…"
+                  placeholder="Search code, descriptionâ€¦"
                   aria-label="Search HSN codes"
                 />
                 <SelectField
@@ -937,12 +941,12 @@ export function TaxAdminView() {
                         <Chip size="small" label={c.kind} variant="outlined" />
                       </TableCell>
                       <TableCell sx={{ fontSize: "0.82rem" }}>
-                        {c.description ?? "—"}
+                        {c.description ?? "â€”"}
                       </TableCell>
                       <TableCell sx={{ fontSize: "0.82rem" }}>
                         {c.gstRatePercent !== null
                           ? `${Number(c.gstRatePercent)}%`
-                          : "—"}
+                          : "â€”"}
                       </TableCell>
                       <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                         <Button
@@ -973,13 +977,13 @@ export function TaxAdminView() {
         {tab === "units" ? (
           <TableCard
             title="Units of measure"
-            subtitle={`${visibleUnits.length} shown · factors convert to a factor-1 base within a dimension`}
+            subtitle={`${visibleUnits.length} shown Â· factors convert to a factor-1 base within a dimension`}
             toolbar={
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <SearchField
                   value={unitSearch}
                   onChange={setUnitSearch}
-                  placeholder="Search code, name…"
+                  placeholder="Search code, nameâ€¦"
                   aria-label="Search units"
                 />
                 <SelectField
@@ -1080,7 +1084,7 @@ export function TaxAdminView() {
               <>
                 <TableCard
                   title="Pricing settings"
-                  subtitle="Platform-wide defaults — stores may override inclusive tax later."
+                  subtitle="Platform-wide defaults â€” stores may override inclusive tax later."
                 >
                   <Box
                     sx={{
@@ -1102,7 +1106,7 @@ export function TaxAdminView() {
                       }
                       label={
                         <Typography sx={{ fontSize: "0.84rem" }}>
-                          Sticker prices already include GST — the tax class
+                          Sticker prices already include GST â€” the tax class
                           back-computes the base
                         </Typography>
                       }
@@ -1120,7 +1124,7 @@ export function TaxAdminView() {
                         onChange={(e) =>
                           setBaseCurrency(e.target.value.toUpperCase())
                         }
-                        hint="3-letter ISO, e.g. INR — pricing/ledger currency."
+                        hint="3-letter ISO, e.g. INR â€” pricing/ledger currency."
                       />
                       <FormField
                         label="Display currency"
@@ -1128,7 +1132,7 @@ export function TaxAdminView() {
                         onChange={(e) =>
                           setDisplayCurrency(e.target.value.toUpperCase())
                         }
-                        hint="3-letter ISO — storefront rendering currency."
+                        hint="3-letter ISO â€” storefront rendering currency."
                       />
                     </Box>
                     <SelectField
@@ -1160,7 +1164,7 @@ export function TaxAdminView() {
                         }}
                       >
                         {saveSettingsState.isLoading
-                          ? "Saving…"
+                          ? "Savingâ€¦"
                           : "Save settings"}
                       </Button>
                     </Box>
@@ -1169,7 +1173,7 @@ export function TaxAdminView() {
 
                 <TableCard
                   title="Quote calculator"
-                  subtitle="Preview exactly what checkout will compute — state rows override ALL."
+                  subtitle="Preview exactly what checkout will compute â€” state rows override ALL."
                 >
                   <Box
                     sx={{
@@ -1205,7 +1209,7 @@ export function TaxAdminView() {
                         />
                       ) : (
                         <Typography variant="caption" color="text.secondary">
-                          No active tax classes — create one in the Tax classes
+                          No active tax classes â€” create one in the Tax classes
                           tab first.
                         </Typography>
                       )}
@@ -1298,8 +1302,8 @@ export function TaxAdminView() {
                     {quoteResult ? (
                       <Box>
                         <Typography sx={{ fontSize: "0.84rem" }}>
-                          Gross: {quoteResult.grossAmount} · Net:{" "}
-                          {quoteResult.netAmount} · Tax total:{" "}
+                          Gross: {quoteResult.grossAmount} Â· Net:{" "}
+                          {quoteResult.netAmount} Â· Tax total:{" "}
                           {quoteResult.taxTotal}
                         </Typography>
                         <Table size="small" aria-label="Tax components">
@@ -1366,10 +1370,10 @@ export function TaxAdminView() {
       <Modal
         open={!!ratesClassId}
         onClose={() => setRatesClassId(null)}
-        title={ratesClass ? `Rates — ${ratesClass.name}` : "Rates"}
+        title={ratesClass ? `Rates â€” ${ratesClass.name}` : "Rates"}
         subtitle={
           ratesClass
-            ? `${ratesClass.rates.length} rate row(s) · state rows override the ALL row`
+            ? `${ratesClass.rates.length} rate row(s) Â· state rows override the ALL row`
             : undefined
         }
         maxWidth="md"
@@ -1535,7 +1539,7 @@ export function TaxAdminView() {
             </Table>
             <Alert severity="info">
               State rows override the ALL row for buyers in that state.
-              CGST/SGST applies intra-state; IGST inter-state — the split is
+              CGST/SGST applies intra-state; IGST inter-state â€” the split is
               derived by the quote engine, never stored.
             </Alert>
           </>

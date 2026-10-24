@@ -2,6 +2,7 @@ import * as React from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import { ThemeManagerProvider } from '@/app/providers';
 import { theme } from '@/lib/theme';
 import { makeStore, type AppStore } from '@/store';
 
@@ -13,6 +14,8 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'wrapper'> {
  * Secure test renderer:
  * - fresh Redux store per render (no auth/token bleed)
  * - real MUI theme (catches contrast / layout regressions)
+ * - real ThemeManagerProvider so components reading `useThemeManager`
+ *   (Topbar mode toggle, ThemesView) work without extra wrappers
  * - no network provider side-effects
  */
 export function renderWithProviders(
@@ -22,10 +25,12 @@ export function renderWithProviders(
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
+        <ThemeManagerProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
+        </ThemeManagerProvider>
       </Provider>
     );
   }

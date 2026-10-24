@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Box, Paper, Typography } from '@mui/material';
 import { compact, revenueSegments } from '@/lib/sampleData';
@@ -37,7 +37,7 @@ export function BreakdownDonut() {
         Revenue breakdown
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.86rem', mt: 0.25 }}>
-        What the platform earned · last 30 days
+        What the platform earned Â· last 30 days
       </Typography>
       <Box sx={{ position: 'relative', width: 188, height: 188, mx: 'auto', mt: 2.25, mb: 0.75 }}>
         <Box
@@ -51,7 +51,7 @@ export function BreakdownDonut() {
           {circles}
         </Box>
         <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeContent: 'center', textAlign: 'center' }}>
-          <Typography sx={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.45rem', letterSpacing: '-0.03em', lineHeight: 1 }}>
+          <Typography sx={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.12rem', letterSpacing: '-0.01em', lineHeight: 1 }}>
             {compact(total)}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 0.625 }}>
@@ -82,7 +82,7 @@ export function BreakdownDonut() {
       </Box>
       <Box sx={{ mt: 2.25, p: 2, borderRadius: 4, bgcolor: 'action.hover', border: 1, borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1, fontSize: '0.86rem' }}>
-          <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 600 }}>1,248 subscribers</Typography>
+          <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '0.95rem', fontWeight: 600 }}>1,248 subscribers</Typography>
           <Typography color="text.secondary">$98.4k MRR</Typography>
         </Box>
         <Box role="img" aria-label="Plan mix: Starter 49%, Growth 37.5%, Scale 13.5%" sx={{ display: 'flex', gap: '3px', height: 10, my: 1.5 }}>

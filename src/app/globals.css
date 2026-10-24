@@ -1,16 +1,40 @@
 @import "tailwindcss";
 
+/* Class-based dark variant: the boot script + theme engine toggle `.dark`
+   on <html>, so Tailwind dark: utilities follow the app theme, not the OS. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Compiled fallbacks = the Onyx preset, light (default) + .dark overrides.
+   These are only paint-before-JS fallbacks: the boot script in layout.tsx
+   overwrites them from the SAVED theme before first paint. */
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
+  --background: #f7f7f8;
+  --foreground: #17181c;
   --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --line: #e7e5e4;
-  --muted: #57534e;
-  --brand: #4f46e5;
-  --brand-strong: #4338ca;
-  --brand-soft: #eeedfe;
+  --surface-2: #f1f1f3;
+  --line: #e5e6ea;
+  --line-strong: #d4d5db;
+  --muted: #5b5c63;
+  --faint: #9a9ba3;
+  --brand: #4c6ef5;
+  --brand-strong: #3b5bdb;
+  --brand-soft: #e8edfe;
   color-scheme: light;
+}
+
+.dark {
+  --background: #17171a;
+  --foreground: #e3e3e6;
+  --surface: #1e1e22;
+  --surface-2: #26262b;
+  --line: #2d2d33;
+  --line-strong: #3a3a41;
+  --muted: #a0a0a8;
+  --faint: #6f6f77;
+  --brand: #5b7cfa;
+  --brand-strong: #8ca3ff;
+  --brand-soft: #242b45;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -22,14 +46,20 @@
 
 body {
   background:
-    radial-gradient(1100px 520px at 18% -8%, rgba(79, 70, 229, 0.055), transparent 62%),
+    radial-gradient(1100px 520px at 18% -8%, rgba(76, 110, 245, 0.055), transparent 62%),
     var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body), "Inter", "Segoe UI", system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+}
+
+.dark body {
+  background:
+    radial-gradient(1100px 520px at 18% -8%, rgba(91, 124, 250, 0.075), transparent 62%),
+    var(--background);
 }
 
 h1,
@@ -92,12 +122,32 @@ p {
   0% { box-shadow: 0 0 0 0 rgba(4, 120, 87, 0.45); }
   70%, 100% { box-shadow: 0 0 0 9px transparent; }
 }
+.dark .mercato-pulse {
+  animation-name: mercato-pulse-dark;
+}
+@keyframes mercato-pulse-dark {
+  0% { box-shadow: 0 0 0 0 rgba(61, 214, 140, 0.4); }
+  70%, 100% { box-shadow: 0 0 0 9px transparent; }
+}
 .mercato-bump {
   animation: mercato-bump 0.7s ease-out;
 }
 @keyframes mercato-bump {
+  0% { color: #3dd68c; }
+  100% { color: inherit; }
+}
+:root:not(.dark) .mercato-bump {
+  animation-name: mercato-bump-light;
+}
+@keyframes mercato-bump-light {
   0% { color: #047857; }
   100% { color: inherit; }
+}
+
+/* Kbd chips read on both canvases via reserved vars. */
+kbd {
+  background: var(--surface-2);
+  color: var(--muted);
 }
 
 /* Respect reduced motion: kill transitions and draw-in animations globally. */

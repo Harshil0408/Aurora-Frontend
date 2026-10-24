@@ -4,13 +4,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { Provider } from 'react-redux';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { buildAppTheme, type ThemeColors } from '@/lib/theme';
+import { buildAppTheme, type ThemeColors, type ThemeMode } from '@/lib/theme';
 import {
+  DEFAULT_MODE,
   DEFAULT_PRESET_ID,
-  activatePreset,
+  activateTheme,
   effectiveColors,
   getPreset,
   loadSavedTheme,
+  normalizeMode,
   resolveTokens,
   validateImport,
   type ThemeCustom,
@@ -20,9 +22,12 @@ import { makeStore } from '@/store';
 
 interface ThemeManager {
   preset: ThemePreset;
+  mode: ThemeMode;
   custom: ThemeCustom | null;
   colors: ThemeColors;
   applyPreset: (id: string) => void;
+  setMode: (mode: ThemeMode) => void;
+  toggleMode: () => void;
   updateCustom: (patch: ThemeCustom) => void;
   resetCustom: () => void;
   importTheme: (json: string) => string | null;
@@ -39,35 +44,34 @@ export function useThemeManager(): ThemeManager {
 
 export function ThemeManagerProvider({ children }: { children: React.ReactNode }) {
   // SSR-safe first paint: the server has no localStorage, so it always renders
-  // the default preset. The initial client render uses the same defaults so
-  // Emotion generates identical classes during hydration — a saved custom theme
-  // would otherwise mismatch every MUI-generated className. The saved theme
-  // applies in the effect below, right after hydration. The blocking boot
-  // script in layout.tsx already painted the matching CSS vars pre-paint, so
-  // var()-based surfaces never flash; only Emotion-computed values settle once.
+  // the default preset + mode. The initial client render uses the same
+  // defaults so Emotion generates identical classes during hydration. The
+  // saved theme applies in the effect below, right after hydration. The
+  // blocking boot script in layout.tsx already painted the matching CSS vars
+  // + `dark` class pre-paint, so var()-based surfaces never flash.
   const [state, setState] = useState(() => {
     const preset = getPreset(DEFAULT_PRESET_ID);
-    return { presetId: preset.id, custom: null as ThemeCustom | null };
+    return { presetId: preset.id, mode: DEFAULT_MODE, custom: null as ThemeCustom | null };
   });
 
   useEffect(() => {
     // Subscribe to the saved theme (external system): cross-tab updates arrive
-    // via `storage` events, and the one-time post-hydration sync below lets the
-    // first client render match SSR (defaults) so Emotion classes hydrate
-    // cleanly — a saved custom theme would otherwise mismatch every
-    // MUI-generated className. The blocking boot script already painted the
-    // matching CSS vars pre-paint, so var()-based surfaces never flash.
+    // via `storage` events, and the one-time post-hydration sync below lets
+    // the first client render match SSR (defaults) so Emotion classes hydrate
+    // cleanly. The blocking boot script already painted the matching CSS vars
+    // + `dark` class pre-paint, so var()-based surfaces never flash.
     const sync = () => {
       const saved = loadSavedTheme();
-      const preset = activatePreset(saved.presetId, saved.custom);
+      const preset = activateTheme(saved.presetId, saved.mode, saved.custom);
       setState((prev) => {
         if (
           prev.presetId === preset.id &&
+          prev.mode === saved.mode &&
           JSON.stringify(prev.custom ?? null) === JSON.stringify(saved.custom ?? null)
         ) {
           return prev;
         }
-        return { presetId: preset.id, custom: saved.custom };
+        return { presetId: preset.id, mode: saved.mode, custom: saved.custom };
       });
     };
     sync();
@@ -76,28 +80,41 @@ export function ThemeManagerProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const muiTheme = useMemo(
-    () => buildAppTheme(resolveTokens(state.presetId, state.custom)),
-    [state.presetId, state.custom],
+    () => buildAppTheme(resolveTokens(state.presetId, state.mode, state.custom), state.mode),
+    [state],
   );
 
   const applyPreset = useCallback((id: string) => {
-    const preset = activatePreset(id, null);
-    setState({ presetId: preset.id, custom: null });
-  }, []);
+    const preset = activateTheme(id, state.mode, state.custom);
+    setState((prev) => ({ ...prev, presetId: preset.id }));
+  }, [state]);
+
+  const setMode = useCallback(
+    (mode: ThemeMode) => {
+      const next = normalizeMode(mode);
+      const preset = activateTheme(state.presetId, next, state.custom);
+      setState({ presetId: preset.id, mode: next, custom: state.custom });
+    },
+    [state],
+  );
+
+  const toggleMode = useCallback(() => {
+    setMode(state.mode === 'dark' ? 'light' : 'dark');
+  }, [state, setMode]);
 
   const updateCustom = useCallback(
     (patch: ThemeCustom) => {
       const next = { ...state.custom, ...patch };
-      activatePreset(state.presetId, next);
-      setState({ presetId: state.presetId, custom: next });
+      activateTheme(state.presetId, state.mode, next);
+      setState({ presetId: state.presetId, mode: state.mode, custom: next });
     },
     [state],
   );
 
   const resetCustom = useCallback(() => {
-    const preset = activatePreset(state.presetId, null);
-    setState({ presetId: preset.id, custom: null });
-  }, [state.presetId]);
+    const preset = activateTheme(state.presetId, state.mode, null);
+    setState({ presetId: preset.id, mode: state.mode, custom: null });
+  }, [state]);
 
   const importTheme = useCallback(
     (json: string): string | null => {
@@ -109,33 +126,42 @@ export function ThemeManagerProvider({ children }: { children: React.ReactNode }
       }
       const problem = validateImport(payload);
       if (problem) return problem;
-      const { preset, custom } = payload as {
+      const { preset, mode, custom } = payload as {
         preset: string;
+        mode?: ThemeMode | null;
         custom?: ThemeCustom | null;
       };
-      activatePreset(preset, custom ?? null);
-      setState({ presetId: preset, custom: custom ?? null });
+      const nextMode = normalizeMode(mode ?? state.mode);
+      activateTheme(preset, nextMode, custom ?? null);
+      setState({ presetId: preset, mode: nextMode, custom: custom ?? null });
       return null;
     },
-    [],
+    [state],
   );
 
   const exportTheme = useCallback((): string => {
-    return JSON.stringify({ preset: state.presetId, custom: state.custom }, null, 2);
+    return JSON.stringify(
+      { preset: state.presetId, mode: state.mode, custom: state.custom },
+      null,
+      2,
+    );
   }, [state]);
 
   const value = useMemo<ThemeManager>(
     () => ({
       preset: getPreset(state.presetId),
+      mode: state.mode,
       custom: state.custom,
-      colors: effectiveColors(state.presetId, state.custom),
+      colors: effectiveColors(state.presetId, state.mode, state.custom),
       applyPreset,
+      setMode,
+      toggleMode,
       updateCustom,
       resetCustom,
       importTheme,
       exportTheme,
     }),
-    [state, applyPreset, updateCustom, resetCustom, importTheme, exportTheme],
+    [state, applyPreset, setMode, toggleMode, updateCustom, resetCustom, importTheme, exportTheme],
   );
 
   return (

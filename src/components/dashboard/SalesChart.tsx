@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
@@ -37,7 +37,7 @@ function niceTop(max: number): number {
 }
 
 /**
- * Trend-over-time panel (§5): segmented range control, current + dashed
+ * Trend-over-time panel (Â§5): segmented range control, current + dashed
  * previous-period line, hover tooltip with delta, legend below.
  * One deliberate motion moment: line draw-in on range change.
  */
@@ -140,7 +140,7 @@ export function SalesChart() {
             Sales overview
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.86rem', mt: 0.25 }}>
-            Gross sales across all sellers · {d.sub}
+            Gross sales across all sellers Â· {d.sub}
           </Typography>
         </Box>
         <Box
@@ -186,7 +186,7 @@ export function SalesChart() {
               {s.label}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography sx={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.75rem', letterSpacing: '-0.02em' }}>
+              <Typography sx={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.3rem', letterSpacing: '-0.01em' }}>
                 {s.value}
               </Typography>
               <Delta pct={s.delta} />
@@ -279,9 +279,9 @@ export function SalesChart() {
                 <Box component="span"><Box component="i" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', mr: 0.875, bgcolor: 'text.disabled' }} />Previous</Box>
                 <Box component="b" sx={{ fontWeight: 700 }}>{money(d.prev[hover])}</Box>
               </Box>
-              {/* Dark-surface status variants — light-theme tokens fail contrast here */}
+              {/* Dark-surface status variants â€” light-theme tokens fail contrast here */}
               <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(255,255,255,0.14)', color: hoverDiff < 0 ? '#ff9fbd' : '#7be3bf', fontWeight: 600 }}>
-                {hoverDiff >= 0 ? '+' : '−'}{Math.abs(hoverDiff).toFixed(1)}% vs previous period
+                {hoverDiff >= 0 ? '+' : 'âˆ’'}{Math.abs(hoverDiff).toFixed(1)}% vs previous period
               </Box>
             </>
           ) : null}

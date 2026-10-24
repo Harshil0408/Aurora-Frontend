@@ -18,6 +18,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Tooling + generated output — not app code.
+    ".opencode/**",
+    "coverage/**",
   ]),
 ]);
 

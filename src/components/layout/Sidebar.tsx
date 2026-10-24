@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Avatar,
@@ -43,8 +43,8 @@ import { useMeQuery } from "@/services/authApi";
 import { useAppSelector } from "@/store/hooks";
 import { usePermissions } from "@/components/auth/RbacGuard";
 
-/** Compact premium rail — flush to the viewport edge, Linear-style density. */
-export const SIDEBAR_WIDTH = 264;
+/** Compact premium rail â€” flush to the viewport edge, Linear-style density. */
+export const SIDEBAR_WIDTH = 236;
 
 interface NavChild {
   label: string;
@@ -216,7 +216,7 @@ function BrandMark() {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 1.25,
+        gap: 1,
         px: 1,
         py: 0.5,
         textDecoration: "none",
@@ -224,15 +224,16 @@ function BrandMark() {
         minWidth: 0,
       }}
     >
-      <Logo size={32} />
+      <Logo size={26} />
       <Box sx={{ minWidth: 0 }}>
         <Typography
           variant="h2"
           component="span"
           sx={{
             display: "block",
-            fontSize: "1.05rem",
-            letterSpacing: "-0.02em",
+            fontSize: "0.95rem",
+            fontWeight: 700,
+            letterSpacing: "-0.01em",
             lineHeight: 1.1,
           }}
         >
@@ -244,11 +245,11 @@ function BrandMark() {
           sx={{
             display: "block",
             mt: 0.125,
-            fontSize: "0.6rem",
-            fontWeight: 800,
+            fontSize: "0.58rem",
+            fontWeight: 700,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "primary.main",
+            color: "text.secondary",
           }}
         >
           Admin console
@@ -275,23 +276,25 @@ function NavRow({
       onClick={onNavigate}
       disabled={disabled}
       aria-current={active ? "page" : undefined}
-      title={disabled ? `${item.label} — coming soon` : undefined}
+      title={disabled ? `${item.label} â€” coming soon` : undefined}
       sx={{
         borderRadius: 2,
         px: 1,
-        py: 0.75,
-        gap: 1.25,
+        minHeight: 34,
+        py: 0.5,
+        gap: 1,
         cursor: "pointer",
         color: active ? "text.primary" : "text.secondary",
         bgcolor: active ? "action.selected" : "transparent",
-        fontWeight: active ? 700 : 600,
+        "& .nav-label": {
+          fontWeight: active ? 700 : 500,
+        },
         transition:
-          "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+          "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
         "&:hover": {
           bgcolor: active ? "action.selected" : "action.hover",
           color: "text.primary",
         },
-        "&:active": { transform: "scale(0.98)" },
         "&.Mui-disabled": { opacity: 1 },
         "&:focus-visible": {
           outline: `2px solid ${mercatoTokens.brand}`,
@@ -305,17 +308,9 @@ function NavRow({
           display: "grid",
           placeItems: "center",
           flex: "none",
-          width: 28,
-          height: 28,
-          borderRadius: 2,
-          bgcolor: active ? "primary.main" : "transparent",
-          color: active ? "#fff" : "text.secondary",
-          border: 1,
-          borderColor: active ? "transparent" : "divider",
-          boxShadow: active ? "0 1px 2px rgba(16, 24, 40, 0.2)" : "none",
-          transition:
-            "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
-          "& svg": { fontSize: "1rem" },
+          width: 20,
+          color: active ? "primary.main" : "inherit",
+          "& svg": { fontSize: "1.0625rem" },
         }}
       >
         {item.icon}
@@ -324,9 +319,10 @@ function NavRow({
         primary={item.label}
         slotProps={{
           primary: {
+            className: "nav-label",
             sx: {
-              fontSize: "0.84rem",
-              fontWeight: active ? 700 : 600,
+              fontSize: "0.82rem",
+              fontWeight: active ? 700 : 500,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -340,15 +336,13 @@ function NavRow({
           sx={{
             ml: "auto",
             flex: "none",
-            px: 0.875,
-            py: 0.25,
+            px: 0.75,
+            py: 0.125,
             borderRadius: 9999,
-            fontSize: "0.66rem",
-            fontWeight: 800,
-            bgcolor: item.quietBadge ? mercatoTokens.surface2 : "primary.light",
-            color: item.quietBadge ? "text.secondary" : "primary.dark",
-            border: 1,
-            borderColor: item.quietBadge ? "divider" : "transparent",
+            fontSize: "0.64rem",
+            fontWeight: 700,
+            bgcolor: item.quietBadge ? mercatoTokens.surface2 : "primary.main",
+            color: item.quietBadge ? "text.secondary" : "#fff",
           }}
         >
           {item.badge}
@@ -361,16 +355,14 @@ function NavRow({
             ml: item.badge ? 0 : "auto",
             flex: "none",
             px: 0.75,
-            py: 0.25,
+            py: 0.125,
             borderRadius: 9999,
-            fontSize: "0.6rem",
-            fontWeight: 800,
+            fontSize: "0.58rem",
+            fontWeight: 700,
             letterSpacing: "0.06em",
             textTransform: "uppercase",
             bgcolor: mercatoTokens.surface2,
             color: "text.disabled",
-            border: 1,
-            borderColor: "divider",
           }}
         >
           Soon
@@ -402,7 +394,7 @@ function NavParent({
     const childPath = c.href.split("?")[0];
     if (pathname == null) return false;
     if (c.scope != null) {
-      // Scoped overview links share one path — the ?scope= picks the winner.
+      // Scoped overview links share one path â€” the ?scope= picks the winner.
       return pathname === childPath && scope === c.scope;
     }
     if (childPath.endsWith("/general")) {
@@ -419,19 +411,18 @@ function NavParent({
         sx={{
           borderRadius: 2,
           px: 1,
-          py: 0.75,
-          gap: 1.25,
+          minHeight: 34,
+          py: 0.5,
+          gap: 1,
           cursor: "pointer",
           color: active ? "text.primary" : "text.secondary",
           bgcolor: active ? "action.selected" : "transparent",
-          fontWeight: active ? 700 : 600,
           transition:
-            "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+            "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
           "&:hover": {
             bgcolor: active ? "action.selected" : "action.hover",
             color: "text.primary",
           },
-          "&:active": { transform: "scale(0.98)" },
           "&:focus-visible": {
             outline: `2px solid ${mercatoTokens.brand}`,
             outlineOffset: 2,
@@ -444,15 +435,9 @@ function NavParent({
             display: "grid",
             placeItems: "center",
             flex: "none",
-            width: 28,
-            height: 28,
-            borderRadius: 2,
-            bgcolor: active ? "primary.main" : "transparent",
-            color: active ? "#fff" : "text.secondary",
-            border: 1,
-            borderColor: active ? "transparent" : "divider",
-            boxShadow: active ? "0 1px 2px rgba(16, 24, 40, 0.2)" : "none",
-            "& svg": { fontSize: "1rem" },
+            width: 20,
+            color: active ? "primary.main" : "inherit",
+            "& svg": { fontSize: "1.0625rem" },
           }}
         >
           {item.icon}
@@ -462,8 +447,8 @@ function NavParent({
           slotProps={{
             primary: {
               sx: {
-                fontSize: "0.84rem",
-                fontWeight: active ? 700 : 600,
+                fontSize: "0.82rem",
+                fontWeight: active ? 700 : 500,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -476,6 +461,7 @@ function NavParent({
           sx={{
             ml: "auto",
             flex: "none",
+            fontSize: "1rem",
             color: "text.disabled",
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
             transition: "transform 200ms cubic-bezier(0.16,1,0.3,1)",
@@ -490,9 +476,8 @@ function NavParent({
             display: "flex",
             flexDirection: "column",
             gap: "2px",
-            mt: 0.5,
-            ml: 2.5,
-            pl: 1.25,
+            mt: 0.25,
+            ml: 3.625,
             borderLeft: 1,
             borderColor: "divider",
           }}
@@ -509,9 +494,11 @@ function NavParent({
                 sx={{
                   borderRadius: 2,
                   px: 1.25,
-                  py: 0.625,
+                  minHeight: 30,
+                  py: 0.375,
                   cursor: "pointer",
                   color: childActive ? "text.primary" : "text.secondary",
+                  fontWeight: childActive ? 700 : 500,
                   bgcolor: childActive ? "action.selected" : "transparent",
                   transition:
                     "background-color 200ms cubic-bezier(0.16,1,0.3,1), color 200ms cubic-bezier(0.16,1,0.3,1)",
@@ -530,8 +517,8 @@ function NavParent({
                   slotProps={{
                     primary: {
                       sx: {
-                        fontSize: "0.8rem",
-                        fontWeight: childActive ? 700 : 600,
+                        fontSize: "0.78rem",
+                        fontWeight: childActive ? 700 : 500,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -560,7 +547,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
   const { can } = usePermissions();
-  // Gated items stay hidden until permissions resolve — never flash a link
+  // Gated items stay hidden until permissions resolve â€” never flash a link
   // the viewer cannot open (page guards would 404 it anyway).
   const visibleSections = sections
     .map((section) => ({
@@ -594,7 +581,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           overflowY: "auto",
           mt: 2,
           scrollbarWidth: "thin",
-          scrollbarColor: `${mercatoTokens.brand} transparent`,
+          scrollbarColor: `${mercatoTokens.lineStrong} transparent`,
           "&::-webkit-scrollbar": { width: 6 },
           "&::-webkit-scrollbar-track": { background: "transparent" },
           "&::-webkit-scrollbar-thumb": {
@@ -737,7 +724,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           position: "sticky",
           top: 0,
           height: "100dvh",
-          bgcolor: "background.paper",
+          bgcolor: "background.default",
           borderRight: 1,
           borderColor: "divider",
           overflow: "hidden",
@@ -758,8 +745,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       sx={{
         display: { xs: "block", lg: "none" },
         "& .MuiDrawer-paper": {
-          width: 280,
-          bgcolor: "background.paper",
+          width: 256,
+          bgcolor: "background.default",
           backgroundImage: "none",
         },
       }}

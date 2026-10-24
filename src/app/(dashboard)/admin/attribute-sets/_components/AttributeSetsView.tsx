@@ -6,17 +6,12 @@ import {
   Box,
   Button,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  TextField,
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -57,7 +52,6 @@ import {
   useCreateAttributeSetGroupMutation,
   useCreateAttributeSetMutation,
   useDeleteAttributeSetGroupMutation,
-  useDeleteAttributeSetMutation,
   useDetachAttributeSetItemMutation,
   useListAttributeSetsQuery,
   useReorderAttributeSetItemsMutation,
@@ -80,7 +74,6 @@ export function AttributeSetsView() {
 
   const list = useListAttributeSetsQuery({ limit: 100 }, { skip: !canManage });
   const [setStatusMut] = useSetAttributeSetStatusMutation();
-  const [deleteMut] = useDeleteAttributeSetMutation();
   const [cloneMut, cloneState] = useCloneAttributeSetMutation();
 
   const rows = useMemo(() => list.data?.data ?? [], [list.data]);
@@ -503,9 +496,6 @@ function SetBuilderModal({
       ],
     });
   };
-
-  const requiredLabel = (required: boolean | null): string =>
-    required === null ? "Inherit" : required ? "Required" : "Optional";
 
   return (
     <Modal

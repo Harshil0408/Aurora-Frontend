@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -22,7 +22,10 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShieldIcon from "@mui/icons-material/Shield";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import { mercatoTokens } from "@/lib/theme";
+import { useThemeManager } from "@/app/providers";
 import { ADMIN_HOME_PATH, ADMIN_LOGIN_PATH, ADMIN_PREFIX } from "@/lib/panels";
 import { useMeQuery } from "@/services/authApi";
 import { logoutAllThunk, logoutThunk } from "@/store/authSlice";
@@ -73,6 +76,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const pendingEmail = useAppSelector((s) => s.auth.pendingEmail);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const { data: meData } = useMeQuery(undefined, { skip: !isAuthenticated });
+  const { mode, toggleMode } = useThemeManager();
 
   const meta = pageMeta(pathname);
   const unread = allRead ? 0 : notifications.length;
@@ -108,7 +112,10 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         position: "sticky",
         top: 0,
         zIndex: (t) => t.zIndex.appBar,
-        bgcolor: "rgba(255, 255, 255, 0.82)",
+        bgcolor: (t) =>
+          t.palette.mode === "dark"
+            ? "rgba(23, 23, 26, 0.78)"
+            : "rgba(255, 255, 255, 0.82)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         borderBottom: 1,
@@ -120,15 +127,15 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           display: "flex",
           alignItems: "center",
           gap: { xs: 1, sm: 1.5 },
-          height: 64,
-          px: { xs: 1.5, sm: 2.5 },
+          height: 52,
+          px: { xs: 1.25, sm: 2 },
           minWidth: 0,
           maxWidth: 1360,
           mx: "auto",
           width: "100%",
         }}
       >
-        {/* Left — nav trigger + current section */}
+        {/* Left â€” nav trigger + current section */}
         <Box
           sx={{
             flex: 1,
@@ -143,13 +150,13 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
             onClick={onMenuClick}
             sx={{
               display: { lg: "none" },
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               borderRadius: 2,
               flex: "none",
             }}
           >
-            <MenuIcon fontSize="small" />
+            <MenuIcon sx={{ fontSize: 18 }} />
           </IconButton>
 
           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -169,12 +176,12 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                 lineHeight: 1.2,
               }}
             >
-              Aurora · {meta.title}
+              Aurora Â· {meta.title}
             </Typography>
             <Typography
               data-testid="topbar-title"
               sx={{
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 fontWeight: 700,
                 letterSpacing: "-0.01em",
                 lineHeight: 1.25,
@@ -188,7 +195,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           </Box>
         </Box>
 
-        {/* Center — search */}
+        {/* Center â€” search */}
         <Box
           sx={{
             flex: 1,
@@ -202,7 +209,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               size="small"
               inputRef={searchRef}
               type="search"
-              placeholder={`Search ${meta.title.toLowerCase()}…`}
+              placeholder={`Search ${meta.title.toLowerCase()}â€¦`}
               fullWidth
               slotProps={{
                 input: {
@@ -226,7 +233,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                 },
                 htmlInput: {
                   "aria-label": "Search",
-                  style: { height: 34, paddingTop: 0, paddingBottom: 0, paddingRight: 40 },
+                  style: { height: 30, paddingTop: 0, paddingBottom: 0, paddingRight: 36 },
                 },
               }}
             />
@@ -253,7 +260,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           </Box>
         </Box>
 
-        {/* Right — status, notifications, profile */}
+        {/* Right â€” status, notifications, profile */}
         <Box
           sx={{
             flex: 1,
@@ -296,15 +303,12 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 
           <IconButton
             aria-label={
-              unread > 0
-                ? `Notifications, ${unread} unread`
-                : "Notifications, all read"
+              mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
             }
-            aria-haspopup="menu"
-            onClick={(e) => setBellAnchor(e.currentTarget)}
+            onClick={toggleMode}
             sx={{
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               borderRadius: 2,
               flex: "none",
               cursor: "pointer",
@@ -313,7 +317,33 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               "&:active": { transform: "scale(0.96)" },
             }}
           >
-            <NotificationsIcon fontSize="small" />
+            {mode === "dark" ? (
+              <LightModeIcon sx={{ fontSize: 19 }} />
+            ) : (
+              <DarkModeIcon sx={{ fontSize: 19 }} />
+            )}
+          </IconButton>
+
+          <IconButton
+            aria-label={
+              unread > 0
+                ? `Notifications, ${unread} unread`
+                : "Notifications, all read"
+            }
+            aria-haspopup="menu"
+            onClick={(e) => setBellAnchor(e.currentTarget)}
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: 2,
+              flex: "none",
+              cursor: "pointer",
+              transition:
+                "background-color 200ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)",
+              "&:active": { transform: "scale(0.96)" },
+            }}
+          >
+            <NotificationsIcon sx={{ fontSize: 18 }} />
             {unread > 0 ? (
               <Box
                 component="span"
@@ -425,9 +455,9 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Avatar
             sx={{
-              width: 30,
-              height: 30,
-              fontSize: "0.7rem",
+              width: 28,
+              height: 28,
+              fontSize: "0.66rem",
               fontWeight: 800,
               bgcolor: "primary.main",
             }}

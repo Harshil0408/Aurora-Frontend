@@ -45,11 +45,11 @@ export function TableCard({ title, subtitle, actions, footer, toolbar, empty, ch
         }}
       >
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="h2" id={titleId} sx={{ fontSize: '1.05rem' }}>
+          <Typography variant="h2" id={titleId} sx={{ fontSize: '0.95rem' }}>
             {title}
           </Typography>
           {subtitle ? (
-            <Typography color="text.secondary" sx={{ fontSize: '0.82rem', mt: 0.25 }}>
+            <Typography color="text.secondary" sx={{ fontSize: '0.78rem', mt: 0.25 }}>
               {subtitle}
             </Typography>
           ) : null}

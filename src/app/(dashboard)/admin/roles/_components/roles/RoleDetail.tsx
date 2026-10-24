@@ -158,7 +158,7 @@ export function RoleDetail({ roleKey, notify }: { roleKey: string; notify: (msg:
           ) : null}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1 }}>
             {role.isSystem ? (
-              <Chip label="System" size="small" sx={{ bgcolor: mercatoTokens.text, color: '#fff' }} />
+              <Chip label="System" size="small" sx={{ bgcolor: mercatoTokens.text, color: mercatoTokens.bg }} />
             ) : null}
             <Chip
               label={role.status === 'ACTIVE' ? 'Active' : 'Inactive'}

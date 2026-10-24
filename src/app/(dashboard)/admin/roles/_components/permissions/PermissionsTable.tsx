@@ -160,7 +160,7 @@ export function PermissionsTable() {
                         }
                       />
                       {p.isSystem ? (
-                        <Chip label="System" size="small" sx={{ height: 22, fontSize: '0.7rem', bgcolor: mercatoTokens.text, color: '#fff' }} />
+                        <Chip label="System" size="small" sx={{ height: 22, fontSize: '0.7rem', bgcolor: mercatoTokens.text, color: mercatoTokens.bg }} />
                       ) : null}
                     </Box>
                   </TableCell>

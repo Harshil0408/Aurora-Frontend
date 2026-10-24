@@ -176,7 +176,7 @@ export function RolesTable() {
                         <Chip
                           label="System"
                           size="small"
-                          sx={{ height: 20, fontSize: '0.68rem', bgcolor: mercatoTokens.text, color: '#fff' }}
+                          sx={{ height: 20, fontSize: '0.68rem', bgcolor: mercatoTokens.text, color: mercatoTokens.bg }}
                         />
                       ) : null}
                       {r.status === 'INACTIVE' ? (

@@ -12,12 +12,13 @@ import PaletteIcon from '@mui/icons-material/Palette';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useThemeManager } from '@/app/providers';
 import { THEME_PRESETS, type ThemePreset } from '@/lib/themes';
+import type { ThemeMode } from '@/lib/theme';
 import { GuideAccordion, HowRow } from '@/components/ui/Guide';
-import { FormField } from '@/components/ui/controls';
+import { FormField, SegmentedFilter } from '@/components/ui/controls';
 import { mercatoTokens } from '@/lib/theme';
 
-function PresetSwatches({ preset }: { preset: ThemePreset }) {
-  const c = preset.colors;
+function PresetSwatches({ preset, mode }: { preset: ThemePreset; mode: ThemeMode }) {
+  const c = preset.colors[mode];
   const cells = [c.bg, c.surface2, c.brand, c.brandSoft, c.text];
   return (
     <Box
@@ -40,8 +41,12 @@ function PresetSwatches({ preset }: { preset: ThemePreset }) {
 }
 
 export function ThemesView() {
-  const { preset, colors, applyPreset } = useThemeManager();
+  const { preset, colors, mode, setMode, applyPreset } = useThemeManager();
   const rest = THEME_PRESETS.filter((p) => p.id !== preset.id);
+  const modeOptions: Array<{ value: ThemeMode; label: string }> = [
+    { value: 'light' as ThemeMode, label: 'Light' },
+    { value: 'dark' as ThemeMode, label: 'Dark' },
+  ];
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -51,8 +56,9 @@ export function ThemesView() {
           Appearance
         </Typography>
         <Typography color="text.secondary" sx={{ mt: 0.5, fontSize: '0.875rem', lineHeight: 1.6 }}>
-          One palette for the whole console. Pick a curated preset — it applies
-          instantly and is remembered on this device.
+          Light or dark, one palette for the whole console. Pick a mode and a
+          curated preset — each applies instantly and is remembered on this
+          device.
         </Typography>
       </Box>
 
@@ -80,7 +86,7 @@ export function ThemesView() {
             <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.25 }}>
               Active: {preset.name}
               <Chip
-                label="Active"
+                label={mode === 'dark' ? 'Dark' : 'Light'}
                 size="small"
                 icon={<CheckCircleIcon />}
                 sx={{ ml: 1, height: 22, fontSize: '0.68rem', bgcolor: mercatoTokens.goodSoft, color: mercatoTokens.good }}
@@ -90,21 +96,34 @@ export function ThemesView() {
               {preset.tagline}
             </Typography>
           </Box>
-          <Chip
-            label={`${THEME_PRESETS.length} curated palettes`}
-            size="small"
-            variant="outlined"
-            sx={{ fontWeight: 600 }}
-          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <SegmentedFilter
+              options={modeOptions}
+              value={mode}
+              onChange={(m) => setMode(m)}
+              ariaLabel="Color mode"
+            />
+            <Chip
+              label={`${THEME_PRESETS.length} curated palettes`}
+              size="small"
+              variant="outlined"
+              sx={{ fontWeight: 600 }}
+            />
+          </Box>
         </Box>
         <GuideAccordion title="How theming works">
           <HowRow n={1}>
-            <b>Presets</b> apply instantly to every screen and are saved on
-            this device — reload and your palette is still here.
+            <b>Mode</b> (Light/Dark) and <b>preset</b> apply instantly to every
+            screen, including this page — reload and both are still here.
           </HowRow>
           <HowRow n={2}>
+            A custom <b>brand color</b> re-derives its soft and strong shades
+            against the active canvas, so one accent stays readable in either
+            mode.
+          </HowRow>
+          <HowRow n={3}>
             Status colors (success, warning, error, info) stay shared across
-            palettes, so alerts keep their meaning everywhere.
+            palettes in both modes, so alerts keep their meaning everywhere.
           </HowRow>
         </GuideAccordion>
       </Paper>
@@ -149,7 +168,7 @@ export function ThemesView() {
               }
             }}
           >
-            <PresetSwatches preset={p} />
+            <PresetSwatches preset={p} mode={mode} />
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <PaletteIcon color="primary" fontSize="small" />
               <Typography variant="h2" sx={{ flex: 1 }}>

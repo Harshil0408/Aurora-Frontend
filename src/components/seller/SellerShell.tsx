@@ -594,7 +594,10 @@ function SellerTopbar({ onMenuClick }: { onMenuClick: () => void }) {
         position: "sticky",
         top: 0,
         zIndex: (t) => t.zIndex.appBar,
-        bgcolor: "rgba(255, 255, 255, 0.82)",
+        bgcolor: (t) =>
+          t.palette.mode === "dark"
+            ? "rgba(23, 23, 26, 0.78)"
+            : "rgba(255, 255, 255, 0.82)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         borderBottom: 1,

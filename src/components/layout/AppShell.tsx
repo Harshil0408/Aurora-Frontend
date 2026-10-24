@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           component="main"
           id="main-content"
           maxWidth={false}
-          sx={{ maxWidth: 1360, mx: "auto", px: { xs: 2, md: 3 }, pt: 3, pb: 8, flex: 1 }}
+          sx={{ maxWidth: 1360, mx: "auto", px: { xs: 1.5, md: 2.5 }, pt: 2.25, pb: 6, flex: 1 }}
         >
           {children}
         </Container>

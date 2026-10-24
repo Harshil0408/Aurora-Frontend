@@ -1054,7 +1054,7 @@ function SecurityContent() {
                   key={r}
                   label={r}
                   size="small"
-                  sx={{ bgcolor: mercatoTokens.text, color: "#fff" }}
+                  sx={{ bgcolor: mercatoTokens.text, color: mercatoTokens.bg }}
                 />
               ))}
             </Box>

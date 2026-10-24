@@ -5,13 +5,16 @@ import {
   applyThemeTokens,
   radiusForLg,
   toTokens,
+  type ThemeMode,
   type StatusColors,
   type ThemeColors,
   type ThemeTokens,
 } from '@/lib/theme';
 import {
+  DEFAULT_MODE,
   DEFAULT_PRESET_ID,
   RESOLVED_KEY,
+  STORAGE_KEYS,
   THEME_CSS_VARS,
   THEME_PRESETS,
   getPreset,
@@ -19,24 +22,24 @@ import {
 } from './themePresets';
 
 export {
+  DEFAULT_MODE,
   DEFAULT_PRESET_ID,
   RESOLVED_KEY,
+  STORAGE_KEYS,
   THEME_CSS_VARS,
   THEME_PRESETS,
   getPreset,
 } from './themePresets';
-export type { ThemePreset } from './themePresets';
+export type { PaletteSet, ThemePreset } from './themePresets';
 
-/* Preset data (table, ids, boot keys, CSS-var map) lives in ./themePresets.ts
-   (server-safe, no 'use client') and is re-exported at the top of this file. */
-
-const PRESET_KEY = 'aurora-theme-preset';
-const CUSTOM_KEY = 'aurora-theme-custom';
+const PRESET_KEY = STORAGE_KEYS.preset;
+const MODE_KEY = STORAGE_KEYS.mode;
+const CUSTOM_KEY = STORAGE_KEYS.custom;
 
 type CssVarSource = Partial<Record<keyof typeof THEME_CSS_VARS, string>>;
 
 /** Push theme colors into `:root` vars (body + loader paint from these pre-hydration). */
-export function applyCssVars(colors: CssVarSource): void {
+export function applyCssVars(colors: CssVarSource, mode: ThemeMode = 'light'): void {
   try {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
@@ -44,7 +47,8 @@ export function applyCssVars(colors: CssVarSource): void {
       const v = colors[k];
       if (typeof v === 'string') root.style.setProperty(THEME_CSS_VARS[k], v);
     });
-    root.style.setProperty('color-scheme', 'light');
+    root.style.setProperty('color-scheme', mode);
+    root.classList.toggle('dark', mode === 'dark');
   } catch {
     /* non-DOM environment */
   }
@@ -52,6 +56,7 @@ export function applyCssVars(colors: CssVarSource): void {
 
 export interface SavedTheme {
   presetId: string;
+  mode: ThemeMode;
   custom: ThemeCustom | null;
 }
 
@@ -87,17 +92,38 @@ export function mixHex(first: string, second: string, weight: number): string {
   );
 }
 
-/** Merge preset + custom; a custom Brand auto-derives its soft/strong shades. */
-function mergeColors(
+const DARK_SOFT_BASE = '#0b0c10';
+
+/**
+ * Merge preset colors for a mode + custom; a custom Brand auto-derives its
+ * soft/strong shades toward the ACTIVE canvas (white-tinted in light mode,
+ * near-black-tinted in dark mode) so one brand hex works in both modes.
+ */
+export function mergeColors(
   preset: ThemePreset,
+  mode: ThemeMode,
   custom: ThemeCustom | null,
 ): ThemeColors & Partial<StatusColors> {
-  const merged: ThemeColors = { ...preset.colors, ...custom };
+  const merged: ThemeColors = { ...preset.colors[mode], ...custom };
   if (custom?.brand) {
-    if (!custom.brandSoft) merged.brandSoft = mixHex(custom.brand, '#ffffff', 0.12);
-    if (!custom.brandStrong) merged.brandStrong = mixHex(custom.brand, '#000000', 0.78);
+    if (!custom.brandSoft) {
+      merged.brandSoft =
+        mode === 'dark'
+          ? mixHex(custom.brand, DARK_SOFT_BASE, 0.8)
+          : mixHex(custom.brand, '#ffffff', 0.12);
+    }
+    if (!custom.brandStrong) {
+      merged.brandStrong =
+        mode === 'dark'
+          ? mixHex(custom.brand, '#ffffff', 0.55)
+          : mixHex(custom.brand, '#000000', 0.78);
+    }
   }
   return merged;
+}
+
+export function normalizeMode(value: unknown): ThemeMode {
+  return value === 'light' ? 'light' : value === 'dark' ? 'dark' : DEFAULT_MODE;
 }
 
 function readStorage(key: string): string | null {
@@ -119,8 +145,13 @@ function writeStorage(key: string, value: string | null): void {
   }
 }
 
+export function loadSavedMode(): ThemeMode {
+  return normalizeMode(readStorage(MODE_KEY));
+}
+
 export function loadSavedTheme(): SavedTheme {
-  const presetId = readStorage(PRESET_KEY) ?? DEFAULT_PRESET_ID;
+  const presetId = getPreset(readStorage(PRESET_KEY) ?? DEFAULT_PRESET_ID).id;
+  const mode = loadSavedMode();
   let custom: ThemeCustom | null = null;
   try {
     const raw = readStorage(CUSTOM_KEY);
@@ -128,43 +159,49 @@ export function loadSavedTheme(): SavedTheme {
   } catch {
     custom = null;
   }
-  return { presetId: getPreset(presetId).id, custom };
+  return { presetId, mode, custom };
 }
 
-/** Applies preset (+ optional custom overrides) live and persists. */
-export function activatePreset(
+/** Applies preset + mode (+ optional custom overrides) live and persists. */
+export function activateTheme(
   presetId: string,
+  mode: ThemeMode,
   custom: ThemeCustom | null = null,
 ): ThemePreset {
   const preset = getPreset(presetId);
   const clean = custom ? sanitizeCustom(custom) : null;
-  const merged = mergeColors(preset, clean);
+  const merged = mergeColors(preset, mode, clean);
   applyThemeTokens(merged, {
+    mode,
     radiusLg: clean?.radiusLg,
     shadowScale: clean?.shadowScale,
   });
   // Keep the pre-hydration CSS fallbacks (globals.css) in sync.
-  applyCssVars(merged);
+  applyCssVars(merged, mode);
   writeStorage(PRESET_KEY, preset.id);
+  writeStorage(MODE_KEY, mode);
   writeStorage(CUSTOM_KEY, clean ? JSON.stringify(clean) : null);
-  writeStorage(RESOLVED_KEY, JSON.stringify(merged));
+  writeStorage(RESOLVED_KEY, JSON.stringify({ m: mode, v: merged }));
   return preset;
 }
 
 export function effectiveColors(
   presetId: string,
+  mode: ThemeMode,
   custom: ThemeCustom | null,
 ): ThemeColors {
-  return mergeColors(getPreset(presetId), custom);
+  return mergeColors(getPreset(presetId), mode, custom);
 }
 
 /** Full resolved tokens (colors + radius + shadows) for the MUI builder. */
 export function resolveTokens(
   presetId: string,
+  mode: ThemeMode,
   custom: ThemeCustom | null,
 ): ThemeTokens {
   const preset = getPreset(presetId);
-  return toTokens(mergeColors(preset, custom), {
+  return toTokens(mergeColors(preset, mode, custom), {
+    mode,
     radiusLg: custom?.radiusLg,
     shadowScale: custom?.shadowScale,
   });
@@ -231,12 +268,15 @@ export function validateImport(payload: unknown): string | null {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     return 'That is not a theme file — paste the JSON you exported from here.';
   }
-  const { preset, custom } = payload as Record<string, unknown>;
+  const { preset, mode, custom } = payload as Record<string, unknown>;
   if (typeof preset !== 'string' || !THEME_PRESETS.some((p) => p.id === preset)) {
     return `Unknown preset "${String(preset)}" — pick one of: ${THEME_PRESETS.map((p) => p.id).join(', ')}.`;
   }
+  if (mode !== undefined && mode !== null && mode !== 'light' && mode !== 'dark') {
+    return 'Unknown mode — use "light" or "dark".';
+  }
   if (custom !== undefined && custom !== null && sanitizeCustom(custom) === null) {
-    return 'The custom section has no usable values — check the hex colors (e.g. #4F46E5).';
+    return 'The custom section has no usable values — check the hex colors (e.g. #4C6EF5).';
   }
   return null;
 }

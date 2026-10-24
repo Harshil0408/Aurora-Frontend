@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Box, Paper, Typography } from '@mui/material';
@@ -18,7 +18,7 @@ const icons: Record<ProductRow['icon'], React.ReactNode> = {
   trend: <TrendingUpIcon />,
 };
 
-/** Visual-first ranked list (§5): thumbnail tile + title + sub + trailing value. */
+/** Visual-first ranked list (Â§5): thumbnail tile + title + sub + trailing value. */
 export function TopProducts() {
   return (
     <Paper component="section" aria-labelledby="products-title">
@@ -28,14 +28,14 @@ export function TopProducts() {
             Top products
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.86rem', mt: 0.25 }}>
-            Best sellers by units · 30 days
+            Best sellers by units Â· 30 days
           </Typography>
         </Box>
         <Typography
           component={Link}
           href={ADMIN_HOME_PATH}
           aria-disabled="true"
-          title="Catalogue management — coming soon"
+          title="Catalogue management â€” coming soon"
           onClick={(e) => e.preventDefault()}
           sx={{ fontSize: '0.86rem', fontWeight: 700, color: 'primary.dark', p: 0.5 }}
         >
@@ -68,7 +68,7 @@ export function TopProducts() {
               <Typography sx={{ display: 'block', fontWeight: 600, lineHeight: 1.3 }}>{p.name}</Typography>
               <Typography variant="caption" color="text.secondary">{p.detail}</Typography>
             </Box>
-            <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '1.02rem', fontWeight: 600, textAlign: 'right' }}>
+            <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '0.92rem', fontWeight: 600, textAlign: 'right' }}>
               {money(p.revenue)}
             </Typography>
           </Box>

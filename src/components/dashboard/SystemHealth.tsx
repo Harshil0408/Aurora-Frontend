@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Box, Paper, Typography } from '@mui/material';
@@ -26,7 +26,7 @@ const stateLabel: Record<HealthService['state'], string> = {
 };
 
 /**
- * Service status list (§5): summary banner only when degraded, then
+ * Service status list (Â§5): summary banner only when degraded, then
  * dot + name/detail + inline history bars + state label, plus meters.
  */
 export function SystemHealth() {
@@ -40,14 +40,14 @@ export function SystemHealth() {
             System health
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.86rem', mt: 0.25 }}>
-            Last 30 days · checked every minute
+            Last 30 days Â· checked every minute
           </Typography>
         </Box>
         <Typography
           component={Link}
           href={ADMIN_HOME_PATH}
           aria-disabled="true"
-          title="Status page — coming soon"
+          title="Status page â€” coming soon"
           onClick={(e) => e.preventDefault()}
           sx={{ fontSize: '0.86rem', fontWeight: 700, color: 'primary.dark', p: 0.5 }}
         >
@@ -70,7 +70,7 @@ export function SystemHealth() {
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
-            <Typography sx={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 600, color: 'text.primary', lineHeight: 1.1 }}>
+            <Typography sx={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'text.primary', lineHeight: 1.1 }}>
               99.94%
             </Typography>
             <Typography variant="caption" color="text.secondary">30-day uptime</Typography>

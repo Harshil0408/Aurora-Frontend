@@ -34,8 +34,8 @@ function renderShell() {
 
 describe('AppShell layout', () => {
   it('keeps the sidebar roomy yet flush to the viewport edge', () => {
-    expect(SIDEBAR_WIDTH).toBeGreaterThanOrEqual(264);
-    expect(SIDEBAR_WIDTH).toBeLessThanOrEqual(288);
+    expect(SIDEBAR_WIDTH).toBeGreaterThanOrEqual(232);
+    expect(SIDEBAR_WIDTH).toBeLessThanOrEqual(256);
     renderShell();
     const nav = screen.getByRole('navigation', { name: 'Main navigation' });
     expect(nav).toBeInTheDocument();

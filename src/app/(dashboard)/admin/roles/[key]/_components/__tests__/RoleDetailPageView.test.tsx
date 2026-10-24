@@ -141,7 +141,7 @@ describe('RoleDetailPageView (/admin/roles/[key])', () => {
   it('renders the header, back link, and pre-checked matrix', async () => {
     renderWithProviders(<RoleDetailPageView roleKey="support" />);
     expect(await screen.findByRole('heading', { name: 'Support' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'All roles' })).toHaveAttribute('href', '/roles');
+    expect(screen.getByRole('link', { name: 'All roles' })).toHaveAttribute('href', '/admin/roles');
     const readBox = await screen.findByRole('checkbox', { name: /Read admins/ });
     expect(readBox).toBeChecked();
     // INACTIVE catalog rows render locked, never silently dropped.
@@ -223,6 +223,6 @@ describe('RoleDetailPageView (/admin/roles/[key])', () => {
     renderWithProviders(<RoleDetailPageView roleKey="legacy" />, { store });
     await user.type(screen.getByPlaceholderText('legacy'), 'legacy');
     await user.click(screen.getByRole('button', { name: 'Delete role' }));
-    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/roles'));
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/admin/roles'));
   });
 });
