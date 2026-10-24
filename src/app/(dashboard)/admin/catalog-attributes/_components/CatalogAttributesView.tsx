@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
 import {
@@ -119,7 +119,7 @@ export function CatalogAttributesView() {
       <RbacGuard perm="attribute.manage">
         <AccessDenied
           title="Attributes are restricted"
-          description="You don't hold attribute.manage â€” ask an administrator for catalog access."
+          description="You don't hold attribute.manage — ask an administrator for catalog access."
         />
       </RbacGuard>
     );
@@ -197,7 +197,7 @@ export function CatalogAttributesView() {
               color="text.secondary"
               sx={{ fontSize: "0.84rem", mt: 0.25 }}
             >
-              The product-attribute catalog â€” {rows.length} attribute
+              The product-attribute catalog — {rows.length} attribute
               {rows.length === 1 ? "" : "s"} built into forms, filters and
               variants.
             </Typography>
@@ -214,7 +214,7 @@ export function CatalogAttributesView() {
 
         <GuideAccordion title="How attributes work">
           <HowRow n={1}>
-            Attributes are the global vocabulary â€” attribute sets bundle them
+            Attributes are the global vocabulary — attribute sets bundle them
             and categories assign one set to the product form.
           </HowRow>
           <HowRow n={2}>
@@ -222,7 +222,7 @@ export function CatalogAttributesView() {
             texts, numbers and dates validate by rule instead.
           </HowRow>
           <HowRow n={3}>
-            Sellers can propose new option values â€” they land in Suggestions and
+            Sellers can propose new option values — they land in Suggestions and
             only become selectable once you approve them.
           </HowRow>
           <HowRow n={4}>
@@ -252,7 +252,7 @@ export function CatalogAttributesView() {
                 <SearchField
                   value={search}
                   onChange={setSearch}
-                  placeholder="Search name, codeâ€¦"
+                  placeholder="Search name, code…"
                   aria-label="Search attributes"
                 />
                 <SelectField
@@ -278,7 +278,7 @@ export function CatalogAttributesView() {
               title: rows.length === 0 ? "No attributes yet" : "No matches",
               description:
                 rows.length === 0
-                  ? 'Create the first attribute â€” e.g. "RAM Size" (Dropdown).'
+                  ? 'Create the first attribute — e.g. "RAM Size" (Dropdown).'
                   : "Clear the filters.",
             }}
           >
@@ -509,7 +509,7 @@ export function CatalogAttributesView() {
       <Modal
         open={!!detailId}
         onClose={() => setDetailId(null)}
-        title={detailData ? `Options â€” ${detailData.name}` : "Options"}
+        title={detailData ? `Options — ${detailData.name}` : "Options"}
         subtitle={
           detailData
             ? `${attributeTypeLabel(detailData.type)} Â· code ${detailData.code}`
@@ -540,7 +540,7 @@ export function CatalogAttributesView() {
         ) : null}
         {detailData && !detailIsOptionKeyed ? (
           <Alert severity="info">
-            Type {attributeTypeLabel(detailData.type)} validates by rule â€” it
+            Type {attributeTypeLabel(detailData.type)} validates by rule — it
             has no option catalog.
           </Alert>
         ) : null}
@@ -741,7 +741,7 @@ export function CatalogAttributesView() {
       <Modal
         open={!!reviewing}
         onClose={() => setReviewing(null)}
-        title={`Review suggestion â€” ${reviewing?.label ?? ""}`}
+        title={`Review suggestion — ${reviewing?.label ?? ""}`}
         subtitle={
           reviewing
             ? `${reviewing.attribute?.name ?? ""} Â· value ${reviewing.value}`

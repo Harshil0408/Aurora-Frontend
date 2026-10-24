@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { Box, Paper, Typography } from '@mui/material';
@@ -35,7 +35,7 @@ export function TopProducts() {
           component={Link}
           href={ADMIN_HOME_PATH}
           aria-disabled="true"
-          title="Catalogue management â€” coming soon"
+          title="Catalogue management — coming soon"
           onClick={(e) => e.preventDefault()}
           sx={{ fontSize: '0.86rem', fontWeight: 700, color: 'primary.dark', p: 0.5 }}
         >

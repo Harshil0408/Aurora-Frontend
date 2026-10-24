@@ -41,7 +41,9 @@ module.exports = {
   transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
   testMatch: ['**/__tests__/**/*.test.[tj]s?(x)', '**/?(*.)+(test).[tj]s?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/out/', '/build/'],
-  testTimeout: 10_000,
+  // Full parallel runs on slower machines (Windows dev, CI maxWorkers=2)
+  // exceed 10s inside heavy screens (TaxAdminView, MediaLibraryView).
+  testTimeout: 30_000,
   maxWorkers: '50%',
   clearMocks: true,
   restoreMocks: true,

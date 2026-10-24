@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -135,7 +135,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           width: "100%",
         }}
       >
-        {/* Left â€” nav trigger + current section */}
+        {/* Left — nav trigger + current section */}
         <Box
           sx={{
             flex: 1,
@@ -195,7 +195,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           </Box>
         </Box>
 
-        {/* Center â€” search */}
+        {/* Center — search */}
         <Box
           sx={{
             flex: 1,
@@ -209,7 +209,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               size="small"
               inputRef={searchRef}
               type="search"
-              placeholder={`Search ${meta.title.toLowerCase()}â€¦`}
+              placeholder={`Search ${meta.title.toLowerCase()}…`}
               fullWidth
               slotProps={{
                 input: {
@@ -260,7 +260,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           </Box>
         </Box>
 
-        {/* Right â€” status, notifications, profile */}
+        {/* Right — status, notifications, profile */}
         <Box
           sx={{
             flex: 1,

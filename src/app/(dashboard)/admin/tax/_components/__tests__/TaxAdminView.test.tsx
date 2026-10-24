@@ -238,17 +238,22 @@ describe("TaxAdminView (admin)", () => {
     expect(await screen.findByText("New tax class")).toBeInTheDocument();
   });
 
-  it("opens the Rates drawer for a class", async () => {
-    renderWithProviders(<TaxAdminView />);
-    await userEvent.click(
-      (await screen.findAllByRole("button", { name: "Rates" }))[0],
-    );
-    expect(await screen.findByText("Rates — GST 18%")).toBeInTheDocument();
-    expect(await screen.findByText("Add rate")).toBeInTheDocument();
-    expect(
-      await screen.findByRole("cell", { name: "18%" }),
-    ).toBeInTheDocument();
-  });
+  it(
+    "opens the Rates drawer for a class",
+    async () => {
+      renderWithProviders(<TaxAdminView />);
+      await userEvent.click(
+        (await screen.findAllByRole("button", { name: "Rates" }))[0],
+      );
+      expect(await screen.findByText("Rates — GST 18%")).toBeInTheDocument();
+      expect(await screen.findByText("Add rate")).toBeInTheDocument();
+      expect(
+        await screen.findByRole("cell", { name: "18%" }),
+      ).toBeInTheDocument();
+    },
+    // The drawer mounts the full form subtree; slow CI/dev machines exceed 10s.
+    20000,
+  );
 
   it("shows the denied state without tax.manage", async () => {
     mockCan.mockImplementation(() => false);

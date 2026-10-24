@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Box, Paper, Typography } from '@mui/material';
 import StoreIcon from '@mui/icons-material/Store';
@@ -34,7 +34,7 @@ export interface KpiInput extends Omit<KpiItem, 'icon'> {
 
 /**
  * KPI ledger (Â§5): joined strip with hairline dividers; each cell is
- * icon chip + label â†’ big tabular number â†’ delta pill + context â†’ sparkline.
+ * icon chip + label — big tabular number — delta pill + context — sparkline.
  */
 export function KpiLedger({ items, liveIds }: { items: KpiInput[]; liveIds?: Record<string, string> }) {
   return (

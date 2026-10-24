@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { Box, Paper, Typography } from '@mui/material';
@@ -47,7 +47,7 @@ export function SystemHealth() {
           component={Link}
           href={ADMIN_HOME_PATH}
           aria-disabled="true"
-          title="Status page â€” coming soon"
+          title="Status page — coming soon"
           onClick={(e) => e.preventDefault()}
           sx={{ fontSize: '0.86rem', fontWeight: 700, color: 'primary.dark', p: 0.5 }}
         >

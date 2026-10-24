@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
@@ -279,9 +279,9 @@ export function SalesChart() {
                 <Box component="span"><Box component="i" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', mr: 0.875, bgcolor: 'text.disabled' }} />Previous</Box>
                 <Box component="b" sx={{ fontWeight: 700 }}>{money(d.prev[hover])}</Box>
               </Box>
-              {/* Dark-surface status variants â€” light-theme tokens fail contrast here */}
+              {/* Dark-surface status variants — light-theme tokens fail contrast here */}
               <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(255,255,255,0.14)', color: hoverDiff < 0 ? '#ff9fbd' : '#7be3bf', fontWeight: 600 }}>
-                {hoverDiff >= 0 ? '+' : 'âˆ’'}{Math.abs(hoverDiff).toFixed(1)}% vs previous period
+                {hoverDiff >= 0 ? '+' : '−'}{Math.abs(hoverDiff).toFixed(1)}% vs previous period
               </Box>
             </>
           ) : null}

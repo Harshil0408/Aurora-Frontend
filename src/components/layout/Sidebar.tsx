@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   Avatar,
@@ -43,7 +43,7 @@ import { useMeQuery } from "@/services/authApi";
 import { useAppSelector } from "@/store/hooks";
 import { usePermissions } from "@/components/auth/RbacGuard";
 
-/** Compact premium rail â€” flush to the viewport edge, Linear-style density. */
+/** Compact premium rail — flush to the viewport edge, Linear-style density. */
 export const SIDEBAR_WIDTH = 236;
 
 interface NavChild {
@@ -276,7 +276,7 @@ function NavRow({
       onClick={onNavigate}
       disabled={disabled}
       aria-current={active ? "page" : undefined}
-      title={disabled ? `${item.label} â€” coming soon` : undefined}
+      title={disabled ? `${item.label} — coming soon` : undefined}
       sx={{
         borderRadius: 2,
         px: 1,
@@ -394,7 +394,7 @@ function NavParent({
     const childPath = c.href.split("?")[0];
     if (pathname == null) return false;
     if (c.scope != null) {
-      // Scoped overview links share one path â€” the ?scope= picks the winner.
+      // Scoped overview links share one path — the ?scope= picks the winner.
       return pathname === childPath && scope === c.scope;
     }
     if (childPath.endsWith("/general")) {
@@ -547,7 +547,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const displayName = meEmail ? (meEmail.split("@")[0] ?? "Admin") : "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
   const { can } = usePermissions();
-  // Gated items stay hidden until permissions resolve â€” never flash a link
+  // Gated items stay hidden until permissions resolve — never flash a link
   // the viewer cannot open (page guards would 404 it anyway).
   const visibleSections = sections
     .map((section) => ({

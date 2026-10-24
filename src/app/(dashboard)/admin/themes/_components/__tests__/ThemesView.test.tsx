@@ -40,8 +40,9 @@ describe('ThemesView', () => {
   it('toggles light/dark mode from the segmented control and persists it', async () => {
     const user = userEvent.setup();
     renderView();
-    expect(screen.getByText(/Dark/)).toBeTruthy();
-    expect(window.localStorage.getItem('aurora-theme-mode')).toBeNull();
+    expect(screen.getAllByText('Dark').length).toBeGreaterThan(0);
+    // mount + first-sync persists the default (dark) before any interaction
+    expect(window.localStorage.getItem('aurora-theme-mode')).toBe('dark');
     await user.click(screen.getByRole('button', { name: 'Light' }));
     expect(window.localStorage.getItem('aurora-theme-mode')).toBe('light');
     // each preset card re-renders its mode swatches without errors

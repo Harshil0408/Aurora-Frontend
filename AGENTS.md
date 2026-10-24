@@ -41,14 +41,30 @@ Priorities, in order: **correctness → security → performance → SEO → UX 
 
 ## UX bar (assume zero-knowledge users — design defensively)
 
-Every screen must read as a finished SaaS product, not a wireframe. Before
-delivering UI, verify all of these:
+Every screen must read as a finished SaaS product, not a wireframe. The
+design language is **Lark-compact**: a dense, quiet task-console (reference =
+Lark Minimize tasks) — plain 17px icons, hairline dividers, filled-capsule
+active states, muted blue selection, no icon tiles, no brand-colored chrome.
+Before delivering UI, verify all of these:
 
+- **Compact chrome (hard numbers):** app shell = 236px grouped sidebar +
+  52px topbar, content `maxWidth: 1360`, `pt: 2.25`. Panels (`MuiPaper`)
+  padding 16px, radius 12px (`t.radius.lg`), hairline border, near-flat
+  shadow. Buttons 32px tall (`0.82rem`), chips 22px, menu items 32px,
+  table cells `10px 12px` (8px small), headings 1.25/0.95/0.88rem. Don't
+  re-inflate these in views — the MUI theme in `src/lib/theme.ts` already
+  ships them globally.
+- **Sidebar discipline:** plain icon + label rows (minHeight 34, icons
+  uncased 1.0625rem), uppercase `0.6rem` group labels, active row filled
+  with `action.selected` + `text.primary` (not brand tiles). Badges are
+  quiet gray pills or solid `primary.main` counts. Scrollbar thumb is
+  `lineStrong`, never brand.
 - **Density, not air:** settings-style pages use compact headers (`mt: 0.5`,
   `mb` ≤ 2), section `gap: 1.5`, card padding `p: 2`, small buttons
   (`size="small"`) for secondary actions. Never leave a half-empty full-width
   card — split explanation + form into side-by-side grid columns (`5fr/7fr`
-  on `lg`, stacked on `xs`).
+  on `lg`, stacked on `xs`). Metric numbers top out around `1.5rem`
+  (`letterSpacing -0.02em`); a 2rem stat is a regression.
 - **No dead space / orphan widths:** form fields fill their card (3-up grid
   on `sm+` where sensible). Full-width cards must contain full-width content
   (definition rows, grouped chips, tables) — not a single 480px column.
